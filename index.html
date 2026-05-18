@@ -71,6 +71,7 @@
     align-items: center;
     gap: 16px;
     margin-bottom: 56px;
+    flex-wrap: wrap;
   }
 
 
@@ -82,6 +83,19 @@
   }
 
   header h1 span { color: var(--accent1); }
+
+  .header-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 700;
+    color: var(--accent1); text-decoration: none;
+    padding: 8px 14px; border: 1px solid var(--accent1); border-radius: 999px;
+    background: var(--card);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+  .header-link:hover { background: var(--accent1); color: white; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(13,35,84,0.2); }
+  .header-link svg { flex-shrink: 0; }
 
   .badge {
     margin-left: auto;
@@ -726,10 +740,52 @@
   .fusion-controls { display: flex; flex-direction: column; gap: 14px; }
   .fusion-section { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; }
   .fusion-section h4 { font-size: 13px; font-weight: 700; color: var(--accent1); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
-  .fusion-upload { border: 2px dashed var(--border); border-radius: 10px; padding: 14px; text-align: center; cursor: pointer; position: relative; transition: border-color 0.2s; font-size: 12px; color: var(--muted); }
+  .fusion-upload {
+    border: 2px dashed var(--border); border-radius: 12px;
+    padding: 18px 14px; text-align: center; cursor: pointer;
+    position: relative; transition: all 0.2s;
+    font-size: 12px; color: var(--muted);
+    min-height: 200px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 8px;
+  }
   .fusion-upload:hover { border-color: var(--accent1); }
-  .fusion-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-  .fusion-upload .fu-thumb { width: 100%; height: 80px; object-fit: cover; border-radius: 6px; display: block; margin-bottom: 6px; }
+  .fusion-upload.drag-over {
+    border-color: var(--accent1); border-style: solid;
+    background: rgba(13,35,84,0.06); transform: scale(1.02);
+    box-shadow: 0 4px 18px rgba(13,35,84,0.18);
+  }
+  .fusion-upload input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; z-index: 1; }
+  .fusion-upload.has-image input[type=file] { display: none; }
+  .fusion-upload .fu-thumb { width: 100%; height: 160px; object-fit: contain; border-radius: 8px; display: block; margin-bottom: 4px; background: var(--card); }
+  .fusion-upload:not(.has-image)::before {
+    content: '';
+    display: block;
+    width: 32px; height: 32px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%2390a4be' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/><polyline points='17 8 12 3 7 8'/><line x1='12' y1='3' x2='12' y2='15'/></svg>");
+    background-repeat: no-repeat; background-position: center;
+    margin-bottom: 4px;
+  }
+  .fu-remove-btn {
+    position: absolute; top: 6px; right: 6px;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: rgba(220,38,38,0.92); color: white;
+    border: none; cursor: pointer; font-size: 14px; font-weight: 700;
+    display: none; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    transition: transform 0.15s, background 0.15s;
+    z-index: 2;
+  }
+  .fu-remove-btn:hover { background: rgba(220,38,38,1); transform: scale(1.12); }
+  .fusion-upload.has-image .fu-remove-btn { display: flex; }
+  .fu-replace-hint {
+    position: absolute; left: 0; right: 0; bottom: 6px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: var(--accent1); text-align: center; pointer-events: none;
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .fusion-upload.has-image:hover .fu-replace-hint,
+  .fusion-upload.has-image.drag-over .fu-replace-hint { opacity: 1; }
   .fusion-canvas-wrap { position: relative; background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; min-height: 300px; display: flex; align-items: center; justify-content: center; }
   .fusion-canvas-wrap canvas { display: block; max-width: 100%; cursor: move; border-radius: 12px; }
   .fusion-placeholder { color: var(--muted); font-size: 13px; text-align: center; padding: 40px; }
@@ -754,8 +810,12 @@
 
   <header>
     <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjcwIiB2aWV3Qm94PSIwIDAgNDAwIDcwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iNDAwIiBoZWlnaHQ9IjcwIiByeD0iMTAiIGZpbGw9IiMwZDIzNTQiLz4KPHJlY3QgeD0iMTIiIHk9IjEwIiB3aWR0aD0iNCIgaGVpZ2h0PSI1MCIgcng9IjIiIGZpbGw9IiM0YThmZDQiLz4KPHRleHQgeD0iMjYiIHk9IjQ4IiBmb250LWZhbWlseT0iU3luZSxETSBTYW5zLHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI4MDAiIGZvbnQtc2l6ZT0iNDAiIGxldHRlci1zcGFjaW5nPSItMSI+CiAgPHRzcGFuIGZpbGw9IiNmZmZmZmYiPkFLPC90c3Bhbj48dHNwYW4gZmlsbD0iIzRhOGZkNCI+RUxJPC90c3Bhbj4KPC90ZXh0Pgo8cmVjdCB4PSIxNTUiIHk9IjEyIiB3aWR0aD0iMiIgaGVpZ2h0PSI0NiIgcng9IjEiIGZpbGw9IiM0YThmZDQiIG9wYWNpdHk9IjAuNSIvPgo8dGV4dCB4PSIxNjciIHk9IjM4IiBmb250LWZhbWlseT0iU3luZSxETSBTYW5zLHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI3MDAiIGZvbnQtc2l6ZT0iMjYiIGZpbGw9IiNmZmZmZmYiIGxldHRlci1zcGFjaW5nPSIwIj5Db252ZXJ0PC90ZXh0Pgo8dGV4dCB4PSIxNjciIHk9IjU3IiBmb250LWZhbWlseT0iSmV0QnJhaW5zIE1vbm8sbW9ub3NwYWNlIiBmb250LXNpemU9IjExIiBmaWxsPSIjNGE4ZmQ0IiBsZXR0ZXItc3BhY2luZz0iMiI+YnkgQUtFTEk8L3RleHQ+CjxyZWN0IHg9IjMwOCIgeT0iMTIiIHdpZHRoPSIyIiBoZWlnaHQ9IjQ2IiByeD0iMSIgZmlsbD0iIzRhOGZkNCIgb3BhY2l0eT0iMC4zIi8+CjxwYXRoIGQ9Ik0zMjIsMjIgTDM3MCwyMiBMMzYzLDE1IiBmaWxsPSJub25lIiBzdHJva2U9IiM0YThmZDQiIHN0cm9rZS13aWR0aD0iMi4yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTM3MCwyMiBMMzYzLDI5IiBmaWxsPSJub25lIiBzdHJva2U9IiM0YThmZDQiIHN0cm9rZS13aWR0aD0iMi4yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTM3MCwzNSBMMzIyLDM1IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMS44IiBzdHJva2UtbGluZWNhcD0icm91bmQiIG9wYWNpdHk9IjAuNDUiLz4KPHBhdGggZD0iTTMyMiwzNSBMMzI5LDI4IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMS44IiBzdHJva2UtbGluZWNhcD0icm91bmQiIG9wYWNpdHk9IjAuNDUiLz4KPHBhdGggZD0iTTMyMiwzNSBMMzI5LDQyIiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMS44IiBzdHJva2UtbGluZWNhcD0icm91bmQiIG9wYWNpdHk9IjAuNDUiLz4KPHBhdGggZD0iTTMyMiw0OCBMMzcwLDQ4IEwzNjMsNDEiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzRhOGZkNCIgc3Ryb2tlLXdpZHRoPSIyLjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNMzcwLDQ4IEwzNjMsNTUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzRhOGZkNCIgc3Ryb2tlLXdpZHRoPSIyLjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4=" alt="AKELI Convert" style="height:60px;width:auto;object-fit:contain;flex-shrink:0;">
-    
+
     <span class="badge">100% LOCAL — AUCUN SERVEUR</span>
+    <a href="https://www.docteur-kilinc.com" target="_blank" rel="noopener noreferrer" class="header-link" title="Visiter le site">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.72"/><path d="M14 10a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+      www.docteur-kilinc.com
+    </a>
   </header>
 
   <!-- TABS -->
@@ -1021,10 +1081,15 @@
       <!-- Image de fond -->
       <div class="fusion-section" style="margin:0">
         <h4>Image de fond</h4>
-        <div class="fusion-upload" id="fu-bg-drop">
+        <div class="fusion-upload" id="fu-bg-drop"
+             ondragover="fuDragOver(event,'fu-bg-drop')"
+             ondragleave="fuDragLeave(event,'fu-bg-drop')"
+             ondrop="fuDropBg(event)">
+          <button type="button" class="fu-remove-btn" id="fu-bg-remove" onclick="fuClearBg(event)" title="Supprimer l'image">×</button>
           <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadBg(this)">
           <img id="fu-bg-thumb" class="fu-thumb" style="display:none">
           <span id="fu-bg-label">Cliquez ou glissez</span>
+          <div class="fu-replace-hint">↻ Cliquez ou déposez pour remplacer</div>
         </div>
       </div>
 
@@ -1038,10 +1103,15 @@
       <!-- Image superposée -->
       <div class="fusion-section" style="margin:0">
         <h4>Image superposée</h4>
-        <div class="fusion-upload" id="fu-top-drop">
+        <div class="fusion-upload" id="fu-top-drop"
+             ondragover="fuDragOver(event,'fu-top-drop')"
+             ondragleave="fuDragLeave(event,'fu-top-drop')"
+             ondrop="fuDropTop(event)">
+          <button type="button" class="fu-remove-btn" id="fu-top-remove" onclick="fuClearTop(event)" title="Supprimer l'image">×</button>
           <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadTop(this)">
           <img id="fu-top-thumb" class="fu-thumb" style="display:none">
           <span id="fu-top-label">Cliquez ou glissez</span>
+          <div class="fu-replace-hint">↻ Cliquez ou déposez pour remplacer</div>
         </div>
       </div>
 
@@ -1105,6 +1175,10 @@
               <span id="fu-lock-status" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">Libre</span>
             </div>
             <div class="fu-slider-row" style="margin-top:12px">
+              <span class="fu-label">Début</span><span class="fu-val" id="fu-grad-start-val">0%</span>
+            </div>
+            <input type="range" id="fu-grad-start" min="0" max="95" value="0" oninput="fuUpdate()" style="width:100%">
+            <div class="fu-slider-row" style="margin-top:10px">
               <span class="fu-label">Étendue</span><span class="fu-val" id="fu-grad-size-val">50%</span>
             </div>
             <input type="range" id="fu-grad-size" min="5" max="100" value="50" oninput="fuUpdate()" style="width:100%">
@@ -2703,6 +2777,14 @@ function fuSwap() {
   bgLabel.style.display  = topLabel.style.display;
   topLabel.style.display = tmpLbl;
 
+  // Swap des classes has-image
+  const bgZone  = document.getElementById('fu-bg-drop');
+  const topZone = document.getElementById('fu-top-drop');
+  const bgHas   = bgZone.classList.contains('has-image');
+  const topHas  = topZone.classList.contains('has-image');
+  bgZone.classList.toggle('has-image', topHas);
+  topZone.classList.toggle('has-image', bgHas);
+
   fuUpdate();
 }
 
@@ -2859,8 +2941,8 @@ function fuDrawLogo(ctx, W, H) {
   ctx.restore();
 }
 
-function fuLoadBg(input) {
-  const file = input.files[0]; if (!file) return;
+function fuLoadBgFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
   const reader = new FileReader();
   reader.onload = e => {
     const img = new Image();
@@ -2869,6 +2951,7 @@ function fuLoadBg(input) {
       const thumb = document.getElementById('fu-bg-thumb');
       thumb.src = e.target.result; thumb.style.display = 'block';
       document.getElementById('fu-bg-label').style.display = 'none';
+      document.getElementById('fu-bg-drop').classList.add('has-image');
       fuUpdate();
     };
     img.src = e.target.result;
@@ -2876,8 +2959,8 @@ function fuLoadBg(input) {
   reader.readAsDataURL(file);
 }
 
-function fuLoadTop(input) {
-  const file = input.files[0]; if (!file) return;
+function fuLoadTopFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
   const reader = new FileReader();
   reader.onload = e => {
     const img = new Image();
@@ -2888,11 +2971,75 @@ function fuLoadTop(input) {
       const thumb = document.getElementById('fu-top-thumb');
       thumb.src = e.target.result; thumb.style.display = 'block';
       document.getElementById('fu-top-label').style.display = 'none';
+      document.getElementById('fu-top-drop').classList.add('has-image');
       fuUpdate();
     };
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
+}
+
+function fuLoadBg(input) {
+  const file = input.files[0]; if (!file) return;
+  fuLoadBgFile(file);
+}
+
+function fuLoadTop(input) {
+  const file = input.files[0]; if (!file) return;
+  fuLoadTopFile(file);
+}
+
+// ── Drag & Drop sur les zones fusion ──
+function fuDragOver(e, id) {
+  e.preventDefault(); e.stopPropagation();
+  if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+  document.getElementById(id).classList.add('drag-over');
+}
+function fuDragLeave(e, id) {
+  e.preventDefault(); e.stopPropagation();
+  // Ne retirer le surlignage que si on quitte vraiment la zone
+  const zone = document.getElementById(id);
+  if (!zone.contains(e.relatedTarget)) zone.classList.remove('drag-over');
+}
+function fuDropBg(e) {
+  e.preventDefault(); e.stopPropagation();
+  document.getElementById('fu-bg-drop').classList.remove('drag-over');
+  const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if (file) fuLoadBgFile(file);
+}
+function fuDropTop(e) {
+  e.preventDefault(); e.stopPropagation();
+  document.getElementById('fu-top-drop').classList.remove('drag-over');
+  const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if (file) fuLoadTopFile(file);
+}
+
+// ── Suppression d'image ──
+function fuClearBg(e) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  fu.bgImg = null;
+  const thumb = document.getElementById('fu-bg-thumb');
+  thumb.src = ''; thumb.style.display = 'none';
+  document.getElementById('fu-bg-label').style.display = '';
+  const zone = document.getElementById('fu-bg-drop');
+  zone.classList.remove('has-image');
+  const input = zone.querySelector('input[type=file]');
+  if (input) input.value = '';
+  fuUpdate();
+}
+function fuClearTop(e) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  fu.topImg = null;
+  const thumb = document.getElementById('fu-top-thumb');
+  thumb.src = ''; thumb.style.display = 'none';
+  document.getElementById('fu-top-label').style.display = '';
+  const zone = document.getElementById('fu-top-drop');
+  zone.classList.remove('has-image');
+  const input = zone.querySelector('input[type=file]');
+  if (input) input.value = '';
+  const btn = document.getElementById('btn-fusion');
+  if (btn) btn.disabled = true;
+  fuUpdate();
 }
 
 function fuSetGrad(mode, btn) {
@@ -2911,17 +3058,24 @@ function fuSetGrad(mode, btn) {
 }
 
 function fuUpdate() {
-  if (!fu.bgImg) return;
-
   const canvas = document.getElementById('fu-canvas');
   const wrap = document.getElementById('fu-canvas-wrap');
   const placeholder = document.getElementById('fu-placeholder');
   const btnExport = document.getElementById('btn-fusion');
 
-  // Vérifier qu'on a au moins un fond ou une image
-  // On peut composer même sans bgImg (couleur seule suffit)
+  // Plus d'image : on remet l'aperçu à l'état initial
+  if (!fu.bgImg && !fu.topImg) {
+    if (canvas) {
+      const cctx = canvas.getContext('2d');
+      cctx.clearRect(0, 0, canvas.width, canvas.height);
+      canvas.style.display = 'none';
+    }
+    if (placeholder) placeholder.style.display = '';
+    if (btnExport) btnExport.disabled = true;
+    return;
+  }
 
-  // Taille canvas = fond
+  // Taille canvas = image de référence (fond prioritaire)
   const maxW = wrap.clientWidth || 600;
   const refW = fu.bgImg ? fu.bgImg.width  : (fu.topImg ? fu.topImg.width  : 800);
   const refH = fu.bgImg ? fu.bgImg.height : (fu.topImg ? fu.topImg.height : 600);
@@ -2954,6 +3108,8 @@ function fuUpdate() {
     document.getElementById('fu-opacity-val').textContent = Math.round(opacity * 100) + '%';
     const gradSize = parseInt(document.getElementById('fu-grad-size').value) / 100;
     document.getElementById('fu-grad-size-val').textContent = Math.round(gradSize * 100) + '%';
+    const gradStart = parseInt(document.getElementById('fu-grad-start').value) / 100;
+    document.getElementById('fu-grad-start-val').textContent = Math.round(gradStart * 100) + '%';
 
     // Taille image top
     const topW = Math.round(canvas.width  * sizePct);
@@ -2980,7 +3136,7 @@ function fuUpdate() {
 
     // Appliquer le masque dégradé (destination-out)
     if (fu.gradMode !== 'none') {
-      const grd = fuMakeGradient(tc, canvas.width, canvas.height, topX, topY, topW, topH, gradSize);
+      const grd = fuMakeGradient(tc, canvas.width, canvas.height, topX, topY, topW, topH, gradSize, gradStart);
       if (grd) {
         tc.save();
         tc.globalCompositeOperation = 'destination-out';
@@ -3000,55 +3156,67 @@ function fuUpdate() {
   fuDrawTexts(ctx, canvas.width, canvas.height);
 }
 
-function fuMakeGradient(ctx, W, H, topX, topY, topW, topH, gradSize) {
+function fuMakeGradient(ctx, W, H, topX, topY, topW, topH, gradSize, gradStart) {
   let grd;
   const m = fu.gradMode;
   const gs = gradSize;
+  const st = gradStart || 0; // 0..0.95 — décalage du début de l'effet
 
   if (m === 'top') {
-    grd = ctx.createLinearGradient(0, topY, 0, topY + topH * gs);
+    // Opaque jusqu'à topY + topH*st, puis transition sur topH*gs
+    const y0 = topY + topH * st;
+    const y1 = topY + topH * Math.min(1, st + gs);
+    grd = ctx.createLinearGradient(0, y0, 0, y1);
     grd.addColorStop(0, 'rgba(0,0,0,1)');
     grd.addColorStop(1, 'rgba(0,0,0,0)');
   } else if (m === 'bottom') {
-    grd = ctx.createLinearGradient(0, topY + topH, 0, topY + topH - topH * gs);
+    const y0 = topY + topH - topH * st;
+    const y1 = topY + topH - topH * Math.min(1, st + gs);
+    grd = ctx.createLinearGradient(0, y0, 0, y1);
     grd.addColorStop(0, 'rgba(0,0,0,1)');
     grd.addColorStop(1, 'rgba(0,0,0,0)');
   } else if (m === 'left') {
-    grd = ctx.createLinearGradient(topX, 0, topX + topW * gs, 0);
+    const x0 = topX + topW * st;
+    const x1 = topX + topW * Math.min(1, st + gs);
+    grd = ctx.createLinearGradient(x0, 0, x1, 0);
     grd.addColorStop(0, 'rgba(0,0,0,1)');
     grd.addColorStop(1, 'rgba(0,0,0,0)');
   } else if (m === 'right') {
-    grd = ctx.createLinearGradient(topX + topW, 0, topX + topW - topW * gs, 0);
+    const x0 = topX + topW - topW * st;
+    const x1 = topX + topW - topW * Math.min(1, st + gs);
+    grd = ctx.createLinearGradient(x0, 0, x1, 0);
     grd.addColorStop(0, 'rgba(0,0,0,1)');
     grd.addColorStop(1, 'rgba(0,0,0,0)');
   } else if (m === 'center') {
+    // Disque opaque (rayon = st), puis dégradé vers transparent (rayon supplémentaire = gs)
     const cx = topX + topW / 2, cy = topY + topH / 2;
-    const r  = Math.min(topW, topH) * gs * 0.6;
-    grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    const base = Math.min(topW, topH) * 0.6;
+    const r0 = base * st;
+    const r1 = base * (st + gs);
+    grd = ctx.createRadialGradient(cx, cy, r0, cx, cy, Math.max(r1, r0 + 0.5));
     grd.addColorStop(0, 'rgba(0,0,0,1)');
     grd.addColorStop(1, 'rgba(0,0,0,0)');
-  } else if (m === 'corner-tl') {
-    const r = Math.min(topW, topH) * gs;
-    grd = ctx.createRadialGradient(topX, topY, 0, topX, topY, r);
-    grd.addColorStop(0, 'rgba(0,0,0,1)'); grd.addColorStop(1, 'rgba(0,0,0,0)');
-  } else if (m === 'corner-tr') {
-    const r = Math.min(topW, topH) * gs;
-    grd = ctx.createRadialGradient(topX+topW, topY, 0, topX+topW, topY, r);
-    grd.addColorStop(0, 'rgba(0,0,0,1)'); grd.addColorStop(1, 'rgba(0,0,0,0)');
-  } else if (m === 'corner-bl') {
-    const r = Math.min(topW, topH) * gs;
-    grd = ctx.createRadialGradient(topX, topY+topH, 0, topX, topY+topH, r);
-    grd.addColorStop(0, 'rgba(0,0,0,1)'); grd.addColorStop(1, 'rgba(0,0,0,0)');
-  } else if (m === 'corner-br') {
-    const r = Math.min(topW, topH) * gs;
-    grd = ctx.createRadialGradient(topX+topW, topY+topH, 0, topX+topW, topY+topH, r);
-    grd.addColorStop(0, 'rgba(0,0,0,1)'); grd.addColorStop(1, 'rgba(0,0,0,0)');
+  } else if (m === 'corner-tl' || m === 'corner-tr' || m === 'corner-bl' || m === 'corner-br') {
+    let cx, cy;
+    if (m === 'corner-tl') { cx = topX; cy = topY; }
+    else if (m === 'corner-tr') { cx = topX + topW; cy = topY; }
+    else if (m === 'corner-bl') { cx = topX; cy = topY + topH; }
+    else { cx = topX + topW; cy = topY + topH; }
+    const base = Math.min(topW, topH);
+    const r0 = base * st;
+    const r1 = base * (st + gs);
+    grd = ctx.createRadialGradient(cx, cy, r0, cx, cy, Math.max(r1, r0 + 0.5));
+    grd.addColorStop(0, 'rgba(0,0,0,1)');
+    grd.addColorStop(1, 'rgba(0,0,0,0)');
   } else if (m === 'point') {
     // Le point est OPAQUE, la transparence augmente en s'éloignant
+    // st = rayon d'opacité totale autour du point
     const px = fu.gradPx * W, py = fu.gradPy * H;
-    const r  = Math.min(W, H) * gs * 0.7;
-    grd = ctx.createRadialGradient(px, py, 0, px, py, r);
-    grd.addColorStop(0, 'rgba(0,0,0,0)');   // centre = opaque (pas masqué)
+    const base = Math.min(W, H) * 0.7;
+    const r0 = base * st;
+    const r1 = base * (st + gs);
+    grd = ctx.createRadialGradient(px, py, r0, px, py, Math.max(r1, r0 + 0.5));
+    grd.addColorStop(0, 'rgba(0,0,0,0)');   // dans r0 = opaque (pas masqué)
     grd.addColorStop(0.4, 'rgba(0,0,0,0.3)');
     grd.addColorStop(1, 'rgba(0,0,0,1)');   // bords = transparent
   }
@@ -3224,7 +3392,8 @@ async function fuExport() {
 
   const sizePct  = parseInt(document.getElementById('fu-size').value) / 100;
   const opacity  = parseInt(document.getElementById('fu-opacity').value) / 100;
-  const gradSize = parseInt(document.getElementById('fu-grad-size').value) / 100;
+  const gradSize  = parseInt(document.getElementById('fu-grad-size').value) / 100;
+  const gradStart = parseInt(document.getElementById('fu-grad-start').value) / 100;
   const topW = Math.round(W * sizePct);
   const topH = Math.round(topW * fu.topImg.height / fu.topImg.width);
   const topX = Math.round(fu.x * W - topW / 2);
@@ -3238,7 +3407,7 @@ async function fuExport() {
   tc.restore();
 
   if (fu.gradMode !== 'none') {
-    const grd = fuMakeGradient(tc, W, H, topX, topY, topW, topH, gradSize);
+    const grd = fuMakeGradient(tc, W, H, topX, topY, topW, topH, gradSize, gradStart);
     if (grd) {
       tc.save();
       tc.globalCompositeOperation = 'destination-out';
