@@ -971,7 +971,22 @@
     <div class="progress-bar-wrap" id="prog-watermark"><div class="progress-bar" id="pb-watermark"></div></div>
 
     <button class="btn-convert" id="btn-wm" onclick="applyWatermarks()" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 2C6 9 4 13 4 16a8 8 0 0016 0c0-3-2-7-8-14z"/><path d="M12 2v14"/></svg> Appliquer le filigrane</button>
-    <button class="btn-dl-all" id="dl-wm" onclick="downloadZipWM()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="2" y="4" width="20" height="4" rx="1"/><path d="M4 8v10a2 2 0 002 2h12a2 2 0 002-2V8"/><path d="M10 12h4"/></svg> Tout télécharger (ZIP)</button>
+
+    <div class="zip-section" id="zip-section-wm" style="display:none">
+      <div class="zip-row">
+        <div class="zip-name-group">
+          <label>Nom du fichier ZIP</label>
+          <div class="zip-input-wrap">
+            <input type="text" id="zip-name-wm" value="images_filigrane" placeholder="nom_du_zip">
+            <span class="zip-ext">.zip</span>
+          </div>
+        </div>
+        <button class="btn-zip" id="btn-zip-wm" onclick="downloadZipWM()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP</button>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:0.04em">
+        Astuce : vous pouvez aussi télécharger chaque image individuellement via le bouton « Enregistrer » à côté de chaque aperçu.
+      </div>
+    </div>
   </div>
 
 
@@ -1467,18 +1482,47 @@ function addDownloadBtn(type, idx, blob, filename) {
   if (existing) existing.remove();
 
   if (type === 'images') {
-    // Show inline preview — user can right-click → Save
+    // Aperçu avec bouton « Enregistrer » direct + clic droit possible
     const reader = new FileReader();
     reader.onload = e => {
       const preview = document.createElement('div');
       preview.className = 'inline-preview';
       preview.innerHTML = `
         <img src="${e.target.result}" alt="${filename}" title="Clic droit → Enregistrer sous: ${filename}">
-        <div>
-          <div class="preview-label">↗ Clic droit → Enregistrer sous</div>
+        <div style="flex:1;min-width:0">
+          <div class="preview-label">↗ Clic droit ou bouton ci-contre</div>
           <div class="preview-filename">${filename}</div>
         </div>
+        <button class="btn-dl-single" style="padding:8px 14px;background:var(--accent3);border:none;border-radius:8px;color:var(--bg);font-family:Syne,sans-serif;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:opacity 0.2s" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg>
+          Enregistrer
+        </button>
       `;
+      const dlBtn = preview.querySelector('.btn-dl-single');
+      if (dlBtn) dlBtn.addEventListener('click', async () => {
+        const mimeType = blob.type || 'image/webp';
+        const ext = (filename.match(/\.([^.]+)$/) || [,'webp'])[1];
+        const extDesc = ext === 'webp' ? 'Image WebP' : ext === 'jpg' || ext === 'jpeg' ? 'Image JPEG' : 'Image';
+        if (window.showSaveFilePicker) {
+          try {
+            const handle = await window.showSaveFilePicker({
+              suggestedName: filename,
+              types: [{ description: extDesc, accept: { [mimeType]: ['.' + ext] } }]
+            });
+            const writable = await handle.createWritable();
+            await writable.write(blob);
+            await writable.close();
+            return;
+          } catch(err) {
+            if (err.name === 'AbortError') return;
+          }
+        }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      });
       // Insert after the file item
       item.parentNode.insertBefore(preview, item.nextSibling);
     };
@@ -2204,6 +2248,8 @@ function removeWMFile(idx) {
   wmState.files.forEach((f, i) => renderWMItem(f, i));
   const btn = document.getElementById('btn-wm');
   if (btn) btn.disabled = wmState.files.length === 0;
+  const zipSec = document.getElementById('zip-section-wm');
+  if (zipSec && !wmState.outputs.some(b => b)) zipSec.style.display = 'none';
 }
 
 function loadLogoWM(input) {
@@ -2396,7 +2442,9 @@ async function applyWatermarks() {
     return;
   }
 
-  const dlBtn = document.getElementById('dl-wm');
+  const pb = document.getElementById('pb-watermark');
+  const pw = document.getElementById('prog-watermark');
+  if (pw) pw.classList.add('visible');
 
   for (let i = 0; i < wmState.files.length; i++) {
     const file = wmState.files[i];
@@ -2404,9 +2452,6 @@ async function applyWatermarks() {
     const metaEl   = document.getElementById('meta-wm-' + i);
     if (statusEl) { statusEl.className = 'file-status status-processing'; statusEl.textContent = 'Traitement…'; }
 
-    const pb = document.getElementById('pb-watermark');
-    const pw = document.getElementById('prog-watermark');
-    if (pw) pw.classList.add('visible');
     if (pb) pb.style.width = Math.round((i / wmState.files.length) * 90) + '%';
 
     try {
@@ -2416,8 +2461,9 @@ async function applyWatermarks() {
       if (statusEl) { statusEl.className = 'file-status status-done'; statusEl.textContent = '✓ Filigrane ajouté'; }
       if (metaEl) metaEl.textContent = formatSize(file.size) + ' → ' + formatSize(blob.size);
 
-      // Miniature + téléchargement
-      const outName = file.name.replace(/\.[^.]+$/, '') + '_watermark.png';
+      // Miniature + téléchargement (clic droit OU bouton)
+      const wmExt = blob.type === 'image/webp' ? 'webp' : 'png';
+      const outName = file.name.replace(/\.[^.]+$/, '') + '_watermark.' + wmExt;
       const item = document.getElementById('fi-wm-' + i);
       if (item) {
         const reader2 = new FileReader();
@@ -2426,8 +2472,17 @@ async function applyWatermarks() {
           prev.className = 'inline-preview';
           prev.innerHTML = `
             <img src="${ev.target.result}" style="width:64px;height:64px;object-fit:cover;border-radius:6px;border:1px solid var(--border)" title="Clic droit → Enregistrer sous: ${outName}">
-            <div><div class="preview-label">↗ Clic droit → Enregistrer sous</div><div class="preview-filename">${outName}</div></div>
+            <div style="flex:1;min-width:0">
+              <div class="preview-label">↗ Clic droit ou bouton ci-contre</div>
+              <div class="preview-filename">${outName}</div>
+            </div>
+            <button class="btn-dl-single" data-idx="${i}" style="padding:8px 14px;background:var(--accent3);border:none;border-radius:8px;color:var(--bg);font-family:Syne,sans-serif;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:opacity 0.2s" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg>
+              Enregistrer
+            </button>
           `;
+          const dlSingle = prev.querySelector('.btn-dl-single');
+          if (dlSingle) dlSingle.addEventListener('click', () => downloadSingleWM(i));
           item.parentNode.insertBefore(prev, item.nextSibling);
         };
         reader2.readAsDataURL(blob);
@@ -2438,9 +2493,44 @@ async function applyWatermarks() {
   }
 
   if (pb) pb.style.width = '100%';
-  setTimeout(() => { const pw = document.getElementById('prog-watermark'); if (pw) pw.classList.remove('visible'); }, 800);
+  setTimeout(() => { if (pw) pw.classList.remove('visible'); }, 800);
   if (btn) btn.disabled = false;
-  if (dlBtn && wmState.outputs.some(b => b)) dlBtn.classList.add('visible');
+  const zipSec = document.getElementById('zip-section-wm');
+  if (zipSec && wmState.outputs.some(b => b)) {
+    zipSec.style.display = 'block';
+    zipSec.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+// Téléchargement individuel d'une image avec filigrane
+async function downloadSingleWM(i) {
+  const blob = wmState.outputs[i];
+  if (!blob) return;
+  const orig = wmState.files[i];
+  const ext = blob.type === 'image/webp' ? 'webp' : 'png';
+  const outName = (orig ? orig.name.replace(/\.[^.]+$/, '') : 'image_' + i) + '_watermark.' + ext;
+  const mime = blob.type || (ext === 'webp' ? 'image/webp' : 'image/png');
+  const desc = ext === 'webp' ? 'Image WebP' : 'Image PNG';
+
+  if (window.showSaveFilePicker) {
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: outName,
+        types: [{ description: desc, accept: { [mime]: ['.' + ext] } }]
+      });
+      const writable = await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      return;
+    } catch(err) {
+      if (err.name === 'AbortError') return;
+    }
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = outName;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function applyWMToFile(file) {
@@ -2455,7 +2545,13 @@ function applyWMToFile(file) {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0);
         applyWatermarkToCanvas(canvas, ctx, canvas.width, canvas.height);
-        resolve(dataURLtoBlob(canvas.toDataURL('image/png')));
+        // Sortie en WebP (avec fallback PNG si le navigateur ne supporte pas WebP)
+        const webp = canvas.toDataURL('image/webp', 0.92);
+        if (webp.startsWith('data:image/webp')) {
+          resolve(dataURLtoBlob(webp));
+        } else {
+          resolve(dataURLtoBlob(canvas.toDataURL('image/png')));
+        }
       };
       img.onerror = reject;
       img.src = e.target.result;
@@ -2466,12 +2562,18 @@ function applyWMToFile(file) {
 }
 
 async function downloadZipWM() {
-  const btn = document.getElementById('dl-wm');
-  if (btn) { btn.textContent = 'Création ZIP…'; }
+  const btn = document.getElementById('btn-zip-wm');
+  const defaultLabel = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP';
+  if (btn) { btn.disabled = true; btn.textContent = 'Création du ZIP…'; }
+
+  const nameInput = document.getElementById('zip-name-wm');
+  const zipName = ((nameInput && nameInput.value.trim()) || 'images_filigrane') + '.zip';
+
   const zip = new JSZip();
   const promises = wmState.outputs.map((blob, i) => {
     if (!blob) return Promise.resolve();
-    const name = (wmState.files[i]?.name.replace(/\.[^.]+$/, '') || 'image_' + i) + '_watermark.png';
+    const ext = blob.type === 'image/webp' ? 'webp' : 'png';
+    const name = (wmState.files[i]?.name.replace(/\.[^.]+$/, '') || 'image_' + i) + '_watermark.' + ext;
     return blob.arrayBuffer().then(buf => zip.file(name, buf));
   });
   await Promise.all(promises);
@@ -2481,26 +2583,29 @@ async function downloadZipWM() {
   if (window.showSaveFilePicker) {
     try {
       const handle = await window.showSaveFilePicker({
-        suggestedName: 'images_filigrane.zip',
-        types: [{ description: 'ZIP', accept: { 'application/zip': ['.zip'] } }]
+        suggestedName: zipName,
+        types: [{ description: 'ZIP Archive', accept: { 'application/zip': ['.zip'] } }]
       });
       const writable = await handle.createWritable();
       await writable.write(zipBlob);
       await writable.close();
-      if (btn) btn.textContent = 'ZIP enregistré';
-      setTimeout(() => { if (btn) btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="2" y="4" width="20" height="4" rx="1"/><path d="M4 8v10a2 2 0 002 2h12a2 2 0 002-2V8"/><path d="M10 12h4"/></svg> Tout télécharger (ZIP)'; }, 3000);
+      if (btn) { btn.disabled = false; btn.textContent = 'ZIP enregistré !'; }
+      setTimeout(() => { if (btn) btn.textContent = defaultLabel; }, 3000);
       return;
     } catch(err) {
-      if (err.name === 'AbortError') { if (btn) btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="2" y="4" width="20" height="4" rx="1"/><path d="M4 8v10a2 2 0 002 2h12a2 2 0 002-2V8"/><path d="M10 12h4"/></svg> Tout télécharger (ZIP)'; return; }
+      if (err.name === 'AbortError') {
+        if (btn) { btn.disabled = false; btn.textContent = defaultLabel; }
+        return;
+      }
     }
   }
   // Fallback
   const reader = new FileReader();
   reader.onload = e => {
     const a = document.createElement('a');
-    a.href = e.target.result; a.download = 'images_filigrane.zip';
+    a.href = e.target.result; a.download = zipName;
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    if (btn) btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="2" y="4" width="20" height="4" rx="1"/><path d="M4 8v10a2 2 0 002 2h12a2 2 0 002-2V8"/><path d="M10 12h4"/></svg> Tout télécharger (ZIP)';
+    if (btn) { btn.disabled = false; btn.textContent = defaultLabel; }
   };
   reader.readAsDataURL(zipBlob);
 }
@@ -2549,6 +2654,8 @@ function sendToWatermark() {
   wmState.files = [];
   wmState.outputs = [];
   document.getElementById('list-watermark').innerHTML = '';
+  const zipSecWM1 = document.getElementById('zip-section-wm');
+  if (zipSecWM1) zipSecWM1.style.display = 'none';
 
   // Transférer chaque blob converti comme fichier
   blobs.forEach((blob, i) => {
@@ -2619,6 +2726,8 @@ function fuSendToWatermark() {
   wmState.files = [file];
   wmState.outputs = [null];
   document.getElementById('list-watermark').innerHTML = '';
+  const zipSecWM2 = document.getElementById('zip-section-wm');
+  if (zipSecWM2) zipSecWM2.style.display = 'none';
   renderWMItem(file, 0);
 
   const btn = document.getElementById('btn-wm');
