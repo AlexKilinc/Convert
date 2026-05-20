@@ -1307,9 +1307,20 @@
         <!-- F. EXPORT -->
         <div class="fu-group">
           <div class="fu-group-title">Export</div>
-          <button class="btn-convert" id="btn-fusion" onclick="fuExport()" disabled style="margin-top:0;width:100%">
+          <button class="btn-convert" id="btn-fusion" onclick="fuExport('png')" disabled style="margin-top:0;width:100%">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Exporter la fusion
+            Exporter la fusion (.png)
+          </button>
+          <div style="margin-top:10px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:10px">
+            <div class="fu-slider-row" style="margin:0">
+              <span class="fu-label">Qualité WebP</span>
+              <span class="fu-val" id="fu-webp-q-val">92%</span>
+            </div>
+            <input type="range" id="fu-webp-quality" min="10" max="100" value="92" oninput="document.getElementById('fu-webp-q-val').textContent=this.value+'%'" style="width:100%;margin-top:6px">
+          </div>
+          <button class="btn-convert" id="btn-fusion-webp" onclick="fuExport('webp')" disabled style="margin-top:8px;width:100%">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Exporter la fusion (.webp)
           </button>
           <div id="fu-result-wrap" style="display:none;margin-top:10px">
             <div class="preview-label" style="margin-bottom:6px">↗ Clic droit → Enregistrer sous</div>
@@ -3039,6 +3050,8 @@ function fuClearTop(e) {
   if (input) input.value = '';
   const btn = document.getElementById('btn-fusion');
   if (btn) btn.disabled = true;
+  const btnW = document.getElementById('btn-fusion-webp');
+  if (btnW) btnW.disabled = true;
   fuUpdate();
 }
 
@@ -3062,6 +3075,7 @@ function fuUpdate() {
   const wrap = document.getElementById('fu-canvas-wrap');
   const placeholder = document.getElementById('fu-placeholder');
   const btnExport = document.getElementById('btn-fusion');
+  const btnExportWebp = document.getElementById('btn-fusion-webp');
 
   // Plus d'image : on remet l'aperçu à l'état initial
   if (!fu.bgImg && !fu.topImg) {
@@ -3072,6 +3086,7 @@ function fuUpdate() {
     }
     if (placeholder) placeholder.style.display = '';
     if (btnExport) btnExport.disabled = true;
+    if (btnExportWebp) btnExportWebp.disabled = true;
     return;
   }
 
@@ -3102,6 +3117,7 @@ function fuUpdate() {
 
   if (fu.topImg) {
     btnExport.disabled = false;
+    if (btnExportWebp) btnExportWebp.disabled = false;
     const sizePct = parseInt(document.getElementById('fu-size').value) / 100;
     document.getElementById('fu-size-val').textContent = Math.round(sizePct * 100) + '%';
     const opacity = parseInt(document.getElementById('fu-opacity').value) / 100;
@@ -3368,10 +3384,16 @@ function fuRestorePointFromRelative(canvas) {
 })();
 
 // ── Export haute résolution ──
-async function fuExport() {
+async function fuExport(format) {
   if (!fu.topImg && !fu.bgImg) return;
-  const btn = document.getElementById('btn-fusion');
-  btn.disabled = true; btn.textContent = 'Export…';
+  format = (format === 'webp') ? 'webp' : 'png';
+  const btnPng  = document.getElementById('btn-fusion');
+  const btnWebp = document.getElementById('btn-fusion-webp');
+  const activeBtn = format === 'webp' ? btnWebp : btnPng;
+  const btn = activeBtn;
+  if (btnPng)  btnPng.disabled = true;
+  if (btnWebp) btnWebp.disabled = true;
+  activeBtn.textContent = 'Export…';
 
   const canvas = document.createElement('canvas');
   const refImg = fu.bgImg || fu.topImg;
@@ -3422,15 +3444,42 @@ async function fuExport() {
   // Textes
   fuDrawTexts(ctx, W, H);
 
-  const dataUrl = canvas.toDataURL('image/png');
+  // Encodage selon le format demandé (avec fallback PNG si WebP non supporté)
+  let mime = format === 'webp' ? 'image/webp' : 'image/png';
+  let ext  = format === 'webp' ? 'webp' : 'png';
+  const webpQinput = document.getElementById('fu-webp-quality');
+  const webpQ = webpQinput ? Math.max(0.1, Math.min(1, parseInt(webpQinput.value) / 100)) : 0.92;
+  let dataUrl = format === 'webp'
+    ? canvas.toDataURL('image/webp', webpQ)
+    : canvas.toDataURL('image/png');
+  if (format === 'webp' && !dataUrl.startsWith('data:image/webp')) {
+    dataUrl = canvas.toDataURL('image/png');
+    mime = 'image/png'; ext = 'png';
+  }
+  const filename = 'fusion.' + ext;
+
   const wrap = document.getElementById('fu-result-wrap');
   const img  = document.getElementById('fu-result-img');
-  img.src = dataUrl; img.title = 'Clic droit → Enregistrer sous: fusion.png';
+  img.src = dataUrl; img.title = 'Clic droit → Enregistrer sous: ' + filename;
   wrap.style.display = 'block';
 
-  // Réactiver le bouton immédiatement
-  btn.disabled = false;
-  btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Exporter la fusion';
+  // Téléchargement direct du fichier
+  const blob = dataURLtoBlob(dataUrl);
+  const url  = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+  // Réactiver les deux boutons
+  if (btnPng) {
+    btnPng.disabled = false;
+    btnPng.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Exporter la fusion (.png)';
+  }
+  if (btnWebp) {
+    btnWebp.disabled = false;
+    btnWebp.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Exporter la fusion (.webp)';
+  }
 
   // Lancer showSaveFilePicker en arrière-plan (si disponible)
   if (window.showSaveFilePicker) {
