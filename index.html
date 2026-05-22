@@ -2192,6 +2192,21 @@ function addFilesFromListWM(files) {
   const btn = document.getElementById('btn-wm');
   if (btn) btn.disabled = wmState.files.length === 0;
   if (wmState.files.length > 0) updatePreview();
+  // Le bouton "Tout télécharger (ZIP)" devient visible dès qu'il y a des images.
+  // Il reste désactivé tant qu'aucun filigrane n'a été appliqué (voir applyWatermarks).
+  syncWMDownloadBtn();
+}
+
+// Gère la visibilité + l'état actif du bouton ZIP du filigrane
+function syncWMDownloadBtn() {
+  const dlBtn = document.getElementById('dl-wm');
+  if (!dlBtn) return;
+  const hasFiles   = wmState.files.length > 0;
+  const hasOutputs = wmState.outputs.some(b => b);
+  dlBtn.classList.toggle('visible', hasFiles);
+  dlBtn.disabled = !hasOutputs;
+  dlBtn.style.opacity = hasOutputs ? '1' : '0.5';
+  dlBtn.title = hasOutputs ? '' : 'Appliquez d\u2019abord le filigrane';
 }
 
 function renderWMItem(file, idx) {
@@ -2218,6 +2233,7 @@ function removeWMFile(idx) {
   wmState.files.forEach((f, i) => renderWMItem(f, i));
   const btn = document.getElementById('btn-wm');
   if (btn) btn.disabled = wmState.files.length === 0;
+  syncWMDownloadBtn();
 }
 
 function loadLogoWM(input) {
@@ -2410,7 +2426,8 @@ async function applyWatermarks() {
     return;
   }
 
-  const dlBtn = document.getElementById('dl-wm');
+  const pb = document.getElementById('pb-watermark');
+  const pw = document.getElementById('prog-watermark');
 
   for (let i = 0; i < wmState.files.length; i++) {
     const file = wmState.files[i];
@@ -2418,8 +2435,6 @@ async function applyWatermarks() {
     const metaEl   = document.getElementById('meta-wm-' + i);
     if (statusEl) { statusEl.className = 'file-status status-processing'; statusEl.textContent = 'Traitement…'; }
 
-    const pb = document.getElementById('pb-watermark');
-    const pw = document.getElementById('prog-watermark');
     if (pw) pw.classList.add('visible');
     if (pb) pb.style.width = Math.round((i / wmState.files.length) * 90) + '%';
 
@@ -2447,14 +2462,15 @@ async function applyWatermarks() {
         reader2.readAsDataURL(blob);
       }
     } catch(e) {
+      console.error('Filigrane — erreur sur', file.name, e);
       if (statusEl) { statusEl.className = 'file-status status-error'; statusEl.textContent = 'Erreur'; }
     }
   }
 
   if (pb) pb.style.width = '100%';
-  setTimeout(() => { const pw = document.getElementById('prog-watermark'); if (pw) pw.classList.remove('visible'); }, 800);
+  setTimeout(() => { if (pw) pw.classList.remove('visible'); }, 800);
   if (btn) btn.disabled = false;
-  if (dlBtn && wmState.outputs.some(b => b)) dlBtn.classList.add('visible');
+  syncWMDownloadBtn();
 }
 
 function applyWMToFile(file) {
@@ -2581,6 +2597,7 @@ function sendToWatermark() {
   // Activer le bouton
   const btn = document.getElementById('btn-wm');
   if (btn) btn.disabled = wmState.files.length === 0;
+  syncWMDownloadBtn();
 
   // Basculer sur l'onglet Filigrane
   switchTab('watermark');
@@ -2638,6 +2655,7 @@ function fuSendToWatermark() {
 
   const btn = document.getElementById('btn-wm');
   if (btn) btn.disabled = false;
+  syncWMDownloadBtn();
 
   // Basculer sur Filigrane
   switchTab('watermark');
