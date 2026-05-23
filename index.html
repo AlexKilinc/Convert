@@ -8,10 +8,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<!-- FFmpeg.wasm : vrai réencodage vidéo dans le navigateur (CRF, VP8/VP9) -->
-<script>window.__ffmpegCdnError = false;</script>
-<script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.min.js" onerror="window.__ffmpegCdnError=true"></script>
-<script src="https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/dist/umd/index.min.js" onerror="window.__ffmpegCdnError=true"></script>
 <style>
   :root {
     --bg: #f0f2f7;
@@ -1298,24 +1294,28 @@
 
     <div class="controls">
       <div class="control-group">
-        <label>Qualité (CRF) — plus bas = meilleure qualité</label>
-        <input type="range" id="vid-crf" min="20" max="50" value="32" oninput="updateCrfLabel(this.value)">
+        <label>Débit vidéo (qualité) — plus haut = meilleure qualité, fichier plus gros</label>
+        <input type="range" id="vid-bitrate" min="1" max="12" step="0.5" value="4" oninput="updateBitrateLabel()">
       </div>
       <div>
-        <label style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">CRF</label>
-        <div class="value-display" id="vid-crf-val">32 · équilibré</div>
+        <label style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">DÉBIT</label>
+        <div class="value-display" id="vid-bitrate-val">4 Mbit/s</div>
       </div>
       <div class="control-group">
-        <label>Codec de sortie</label>
+        <label>Format de sortie</label>
         <select id="vid-format">
-          <option value="webm-vp9" selected>WebM (VP9) — compression max</option>
-          <option value="webm">WebM (VP8) — plus rapide</option>
+          <option value="webm-vp9" selected>WebM (VP9) — recommandé</option>
+          <option value="webm">WebM (VP8)</option>
         </select>
       </div>
     </div>
 
+    <div class="info-box" id="vid-estimate" style="display:none">
+      <strong>Estimation :</strong> <span id="vid-est-text">—</span>
+    </div>
+
     <div class="info-box">
-      <strong>Vrai réencodage FFmpeg :</strong> La conversion utilise FFmpeg compilé en WebAssembly, qui tourne 100 % localement dans votre navigateur (aucun envoi sur Internet). L'encodage se fait en qualité constante (CRF) pour le meilleur rapport netteté / taille, comme les outils de bureau. <strong>Au premier lancement</strong>, le moteur (~30 Mo) se télécharge puis reste en cache. L'encodage VP9 est plus lent que VP8 ; pour de longues vidéos, privilégiez VP8 ou un CRF plus élevé.
+      <strong>Conversion navigateur :</strong> La conversion utilise l'API MediaRecorder native du navigateur (aucun envoi sur Internet, tout reste local). Le temps de traitement est égal à la durée de la vidéo. Réglez le débit selon vos besoins : vers 3-4 Mbit/s pour un bon équilibre, plus bas pour compresser davantage. Pour les vidéos longues (&gt;5 min) ou une compression optimale, <strong>HandBrake</strong> (handbrake.fr) reste supérieur.
     </div>
 
     <div class="file-list" id="list-video"></div>
@@ -1428,6 +1428,9 @@ function updateConvertBtn(type) {
   const idMap = { images: 'btn-img', pdf: 'btn-pdf', video: 'btn-vid' };
   const btn = document.getElementById(idMap[type]);
   if (btn) btn.disabled = state[type].length === 0;
+  if (type === 'video' && typeof refreshVideoEstimate === 'function') {
+    refreshVideoEstimate();
+  }
   if (type === 'images') {
     const btnC = document.getElementById('btn-img-compress');
     if (btnC) btnC.disabled = state.images.length === 0;
@@ -1495,7 +1498,8 @@ function addDownloadBtn(type, idx, blob, filename) {
 
     const btn = document.createElement('button');
     btn.className = 'file-download';
-    btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg> Enregistrer';
+    const dlIcon = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg>';
+    btn.innerHTML = dlIcon + ' Enregistrer';
     btn.onclick = async () => {
       btn.textContent = 'Traitement…';
       btn.disabled = true;
@@ -1511,11 +1515,11 @@ function addDownloadBtn(type, idx, blob, filename) {
           await writable.write(blob);
           await writable.close();
           btn.textContent = 'Enregistré ✓';
-          setTimeout(() => { btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg> Enregistrer'; btn.disabled = false; }, 2500);
+          setTimeout(() => { btn.innerHTML = dlIcon + ' Enregistrer'; btn.disabled = false; }, 2500);
           return;
         } catch (err) {
           if (err.name === 'AbortError') {
-            btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg> Enregistrer'; btn.disabled = false; return;
+            btn.innerHTML = dlIcon + ' Enregistrer'; btn.disabled = false; return;
           }
         }
       }
@@ -1529,11 +1533,11 @@ function addDownloadBtn(type, idx, blob, filename) {
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg> Enregistrer'; btn.disabled = false;
+        btn.innerHTML = dlIcon + ' Enregistrer'; btn.disabled = false;
       };
       reader.onerror = () => {
         alert('Téléchargement bloqué.\nOuvrez le fichier .html directement dans Chrome.');
-        btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg> Enregistrer'; btn.disabled = false;
+        btn.innerHTML = dlIcon + ' Enregistrer'; btn.disabled = false;
       };
       reader.readAsDataURL(blob);
     };
@@ -1587,11 +1591,11 @@ async function downloadZip() {
       await writable.write(zipBlob);
       await writable.close();
       if (btn) { btn.disabled = false; btn.textContent = 'ZIP enregistré !'; }
-      setTimeout(() => { if (btn) btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP'; }, 3000);
+      setTimeout(() => { if (btn) btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP'; }, 3000);
       return;
     } catch (err) {
       if (err.name === 'AbortError') {
-        if (btn) { btn.disabled = false; btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP'; }
+        if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP'; }
         return;
       }
       // Continuer vers méthode 2 si erreur autre
@@ -1607,11 +1611,11 @@ async function downloadZip() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    if (btn) { btn.disabled = false; btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP'; }
   };
   reader.onerror = () => {
     alert('Téléchargement bloqué par le navigateur.\nOuvrez ce fichier directement (double-clic) pour télécharger.');
-    if (btn) { btn.disabled = false; btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP'; }
   };
   reader.readAsDataURL(zipBlob);
 }
@@ -1995,175 +1999,240 @@ async function compressPDF(buffer, onProgress) {
 }
 
 // ─────────────────────────────────────────────
-// VIDEO CONVERSION (FFmpeg.wasm — vrai réencodage, CRF VP8/VP9)
+// VIDEO CONVERSION (MediaRecorder API)
 // ─────────────────────────────────────────────
+// Durée totale (en secondes) des vidéos chargées, pour estimer la taille de sortie.
+let videoTotalDuration = 0;
 
-// Étiquette dynamique du curseur CRF
-function updateCrfLabel(v) {
-  const n = parseInt(v, 10);
-  let desc;
-  if (n <= 26)      desc = 'très haute qualité';
-  else if (n <= 32) desc = 'équilibré';
-  else if (n <= 40) desc = 'compact';
-  else              desc = 'taille minimale';
-  const el = document.getElementById('vid-crf-val');
-  if (el) el.textContent = `${n} · ${desc}`;
-}
+// Met à jour l'étiquette du curseur et l'estimation de taille en direct.
+function updateBitrateLabel() {
+  const slider = document.getElementById('vid-bitrate');
+  if (!slider) return;
+  const mbps = parseFloat(slider.value);
+  const valEl = document.getElementById('vid-bitrate-val');
+  if (valEl) valEl.textContent = mbps + ' Mbit/s';
 
-// Instance FFmpeg unique, chargée à la demande (lazy)
-let ffmpegInstance = null;
-let ffmpegLoading = null;
+  const estBox = document.getElementById('vid-estimate');
+  const estText = document.getElementById('vid-est-text');
+  if (!estBox || !estText) return;
 
-// Télécharge une URL et la transforme en blob local de même origine.
-// Affiche la progression du téléchargement (utile pour le gros core ~30 Mo).
-async function fetchToBlobURL(url, mime, onPct) {
-  const resp = await fetch(url, { mode: 'cors' });
-  if (!resp.ok) throw new Error(`HTTP ${resp.status} sur ${url.split('/').pop()}`);
-
-  const total = parseInt(resp.headers.get('content-length') || '0', 10);
-  if (resp.body && total > 0 && onPct) {
-    const reader = resp.body.getReader();
-    const chunks = [];
-    let received = 0;
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      chunks.push(value);
-      received += value.length;
-      onPct(Math.round((received / total) * 100));
-    }
-    const blob = new Blob(chunks, { type: mime });
-    return URL.createObjectURL(blob);
+  if (videoTotalDuration > 0) {
+    // Taille ≈ (débit vidéo + audio) × durée / 8  (octets)
+    const totalBps = mbps * 1000000 + 128000;
+    const bytes = (totalBps * videoTotalDuration) / 8;
+    estText.textContent = `taille de sortie estimée ≈ ${formatSize(bytes)} (pour ${Math.round(videoTotalDuration)} s de vidéo)`;
+    estBox.style.display = 'block';
+  } else {
+    estBox.style.display = 'none';
   }
-  // Fallback simple si pas de content-length
-  const blob = await resp.blob();
-  return URL.createObjectURL(new Blob([blob], { type: mime }));
 }
 
-async function getFFmpeg(onStep) {
-  if (ffmpegInstance) return ffmpegInstance;
-  if (ffmpegLoading) return ffmpegLoading;
+// Calcule la durée d'un fichier vidéo (Promise).
+function getVideoDuration(file) {
+  return new Promise((resolve) => {
+    const v = document.createElement('video');
+    v.preload = 'metadata';
+    const url = URL.createObjectURL(file);
+    v.onloadedmetadata = () => {
+      URL.revokeObjectURL(url);
+      resolve(isFinite(v.duration) ? v.duration : 0);
+    };
+    v.onerror = () => { URL.revokeObjectURL(url); resolve(0); };
+    v.src = url;
+  });
+}
 
-  const step = onStep || (() => {});
-
-  ffmpegLoading = (async () => {
-    if (window.__ffmpegCdnError || !window.FFmpegWASM || !window.FFmpegWASM.FFmpeg || !window.FFmpegUtil) {
-      throw new Error("CDN inaccessible : le moteur FFmpeg n'a pas pu être téléchargé. Votre réseau (pare-feu, proxy d'entreprise/hôpital) bloque probablement cdn.jsdelivr.net. Voir la solution hors-ligne.");
-    }
-    const { FFmpeg } = window.FFmpegWASM;
-    const ff = new FFmpeg();
-
-    const core = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd';
-    const main = 'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd';
-
-    // Téléchargement explicite des 3 ressources, avec retour visuel.
-    step('Téléchargement du worker…');
-    const workerURL = await fetchToBlobURL(`${main}/814.ffmpeg.js`, 'text/javascript');
-
-    step('Téléchargement du moteur (1/2)…');
-    const coreURL = await fetchToBlobURL(`${core}/ffmpeg-core.js`, 'text/javascript');
-
-    step('Téléchargement du moteur (2/2, ~30 Mo)…');
-    const wasmURL = await fetchToBlobURL(`${core}/ffmpeg-core.wasm`, 'application/wasm',
-      (pct) => step(`Téléchargement du moteur : ${pct}%`));
-
-    // Initialisation, avec délai de garde pour ne jamais rester bloqué.
-    step('Initialisation du moteur…');
-    const loadPromise = ff.load({ classWorkerURL: workerURL, coreURL, wasmURL });
-    const timeout = new Promise((_, rej) =>
-      setTimeout(() => rej(new Error("Initialisation trop longue (>90 s). Le worker est probablement bloqué par le navigateur en mode fichier local.")), 90000));
-    await Promise.race([loadPromise, timeout]);
-
-    ffmpegInstance = ff;
-    return ff;
-  })();
-
-  // En cas d'échec, on réinitialise pour permettre un nouvel essai.
-  ffmpegLoading.catch(() => { ffmpegLoading = null; });
-  return ffmpegLoading;
+// Recalcule la durée totale des vidéos chargées puis met à jour l'estimation.
+async function refreshVideoEstimate() {
+  const files = state.video || [];
+  let total = 0;
+  for (const f of files) total += await getVideoDuration(f);
+  videoTotalDuration = total;
+  updateBitrateLabel();
 }
 
 async function convertVideos() {
   const btn = document.getElementById('btn-vid');
   if (!btn) return;
   btn.disabled = true;
-
   const files = state.video;
-  const crf = parseInt(document.getElementById('vid-crf').value, 10);
-  const useVP9 = document.getElementById('vid-format').value === 'webm-vp9';
-  const codec = useVP9 ? 'libvpx-vp9' : 'libvpx';
-
-  let ff;
-  try {
-    setStatus('video', 0, 'status-processing', 'Chargement du moteur FFmpeg…');
-    setProgress('video', 2);
-    ff = await getFFmpeg((msg) => setStatus('video', 0, 'status-processing', msg));
-  } catch (e) {
-    console.error(e);
-    setStatus('video', 0, 'status-error', 'Erreur: ' + e.message);
-    btn.disabled = false;
-    return;
-  }
-
-  const { fetchFile } = window.FFmpegUtil;
+  // Débit choisi par l'utilisateur via le curseur (en Mbit/s → bits/s).
+  const mbps = parseFloat(document.getElementById('vid-bitrate').value);
+  const bitsPerSec = Math.round(mbps * 1000000);
+  const audioBps = 128000; // 128 kbps audio, au lieu d'une valeur aléatoire
+  const mimeType = document.getElementById('vid-format').value === 'webm-vp9'
+    ? 'video/webm;codecs=vp9,opus'
+    : 'video/webm;codecs=vp8,opus';
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
     setStatus('video', i, 'status-processing', 'Conversion en cours…');
-
-    // Progression réelle via l'événement FFmpeg
-    const base = Math.round((i / files.length) * 95) + 3;
-    const chunk = Math.round(95 / files.length);
-    const onProg = ({ progress }) => {
-      const p = Math.max(0, Math.min(1, progress));
-      setProgress('video', base + Math.round(p * chunk));
-    };
-    ff.on('progress', onProg);
-
-    const inName = 'in_' + i + (file.name.match(/\.[^.]+$/) || ['.mp4'])[0];
-    const outName = 'out_' + i + '.webm';
-
+    setProgress('video', Math.round((i / files.length) * 90));
     try {
-      await ff.writeFile(inName, await fetchFile(file));
-
-      // Encodage qualité constante (CRF). En VP9, -b:v 0 active le vrai mode CRF.
-      const args = [
-        '-i', inName,
-        '-c:v', codec,
-        '-crf', String(crf),
-        '-b:v', '0',
-        '-row-mt', '1',
-        '-c:a', 'libopus',
-        '-b:a', '96k',
-        outName,
-      ];
-      await ff.exec(args);
-
-      const data = await ff.readFile(outName);
-      const blob = new Blob([data.buffer], { type: 'video/webm' });
+      const blob = await convertVideoToWebM(file, bitsPerSec, audioBps, mimeType, (p) => {
+        const base = Math.round((i / files.length) * 90);
+        const chunk = Math.round(90 / files.length);
+        setProgress('video', base + Math.round(p * chunk));
+      });
       outputs.video[i] = blob;
-
       const gain = ((1 - blob.size / file.size) * 100).toFixed(1);
-      const gainStr = parseFloat(gain) > 0 ? `-${gain}%` : `+${Math.abs(gain)}%`;
-      setStatus('video', i, 'status-done', `✓ WebM ${useVP9 ? 'VP9' : 'VP8'} (${gainStr})`);
+      const gainStr = gain > 0 ? `-${gain}%` : `+${Math.abs(gain)}%`;
+      setStatus('video', i, 'status-done', `✓ WebM (${gainStr})`);
       setMeta('video', i, `${formatSize(file.size)} → ${formatSize(blob.size)}`);
       const name = file.name.replace(/\.[^.]+$/, '') + '.webm';
       addDownloadBtn('video', i, blob, name);
-
-      // Nettoyage du système de fichiers virtuel
-      try { await ff.deleteFile(inName); } catch (_) {}
-      try { await ff.deleteFile(outName); } catch (_) {}
-    } catch (e) {
+    } catch(e) {
       console.error(e);
-      setStatus('video', i, 'status-error', 'Erreur: ' + (e.message || 'encodage échoué'));
-    } finally {
-      ff.off('progress', onProg);
+      setStatus('video', i, 'status-error', 'Erreur: ' + e.message);
     }
   }
 
   setProgress('video', 100);
   btn.disabled = false;
   showDLAll('video');
+}
+
+function convertVideoToWebM(file, bitsPerSec, audioBps, mimeType, onProgress) {
+  return new Promise((resolve, reject) => {
+
+    // ── 1. Vérifier le support AVANT de créer la vidéo ──
+    let selectedMime = mimeType;
+    if (!MediaRecorder.isTypeSupported(selectedMime)) {
+      const fallbacks = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm;codecs=vp8', 'video/webm'];
+      selectedMime = fallbacks.find(m => MediaRecorder.isTypeSupported(m));
+      if (!selectedMime) return reject(new Error('WebM non supporté par ce navigateur. Utilisez Chrome ou Edge.'));
+    }
+
+    const video = document.createElement('video');
+    const objectURL = URL.createObjectURL(file);
+    video.src = objectURL;
+    // NB : on ne met PAS video.muted = true, car cela couperait aussi le signal
+    // envoyé à l'AudioContext (donc pas de son dans le fichier final).
+    // L'autoplay est autorisé car on coupe le son au niveau de l'AudioContext
+    // (gain à 0 vers les haut-parleurs), pas au niveau de l'élément vidéo.
+    video.playsInline = true;
+    video.preload = 'auto';
+
+    let recorder, audioCtx, animId, resolved = false;
+
+    const cleanup = () => {
+      cancelAnimationFrame(animId);
+      URL.revokeObjectURL(objectURL);
+      if (audioCtx && audioCtx.state !== 'closed') audioCtx.close();
+      video.pause();
+      video.src = '';
+    };
+
+    video.onerror = () => {
+      cleanup();
+      reject(new Error('Fichier vidéo invalide ou format non supporté'));
+    };
+
+    video.onloadedmetadata = async () => {
+      const W = video.videoWidth  || 1280;
+      const H = video.videoHeight || 720;
+
+      const canvas = document.createElement('canvas');
+      canvas.width  = W;
+      canvas.height = H;
+      // desynchronized: réduit la latence de rendu ; alpha:false: rendu plus net/rapide
+      const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
+      ctx.imageSmoothingQuality = 'high';
+
+      // ── 2. Audio : on capture le son à plein volume pour l'enregistrement,
+      // mais on le coupe vers les haut-parleurs (gain 0) pour ne rien entendre
+      // pendant la conversion. Ainsi le fichier final CONSERVE l'audio.
+      let audioTracks = [];
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // Certains navigateurs démarrent l'AudioContext en pause : on le réveille.
+        if (audioCtx.state === 'suspended') {
+          try { await audioCtx.resume(); } catch (_) {}
+        }
+        const dest = audioCtx.createMediaStreamDestination();
+        const src  = audioCtx.createMediaElementSource(video);
+
+        // Vers l'enregistreur : signal complet.
+        src.connect(dest);
+
+        // Vers les haut-parleurs : via un gain à 0 (silencieux pour l'utilisateur).
+        const muteGain = audioCtx.createGain();
+        muteGain.gain.value = 0;
+        src.connect(muteGain);
+        muteGain.connect(audioCtx.destination);
+
+        audioTracks = dest.stream.getAudioTracks();
+      } catch (e) {
+        // Audio réellement indisponible (ex. vidéo sans piste son) → vidéo muette.
+        audioTracks = [];
+      }
+
+      // ── 3. Assembler le stream ──
+      // Capture jusqu'à 60 fps : MediaRecorder s'aligne sur la cadence réelle
+      // de la vidéo, ce qui évite les saccades sur les sources 50/60 fps.
+      const canvasStream = canvas.captureStream(60);
+      const combined = new MediaStream([
+        ...canvasStream.getVideoTracks(),
+        ...audioTracks,
+      ]);
+
+      const recorderOpts = {
+        mimeType: selectedMime,
+        videoBitsPerSecond: bitsPerSec,
+      };
+      // N'ajouter le débit audio que si une piste audio existe réellement.
+      if (audioTracks.length > 0) recorderOpts.audioBitsPerSecond = audioBps;
+
+      recorder = new MediaRecorder(combined, recorderOpts);
+
+      const chunks = [];
+      recorder.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+
+      recorder.onstop = () => {
+        cleanup();
+        if (!resolved) {
+          resolved = true;
+          resolve(new Blob(chunks, { type: 'video/webm' }));
+        }
+      };
+
+      recorder.onerror = (e) => {
+        cleanup();
+        reject(new Error('Erreur MediaRecorder : ' + e.error));
+      };
+
+      // ── 4. Boucle de rendu frame ──
+      const drawFrame = () => {
+        if (video.ended || video.readyState === 0) return;
+        ctx.drawImage(video, 0, 0, W, H);
+        if (video.duration > 0) onProgress(video.currentTime / video.duration);
+        animId = requestAnimationFrame(drawFrame);
+      };
+
+      video.onplay  = () => { drawFrame(); };
+      video.onended = () => {
+        cancelAnimationFrame(animId);
+        // Attendre la fin des dernières données
+        setTimeout(() => { if (recorder.state !== 'inactive') recorder.stop(); }, 300);
+      };
+
+      // ── 5. Démarrer ──
+      recorder.start(200); // chunk toutes les 200ms
+      try {
+        await video.play();
+      } catch (e) {
+        // Si la lecture avec son est bloquée par le navigateur, on réessaie en
+        // sourdine (la vidéo se convertira au moins, même sans audio).
+        try {
+          video.muted = true;
+          await video.play();
+        } catch (e2) {
+          cleanup();
+          reject(new Error('Lecture vidéo impossible : ' + e2.message));
+        }
+      }
+    };
+  });
 }
 
 // ═══════════════════════════════════════════════
@@ -2511,10 +2580,10 @@ async function downloadZipWM() {
       await writable.write(zipBlob);
       await writable.close();
       if (btn) btn.textContent = 'ZIP enregistré';
-      setTimeout(() => { if (btn) btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="2" y="4" width="20" height="4" rx="1"/><path d="M4 8v10a2 2 0 002 2h12a2 2 0 002-2V8"/><path d="M10 12h4"/></svg> Tout télécharger (ZIP)'; }, 3000);
+      setTimeout(() => { if (btn) btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="2" y="4" width="20" height="4" rx="1"/><path d="M4 8v10a2 2 0 002 2h12a2 2 0 002-2V8"/><path d="M10 12h4"/></svg> Tout télécharger (ZIP)'; }, 3000);
       return;
     } catch(err) {
-      if (err.name === 'AbortError') { if (btn) btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="2" y="4" width="20" height="4" rx="1"/><path d="M4 8v10a2 2 0 002 2h12a2 2 0 002-2V8"/><path d="M10 12h4"/></svg> Tout télécharger (ZIP)'; return; }
+      if (err.name === 'AbortError') { if (btn) btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="2" y="4" width="20" height="4" rx="1"/><path d="M4 8v10a2 2 0 002 2h12a2 2 0 002-2V8"/><path d="M10 12h4"/></svg> Tout télécharger (ZIP)'; return; }
     }
   }
   // Fallback
@@ -2523,7 +2592,7 @@ async function downloadZipWM() {
     const a = document.createElement('a');
     a.href = e.target.result; a.download = 'images_filigrane.zip';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    if (btn) btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="2" y="4" width="20" height="4" rx="1"/><path d="M4 8v10a2 2 0 002 2h12a2 2 0 002-2V8"/><path d="M10 12h4"/></svg> Tout télécharger (ZIP)';
+    if (btn) btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="2" y="4" width="20" height="4" rx="1"/><path d="M4 8v10a2 2 0 002 2h12a2 2 0 002-2V8"/><path d="M10 12h4"/></svg> Tout télécharger (ZIP)';
   };
   reader.readAsDataURL(zipBlob);
 }
