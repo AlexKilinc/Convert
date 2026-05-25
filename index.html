@@ -947,8 +947,8 @@
                 <input type="range" id="wm-text-opacity" min="5" max="100" value="35" oninput="document.getElementById('wm-text-opacity-val').textContent=this.value+'%';updatePreview()">
               </div>
               <div class="control-group">
-                <label>Rotation <span id="wm-text-angle-val" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent1)">-30°</span></label>
-                <input type="range" id="wm-text-angle" min="-90" max="90" value="-30" oninput="document.getElementById('wm-text-angle-val').textContent=this.value+'°';updatePreview()">
+                <label>Rotation <span id="wm-text-angle-val" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent1)">0°</span></label>
+                <input type="range" id="wm-text-angle" min="-90" max="90" value="0" oninput="document.getElementById('wm-text-angle-val').textContent=this.value+'°';updatePreview()">
               </div>
             </div>
             <div class="wm-pos-label">Position — grille</div>
@@ -1054,8 +1054,8 @@
   <div class="panel" id="panel-fusion">
     <p class="section-label">Superposition avec transparence progressive</p>
 
-    <!-- ① 3 cards côte à côte -->
-    <div style="display:grid;grid-template-columns:1fr 1fr auto 1fr;gap:12px;align-items:stretch;margin-bottom:16px">
+    <!-- ① Couleur + swap à gauche | grille 2×2 des images à droite -->
+    <div style="display:grid;grid-template-columns:1fr auto 2fr;gap:12px;align-items:stretch;margin-bottom:16px">
 
       <!-- Couleur de fond -->
       <div class="fusion-section" style="margin:0">
@@ -1078,44 +1078,79 @@
         </div>
       </div>
 
-      <!-- Image de fond -->
-      <div class="fusion-section" style="margin:0">
-        <h4>Image de fond</h4>
-        <div class="fusion-upload" id="fu-bg-drop"
-             ondragover="fuDragOver(event,'fu-bg-drop')"
-             ondragleave="fuDragLeave(event,'fu-bg-drop')"
-             ondrop="fuDropBg(event)">
-          <button type="button" class="fu-remove-btn" id="fu-bg-remove" onclick="fuClearBg(event)" title="Supprimer l'image">×</button>
-          <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadBg(this)">
-          <img id="fu-bg-thumb" class="fu-thumb" style="display:none">
-          <span id="fu-bg-label">Cliquez ou glissez</span>
-          <div class="fu-replace-hint">↻ Cliquez ou déposez pour remplacer</div>
-        </div>
-      </div>
-
-      <!-- Bouton swap -->
-      <div style="display:flex;align-items:center;justify-content:center;padding-top:28px">
-        <button class="fu-swap-btn" onclick="fuSwap()" title="Intervertir les images">
+      <!-- Bouton swap (entre couleur et grille d'images) -->
+      <div style="display:flex;align-items:center;justify-content:center">
+        <button class="fu-swap-btn" onclick="fuSwap()" title="Intervertir le fond et l'image superposée active">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
         </button>
       </div>
 
-      <!-- Image superposée -->
-      <div class="fusion-section" style="margin:0">
-        <h4>Image superposée</h4>
-        <div class="fusion-upload" id="fu-top-drop"
-             ondragover="fuDragOver(event,'fu-top-drop')"
-             ondragleave="fuDragLeave(event,'fu-top-drop')"
-             ondrop="fuDropTop(event)">
-          <button type="button" class="fu-remove-btn" id="fu-top-remove" onclick="fuClearTop(event)" title="Supprimer l'image">×</button>
-          <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadTop(this)">
-          <img id="fu-top-thumb" class="fu-thumb" style="display:none">
-          <span id="fu-top-label">Cliquez ou glissez</span>
-          <div class="fu-replace-hint">↻ Cliquez ou déposez pour remplacer</div>
-        </div>
-      </div>
+      <!-- Grille 2×2 : fond + superposée 1 (haut), superposées 2 + 3 (bas) -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch">
 
-    </div><!-- /3 cards -->
+        <!-- Image de fond -->
+        <div class="fusion-section" style="margin:0">
+          <h4>Image de fond</h4>
+          <div class="fusion-upload" id="fu-bg-drop"
+               ondragover="fuDragOver(event,'fu-bg-drop')"
+               ondragleave="fuDragLeave(event,'fu-bg-drop')"
+               ondrop="fuDropBg(event)">
+            <button type="button" class="fu-remove-btn" id="fu-bg-remove" onclick="fuClearBg(event)" title="Supprimer l'image">×</button>
+            <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadBg(this)">
+            <img id="fu-bg-thumb" class="fu-thumb" style="display:none">
+            <span id="fu-bg-label">Cliquez ou glissez</span>
+            <div class="fu-replace-hint">↻ Cliquez ou déposez pour remplacer</div>
+          </div>
+        </div>
+
+        <!-- Image superposée 1 -->
+        <div class="fusion-section" style="margin:0">
+          <h4>Image superposée 1</h4>
+          <div class="fusion-upload fu-overlay-zone" id="fu-top-drop-0"
+               ondragover="fuDragOver(event,'fu-top-drop-0')"
+               ondragleave="fuDragLeave(event,'fu-top-drop-0')"
+               ondrop="fuDropTop(event,0)">
+            <button type="button" class="fu-remove-btn" id="fu-top-remove-0" onclick="fuClearTop(event,0)" title="Supprimer l'image">×</button>
+            <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadTop(this,0)">
+            <img id="fu-top-thumb-0" class="fu-thumb" style="display:none">
+            <span id="fu-top-label-0">Cliquez ou glissez</span>
+            <div class="fu-replace-hint">↻ Cliquez ou déposez pour remplacer</div>
+          </div>
+        </div>
+
+        <!-- Image superposée 2 (sous l'image de fond) -->
+        <div class="fusion-section" style="margin:0">
+          <h4>Image superposée 2</h4>
+          <div class="fusion-upload fu-overlay-zone" id="fu-top-drop-1"
+               ondragover="fuDragOver(event,'fu-top-drop-1')"
+               ondragleave="fuDragLeave(event,'fu-top-drop-1')"
+               ondrop="fuDropTop(event,1)">
+            <button type="button" class="fu-remove-btn" id="fu-top-remove-1" onclick="fuClearTop(event,1)" title="Supprimer l'image">×</button>
+            <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadTop(this,1)">
+            <img id="fu-top-thumb-1" class="fu-thumb" style="display:none">
+            <span id="fu-top-label-1">Cliquez ou glissez</span>
+            <div class="fu-replace-hint">↻ Cliquez ou déposez pour remplacer</div>
+          </div>
+        </div>
+
+        <!-- Image superposée 3 (sous l'image superposée 1) -->
+        <div class="fusion-section" style="margin:0">
+          <h4>Image superposée 3</h4>
+          <div class="fusion-upload fu-overlay-zone" id="fu-top-drop-2"
+               ondragover="fuDragOver(event,'fu-top-drop-2')"
+               ondragleave="fuDragLeave(event,'fu-top-drop-2')"
+               ondrop="fuDropTop(event,2)">
+            <button type="button" class="fu-remove-btn" id="fu-top-remove-2" onclick="fuClearTop(event,2)" title="Supprimer l'image">×</button>
+            <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadTop(this,2)">
+            <img id="fu-top-thumb-2" class="fu-thumb" style="display:none">
+            <span id="fu-top-label-2">Cliquez ou glissez</span>
+            <div class="fu-replace-hint">↻ Cliquez ou déposez pour remplacer</div>
+          </div>
+        </div>
+
+      </div><!-- /grille 2×2 -->
+
+    </div><!-- /cards -->
 
     <!-- ② Menu gauche | Aperçu sticky droite -->
     <div class="fu-main-layout">
@@ -1127,14 +1162,20 @@
         <div class="fu-group">
           <div class="fu-group-title">Image superposée</div>
           <div class="fusion-section">
+            <div style="display:flex;gap:6px;margin-bottom:12px">
+              <button id="fu-ov-sel-0" class="fu-mode-btn fu-active" onclick="fuSetActiveOverlay(0)" style="flex:1;font-size:12px;padding:7px 4px">Image 1</button>
+              <button id="fu-ov-sel-1" class="fu-mode-btn" onclick="fuSetActiveOverlay(1)" style="flex:1;font-size:12px;padding:7px 4px">Image 2</button>
+              <button id="fu-ov-sel-2" class="fu-mode-btn" onclick="fuSetActiveOverlay(2)" style="flex:1;font-size:12px;padding:7px 4px">Image 3</button>
+            </div>
+            <p style="font-size:10.5px;color:var(--muted);margin:-4px 0 10px">Les réglages ci-dessous s'appliquent à l'image sélectionnée.</p>
             <div class="fu-slider-row">
               <span class="fu-label">Taille</span><span class="fu-val" id="fu-size-val">60%</span>
             </div>
-            <input type="range" id="fu-size" min="5" max="150" value="60" oninput="fuUpdate()" style="width:100%">
+            <input type="range" id="fu-size" min="5" max="150" value="60" oninput="fuSlider('size',this.value)" style="width:100%">
             <div class="fu-slider-row" style="margin-top:10px">
               <span class="fu-label">Opacité</span><span class="fu-val" id="fu-opacity-val">100%</span>
             </div>
-            <input type="range" id="fu-opacity" min="0" max="100" value="100" oninput="fuUpdate()" style="width:100%">
+            <input type="range" id="fu-opacity" min="0" max="100" value="100" oninput="fuSlider('opacity',this.value)" style="width:100%">
             <div class="fu-group-title" style="margin:12px 0 8px">Mode clic aperçu</div>
             <div style="display:flex;gap:6px">
               <button id="fu-mode-top"   class="fu-mode-btn fu-active" onclick="fuSetDragMode('top')" style="flex:1;font-size:11px;padding:6px 4px">
@@ -1177,11 +1218,11 @@
             <div class="fu-slider-row" style="margin-top:12px">
               <span class="fu-label">Début</span><span class="fu-val" id="fu-grad-start-val">0%</span>
             </div>
-            <input type="range" id="fu-grad-start" min="0" max="95" value="0" oninput="fuUpdate()" style="width:100%">
+            <input type="range" id="fu-grad-start" min="0" max="95" value="0" oninput="fuSlider('gradStart',this.value)" style="width:100%">
             <div class="fu-slider-row" style="margin-top:10px">
               <span class="fu-label">Étendue</span><span class="fu-val" id="fu-grad-size-val">50%</span>
             </div>
-            <input type="range" id="fu-grad-size" min="5" max="100" value="50" oninput="fuUpdate()" style="width:100%">
+            <input type="range" id="fu-grad-size" min="5" max="100" value="50" oninput="fuSlider('gradSize',this.value)" style="width:100%">
           </div>
         </div>
 
@@ -2846,31 +2887,38 @@ function sendToWatermark() {
 
 // ── Intervertir les deux images ──
 function fuSwap() {
-  // Swap images
-  [fu.bgImg, fu.topImg] = [fu.topImg, fu.bgImg];
+  const idx = fu.activeOverlay;
+  // Échange l'image de fond avec l'image superposée ACTIVE
+  const tmpImg = fu.bgImg;
+  fu.bgImg = fu.overlays[idx].img;
+  fu.overlays[idx].img = tmpImg;
 
   // Swap thumbs
   const bgThumb  = document.getElementById('fu-bg-thumb');
-  const topThumb = document.getElementById('fu-top-thumb');
+  const topThumb = document.getElementById('fu-top-thumb-' + idx);
   const bgLabel  = document.getElementById('fu-bg-label');
-  const topLabel = document.getElementById('fu-top-label');
-
-  const tmpSrc  = bgThumb.src;
-  const tmpDisp = bgThumb.style.display;
-  bgThumb.src   = topThumb.src;   bgThumb.style.display  = topThumb.style.display;
-  topThumb.src  = tmpSrc;         topThumb.style.display = tmpDisp;
-
-  const tmpLbl   = bgLabel.style.display;
-  bgLabel.style.display  = topLabel.style.display;
-  topLabel.style.display = tmpLbl;
+  const topLabel = document.getElementById('fu-top-label-' + idx);
+  if (bgThumb && topThumb) {
+    const tmpSrc  = bgThumb.src;
+    const tmpDisp = bgThumb.style.display;
+    bgThumb.src   = topThumb.src;   bgThumb.style.display  = topThumb.style.display;
+    topThumb.src  = tmpSrc;         topThumb.style.display = tmpDisp;
+  }
+  if (bgLabel && topLabel) {
+    const tmpLbl   = bgLabel.style.display;
+    bgLabel.style.display  = topLabel.style.display;
+    topLabel.style.display = tmpLbl;
+  }
 
   // Swap des classes has-image
   const bgZone  = document.getElementById('fu-bg-drop');
-  const topZone = document.getElementById('fu-top-drop');
-  const bgHas   = bgZone.classList.contains('has-image');
-  const topHas  = topZone.classList.contains('has-image');
-  bgZone.classList.toggle('has-image', topHas);
-  topZone.classList.toggle('has-image', bgHas);
+  const topZone = document.getElementById('fu-top-drop-' + idx);
+  if (bgZone && topZone) {
+    const bgHas   = bgZone.classList.contains('has-image');
+    const topHas  = topZone.classList.contains('has-image');
+    bgZone.classList.toggle('has-image', topHas);
+    topZone.classList.toggle('has-image', bgHas);
+  }
 
   fuUpdate();
 }
@@ -2911,11 +2959,15 @@ function fuSendToWatermark() {
 // FUSION
 // ═══════════════════════════════════════════════
 const fu = {
-  bgImg: null, topImg: null,
-  x: 0, y: 0,           // position top image (% du fond)
-  gradMode: 'none',
-  gradPx: 0.5, gradPy: 0.5, // point libre en coords canvas (0-1)
-  gradPxTop: 0.5, gradPyTop: 0.5, // point en coords relatives à l'image top (0-1)
+  bgImg: null,
+  // 3 images superposées, chacune avec ses propres réglages.
+  overlays: [
+    { img: null, x: 0.5, y: 0.5, size: 60, opacity: 100, gradMode: 'none', gradSize: 50, gradStart: 0, gradPxTop: 0.5, gradPyTop: 0.5, pointLocked: false },
+    { img: null, x: 0.5, y: 0.5, size: 60, opacity: 100, gradMode: 'none', gradSize: 50, gradStart: 0, gradPxTop: 0.5, gradPyTop: 0.5, pointLocked: false },
+    { img: null, x: 0.5, y: 0.5, size: 60, opacity: 100, gradMode: 'none', gradSize: 50, gradStart: 0, gradPxTop: 0.5, gradPyTop: 0.5, pointLocked: false },
+  ],
+  activeOverlay: 0,    // index de l'image en cours d'édition (0,1,2)
+  gradPx: 0.5, gradPy: 0.5, // point libre en coords canvas (0-1) de l'image active
   // bgMode supprimé — couleur et image coexistent
   logoImg: null,
   logoPos: 'top-left',
@@ -2926,9 +2978,30 @@ const fu = {
   dragStartX: 0, dragStartY: 0,
   imgStartX: 0, imgStartY: 0,
   pointMode: false,
-  pointLocked: false,  // point verrouillé
-  dragMode: 'top',     // 'top' = déplacer image | 'point' = placer point
+  dragMode: 'top',     // 'top' = déplacer image active | 'point' = placer point | 'text1/2' | 'logo'
+  // ── Accès pratique à l'image superposée active ──
+  get activeOv() { return this.overlays[this.activeOverlay]; },
+  // Compat : certains anciens accès passent par fu.topImg → renvoie l'image active
+  get topImg() { return this.overlays[this.activeOverlay].img; },
+  set topImg(v) { this.overlays[this.activeOverlay].img = v; },
+  get x() { return this.overlays[this.activeOverlay].x; },
+  set x(v) { this.overlays[this.activeOverlay].x = v; },
+  get y() { return this.overlays[this.activeOverlay].y; },
+  set y(v) { this.overlays[this.activeOverlay].y = v; },
+  get gradMode() { return this.overlays[this.activeOverlay].gradMode; },
+  set gradMode(v) { this.overlays[this.activeOverlay].gradMode = v; },
+  get gradPxTop() { return this.overlays[this.activeOverlay].gradPxTop; },
+  set gradPxTop(v) { this.overlays[this.activeOverlay].gradPxTop = v; },
+  get gradPyTop() { return this.overlays[this.activeOverlay].gradPyTop; },
+  set gradPyTop(v) { this.overlays[this.activeOverlay].gradPyTop = v; },
+  get pointLocked() { return this.overlays[this.activeOverlay].pointLocked; },
+  set pointLocked(v) { this.overlays[this.activeOverlay].pointLocked = v; },
 };
+
+// Y a-t-il au moins une image superposée chargée ?
+function fuHasAnyOverlay() {
+  return fu.overlays.some(o => o.img);
+}
 
 
 // ── Fond : mode image / couleur ──
@@ -3046,20 +3119,24 @@ function fuLoadBgFile(file) {
   reader.readAsDataURL(file);
 }
 
-function fuLoadTopFile(file) {
+function fuLoadTopFile(file, idx) {
   if (!file || !file.type.startsWith('image/')) return;
+  if (idx === undefined) idx = fu.activeOverlay;
   const reader = new FileReader();
   reader.onload = e => {
     const img = new Image();
     img.onload = () => {
-      fu.topImg = img;
+      fu.overlays[idx].img = img;
       // Position initiale : centré
-      fu.x = 0.5; fu.y = 0.5;
-      const thumb = document.getElementById('fu-top-thumb');
-      thumb.src = e.target.result; thumb.style.display = 'block';
-      document.getElementById('fu-top-label').style.display = 'none';
-      document.getElementById('fu-top-drop').classList.add('has-image');
-      fuUpdate();
+      fu.overlays[idx].x = 0.5; fu.overlays[idx].y = 0.5;
+      const thumb = document.getElementById('fu-top-thumb-' + idx);
+      if (thumb) { thumb.src = e.target.result; thumb.style.display = 'block'; }
+      const label = document.getElementById('fu-top-label-' + idx);
+      if (label) label.style.display = 'none';
+      const drop = document.getElementById('fu-top-drop-' + idx);
+      if (drop) drop.classList.add('has-image');
+      // Sélectionner automatiquement l'image qu'on vient de charger
+      fuSetActiveOverlay(idx);
     };
     img.src = e.target.result;
   };
@@ -3071,9 +3148,9 @@ function fuLoadBg(input) {
   fuLoadBgFile(file);
 }
 
-function fuLoadTop(input) {
+function fuLoadTop(input, idx) {
   const file = input.files[0]; if (!file) return;
-  fuLoadTopFile(file);
+  fuLoadTopFile(file, idx);
 }
 
 // ── Drag & Drop sur les zones fusion ──
@@ -3094,11 +3171,12 @@ function fuDropBg(e) {
   const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
   if (file) fuLoadBgFile(file);
 }
-function fuDropTop(e) {
+function fuDropTop(e, idx) {
   e.preventDefault(); e.stopPropagation();
-  document.getElementById('fu-top-drop').classList.remove('drag-over');
+  const drop = document.getElementById('fu-top-drop-' + idx);
+  if (drop) drop.classList.remove('drag-over');
   const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-  if (file) fuLoadTopFile(file);
+  if (file) fuLoadTopFile(file, idx);
 }
 
 // ── Suppression d'image ──
@@ -3114,20 +3192,31 @@ function fuClearBg(e) {
   if (input) input.value = '';
   fuUpdate();
 }
-function fuClearTop(e) {
+function fuClearTop(e, idx) {
   if (e) { e.preventDefault(); e.stopPropagation(); }
-  fu.topImg = null;
-  const thumb = document.getElementById('fu-top-thumb');
-  thumb.src = ''; thumb.style.display = 'none';
-  document.getElementById('fu-top-label').style.display = '';
-  const zone = document.getElementById('fu-top-drop');
-  zone.classList.remove('has-image');
-  const input = zone.querySelector('input[type=file]');
-  if (input) input.value = '';
-  const btn = document.getElementById('btn-fusion');
-  if (btn) btn.disabled = true;
-  const btnW = document.getElementById('btn-fusion-webp');
-  if (btnW) btnW.disabled = true;
+  if (idx === undefined) idx = fu.activeOverlay;
+  const ov = fu.overlays[idx];
+  ov.img = null;
+  // Réinitialiser ses réglages
+  ov.size = 60; ov.opacity = 100; ov.gradMode = 'none'; ov.gradSize = 50; ov.gradStart = 0;
+  ov.x = 0.5; ov.y = 0.5; ov.pointLocked = false;
+  const thumb = document.getElementById('fu-top-thumb-' + idx);
+  if (thumb) { thumb.src = ''; thumb.style.display = 'none'; }
+  const label = document.getElementById('fu-top-label-' + idx);
+  if (label) label.style.display = '';
+  const zone = document.getElementById('fu-top-drop-' + idx);
+  if (zone) {
+    zone.classList.remove('has-image');
+    const input = zone.querySelector('input[type=file]');
+    if (input) input.value = '';
+  }
+  // Désactiver l'export seulement s'il ne reste plus aucune image superposée
+  if (!fuHasAnyOverlay()) {
+    const btn = document.getElementById('btn-fusion');
+    if (btn) btn.disabled = true;
+    const btnW = document.getElementById('btn-fusion-webp');
+    if (btnW) btnW.disabled = true;
+  }
   fuUpdate();
 }
 
@@ -3146,6 +3235,32 @@ function fuSetGrad(mode, btn) {
   fuUpdate();
 }
 
+// Écrit la valeur d'un curseur dans l'image superposée active, puis redessine.
+function fuSlider(prop, value) {
+  fu.activeOv[prop] = parseInt(value, 10);
+  // Mettre à jour l'étiquette correspondante immédiatement
+  const labelMap = { size: 'fu-size-val', opacity: 'fu-opacity-val', gradSize: 'fu-grad-size-val', gradStart: 'fu-grad-start-val' };
+  const el = document.getElementById(labelMap[prop]);
+  if (el) el.textContent = parseInt(value, 10) + '%';
+  fuUpdate();
+}
+
+// Sélectionne l'image superposée active (0,1,2) que les réglages pilotent.
+function fuSetActiveOverlay(idx) {
+  fu.activeOverlay = idx;
+  // Boutons de sélection
+  for (let i = 0; i < 3; i++) {
+    const b = document.getElementById('fu-ov-sel-' + i);
+    if (b) b.classList.toggle('fu-active', i === idx);
+  }
+  // Si l'image active a un point de transparence, restaurer son point live
+  const ov = fu.activeOv;
+  if (ov.gradMode === 'point') {
+    fu.gradPx = ov.gradPxTop; fu.gradPy = ov.gradPyTop; // approximation; recalculé au rendu
+  }
+  fuUpdate();
+}
+
 function fuUpdate() {
   const canvas = document.getElementById('fu-canvas');
   const wrap = document.getElementById('fu-canvas-wrap');
@@ -3153,8 +3268,8 @@ function fuUpdate() {
   const btnExport = document.getElementById('btn-fusion');
   const btnExportWebp = document.getElementById('btn-fusion-webp');
 
-  // Plus d'image : on remet l'aperçu à l'état initial
-  if (!fu.bgImg && !fu.topImg) {
+  // Plus aucune image : on remet l'aperçu à l'état initial
+  if (!fu.bgImg && !fuHasAnyOverlay()) {
     if (canvas) {
       const cctx = canvas.getContext('2d');
       cctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -3166,10 +3281,11 @@ function fuUpdate() {
     return;
   }
 
-  // Taille canvas = image de référence (fond prioritaire)
+  // Taille canvas = image de référence (fond prioritaire, sinon 1ʳᵉ image chargée)
+  const firstOv = fu.overlays.find(o => o.img);
   const maxW = wrap.clientWidth || 600;
-  const refW = fu.bgImg ? fu.bgImg.width  : (fu.topImg ? fu.topImg.width  : 800);
-  const refH = fu.bgImg ? fu.bgImg.height : (fu.topImg ? fu.topImg.height : 600);
+  const refW = fu.bgImg ? fu.bgImg.width  : (firstOv ? firstOv.img.width  : 800);
+  const refH = fu.bgImg ? fu.bgImg.height : (firstOv ? firstOv.img.height : 600);
   const scale = Math.min(1, maxW / refW);
   canvas.width  = Math.round(refW * scale);
   canvas.height = Math.round(refH * scale);
@@ -3191,44 +3307,57 @@ function fuUpdate() {
   // 3. Image de fond par-dessus (si chargée)
   if (fu.bgImg) ctx.drawImage(fu.bgImg, 0, 0, canvas.width, canvas.height);
 
-  if (fu.topImg) {
+  // ── Images superposées : on dessine les 3 dans l'ordre (1 derrière, 3 devant) ──
+  const anyOverlay = fuHasAnyOverlay();
+  if (anyOverlay) {
     btnExport.disabled = false;
     if (btnExportWebp) btnExportWebp.disabled = false;
-    const sizePct = parseInt(document.getElementById('fu-size').value) / 100;
-    document.getElementById('fu-size-val').textContent = Math.round(sizePct * 100) + '%';
-    const opacity = parseInt(document.getElementById('fu-opacity').value) / 100;
-    document.getElementById('fu-opacity-val').textContent = Math.round(opacity * 100) + '%';
-    const gradSize = parseInt(document.getElementById('fu-grad-size').value) / 100;
-    document.getElementById('fu-grad-size-val').textContent = Math.round(gradSize * 100) + '%';
-    const gradStart = parseInt(document.getElementById('fu-grad-start').value) / 100;
-    document.getElementById('fu-grad-start-val').textContent = Math.round(gradStart * 100) + '%';
+  }
 
-    // Taille image top
+  // Mettre à jour l'affichage des curseurs selon l'IMAGE ACTIVE.
+  const act = fu.activeOv;
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  document.getElementById('fu-size').value = act.size;
+  setVal('fu-size-val', act.size + '%');
+  document.getElementById('fu-opacity').value = act.opacity;
+  setVal('fu-opacity-val', act.opacity + '%');
+  document.getElementById('fu-grad-size').value = act.gradSize;
+  setVal('fu-grad-size-val', act.gradSize + '%');
+  document.getElementById('fu-grad-start').value = act.gradStart;
+  setVal('fu-grad-start-val', act.gradStart + '%');
+
+  // Dessiner chaque image superposée avec SES propres réglages.
+  for (let oi = 0; oi < fu.overlays.length; oi++) {
+    const ov = fu.overlays[oi];
+    if (!ov.img) continue;
+
+    const sizePct = ov.size / 100;
+    const opacity = ov.opacity / 100;
+    const gradSize = ov.gradSize / 100;
+    const gradStart = ov.gradStart / 100;
+
     const topW = Math.round(canvas.width  * sizePct);
-    const topH = Math.round(topW * fu.topImg.height / fu.topImg.width);
-    const topX = Math.round(fu.x * canvas.width  - topW / 2);
-    const topY = Math.round(fu.y * canvas.height - topH / 2);
+    const topH = Math.round(topW * ov.img.height / ov.img.width);
+    const topX = Math.round(ov.x * canvas.width  - topW / 2);
+    const topY = Math.round(ov.y * canvas.height - topH / 2);
 
-    // Si point verrouillé sur l'image → recalculer depuis coords relatives
-    if (fu.pointLocked && fu.gradMode === 'point') {
+    // Si point verrouillé sur cette image active → recalculer depuis coords relatives
+    if (oi === fu.activeOverlay && ov.pointLocked && ov.gradMode === 'point') {
       fuRestorePointFromRelative(canvas);
     }
 
-    // Créer un canvas temporaire pour l'image top + masque dégradé
     const tmp = document.createElement('canvas');
     tmp.width  = canvas.width;
     tmp.height = canvas.height;
     const tc = tmp.getContext('2d');
 
-    // Dessiner l'image top
     tc.save();
     tc.globalAlpha = opacity;
-    tc.drawImage(fu.topImg, topX, topY, topW, topH);
+    tc.drawImage(ov.img, topX, topY, topW, topH);
     tc.restore();
 
-    // Appliquer le masque dégradé (destination-out)
-    if (fu.gradMode !== 'none') {
-      const grd = fuMakeGradient(tc, canvas.width, canvas.height, topX, topY, topW, topH, gradSize, gradStart);
+    if (ov.gradMode !== 'none') {
+      const grd = fuMakeGradientFor(ov, tc, canvas.width, canvas.height, topX, topY, topW, topH, gradSize, gradStart);
       if (grd) {
         tc.save();
         tc.globalCompositeOperation = 'destination-out';
@@ -3239,18 +3368,18 @@ function fuUpdate() {
     }
 
     ctx.drawImage(tmp, 0, 0);
-
-    // 5. Logo DEVANT les photos (au premier plan)
-    if (fu.logoLayer === 'front') fuDrawLogo(ctx, canvas.width, canvas.height);
   }
+
+  // 5. Logo DEVANT les photos (au premier plan)
+  if (anyOverlay && fu.logoLayer === 'front') fuDrawLogo(ctx, canvas.width, canvas.height);
 
   // 6. Textes (toujours au premier plan)
   fuDrawTexts(ctx, canvas.width, canvas.height);
 }
 
-function fuMakeGradient(ctx, W, H, topX, topY, topW, topH, gradSize, gradStart) {
+function fuMakeGradientFor(ov, ctx, W, H, topX, topY, topW, topH, gradSize, gradStart) {
   let grd;
-  const m = fu.gradMode;
+  const m = ov.gradMode;
   const gs = gradSize;
   const st = gradStart || 0; // 0..0.95 — décalage du début de l'effet
 
@@ -3301,9 +3430,16 @@ function fuMakeGradient(ctx, W, H, topX, topY, topW, topH, gradSize, gradStart) 
     grd.addColorStop(0, 'rgba(0,0,0,1)');
     grd.addColorStop(1, 'rgba(0,0,0,0)');
   } else if (m === 'point') {
-    // Le point est OPAQUE, la transparence augmente en s'éloignant
-    // st = rayon d'opacité totale autour du point
-    const px = fu.gradPx * W, py = fu.gradPy * H;
+    // Le point est OPAQUE, la transparence augmente en s'éloignant.
+    // Pour l'image active on suit le point live (fu.gradPx/Py) ; pour les autres,
+    // on dérive le point depuis leurs coords relatives stockées sur l'image.
+    let px, py;
+    if (ov === fu.activeOv) {
+      px = fu.gradPx * W; py = fu.gradPy * H;
+    } else {
+      px = (topX + ov.gradPxTop * topW);
+      py = (topY + ov.gradPyTop * topH);
+    }
     const base = Math.min(W, H) * 0.7;
     const r0 = base * st;
     const r1 = base * (st + gs);
@@ -3357,7 +3493,7 @@ function fuToggleLock() {
 // ── Coordonnées relatives à l'image top ──
 function fuStoreRelativePoint(canvasX, canvasY, canvas) {
   // Calculer la position de l'image top sur le canvas
-  const sizePct = parseInt(document.getElementById('fu-size').value) / 100;
+  const sizePct = fu.activeOv.size / 100;
   const topW = canvas.width  * sizePct;
   const topH = topW * (fu.topImg ? fu.topImg.height / fu.topImg.width : 1);
   const topX = fu.x * canvas.width  - topW / 2;
@@ -3369,7 +3505,7 @@ function fuStoreRelativePoint(canvasX, canvasY, canvas) {
 
 // Recalculer gradPx/gradPy depuis coords relatives (si verrouillé)
 function fuRestorePointFromRelative(canvas) {
-  const sizePct = parseInt(document.getElementById('fu-size').value) / 100;
+  const sizePct = fu.activeOv.size / 100;
   const topW = canvas.width  * sizePct;
   const topH = topW * (fu.topImg ? fu.topImg.height / fu.topImg.width : 1);
   const topX = fu.x * canvas.width  - topW / 2;
@@ -3461,7 +3597,7 @@ function fuRestorePointFromRelative(canvas) {
 
 // ── Export haute résolution ──
 async function fuExport(format) {
-  if (!fu.topImg && !fu.bgImg) return;
+  if (!fuHasAnyOverlay() && !fu.bgImg) return;
   format = (format === 'webp') ? 'webp' : 'png';
   const btnPng  = document.getElementById('btn-fusion');
   const btnWebp = document.getElementById('btn-fusion-webp');
@@ -3472,7 +3608,8 @@ async function fuExport(format) {
   activeBtn.textContent = 'Export…';
 
   const canvas = document.createElement('canvas');
-  const refImg = fu.bgImg || fu.topImg;
+  const firstOv = fu.overlays.find(o => o.img);
+  const refImg = fu.bgImg || (firstOv ? firstOv.img : null);
   const W = refImg.width;
   const H = refImg.height;
   canvas.width  = W;
@@ -3488,33 +3625,38 @@ async function fuExport(format) {
   // 3. Image de fond par-dessus
   if (fu.bgImg) ctx.drawImage(fu.bgImg, 0, 0);
 
-  const sizePct  = parseInt(document.getElementById('fu-size').value) / 100;
-  const opacity  = parseInt(document.getElementById('fu-opacity').value) / 100;
-  const gradSize  = parseInt(document.getElementById('fu-grad-size').value) / 100;
-  const gradStart = parseInt(document.getElementById('fu-grad-start').value) / 100;
-  const topW = Math.round(W * sizePct);
-  const topH = Math.round(topW * fu.topImg.height / fu.topImg.width);
-  const topX = Math.round(fu.x * W - topW / 2);
-  const topY = Math.round(fu.y * H - topH / 2);
+  // 4. Les 3 images superposées, chacune avec ses réglages
+  for (let oi = 0; oi < fu.overlays.length; oi++) {
+    const ov = fu.overlays[oi];
+    if (!ov.img) continue;
+    const sizePct  = ov.size / 100;
+    const opacity  = ov.opacity / 100;
+    const gradSize  = ov.gradSize / 100;
+    const gradStart = ov.gradStart / 100;
+    const topW = Math.round(W * sizePct);
+    const topH = Math.round(topW * ov.img.height / ov.img.width);
+    const topX = Math.round(ov.x * W - topW / 2);
+    const topY = Math.round(ov.y * H - topH / 2);
 
-  const tmp = document.createElement('canvas');
-  tmp.width = W; tmp.height = H;
-  const tc = tmp.getContext('2d');
-  tc.save(); tc.globalAlpha = opacity;
-  tc.drawImage(fu.topImg, topX, topY, topW, topH);
-  tc.restore();
+    const tmp = document.createElement('canvas');
+    tmp.width = W; tmp.height = H;
+    const tc = tmp.getContext('2d');
+    tc.save(); tc.globalAlpha = opacity;
+    tc.drawImage(ov.img, topX, topY, topW, topH);
+    tc.restore();
 
-  if (fu.gradMode !== 'none') {
-    const grd = fuMakeGradient(tc, W, H, topX, topY, topW, topH, gradSize, gradStart);
-    if (grd) {
-      tc.save();
-      tc.globalCompositeOperation = 'destination-out';
-      tc.fillStyle = grd;
-      tc.fillRect(0, 0, W, H);
-      tc.restore();
+    if (ov.gradMode !== 'none') {
+      const grd = fuMakeGradientFor(ov, tc, W, H, topX, topY, topW, topH, gradSize, gradStart);
+      if (grd) {
+        tc.save();
+        tc.globalCompositeOperation = 'destination-out';
+        tc.fillStyle = grd;
+        tc.fillRect(0, 0, W, H);
+        tc.restore();
+      }
     }
+    ctx.drawImage(tmp, 0, 0);
   }
-  ctx.drawImage(tmp, 0, 0);
   // Logo devant
   if (fu.logoLayer === 'front') fuDrawLogo(ctx, W, H);
   // Textes
