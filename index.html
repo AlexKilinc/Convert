@@ -2751,11 +2751,11 @@ async function downloadZipWM() {
       await writable.write(zipBlob);
       await writable.close();
       if (btn) { btn.disabled = false; btn.textContent = 'ZIP enregistré !'; }
-      setTimeout(() => { if (btn) btn.textContent = defaultLabel; }, 3000);
+      setTimeout(() => { if (btn) btn.innerHTML = defaultLabel; }, 3000);
       return;
     } catch(err) {
       if (err.name === 'AbortError') {
-        if (btn) { btn.disabled = false; btn.textContent = defaultLabel; }
+        if (btn) { btn.disabled = false; btn.innerHTML = defaultLabel; }
         return;
       }
     }
@@ -2766,7 +2766,7 @@ async function downloadZipWM() {
     const a = document.createElement('a');
     a.href = e.target.result; a.download = zipName;
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    if (btn) { btn.disabled = false; btn.textContent = defaultLabel; }
+    if (btn) { btn.disabled = false; btn.innerHTML = defaultLabel; }
   };
   reader.readAsDataURL(zipBlob);
 }
