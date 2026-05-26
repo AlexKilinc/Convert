@@ -1226,6 +1226,30 @@
           </div>
         </div>
 
+        <!-- C-bis. FORME & EFFETS -->
+        <div class="fu-group">
+          <div class="fu-group-title">Forme &amp; effets</div>
+          <div class="fusion-section">
+            <button id="fu-circle-btn" onclick="fuToggleCircle()" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);color:var(--muted);font-family:Syne,sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.2s;margin-bottom:12px">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg> Masque cercle
+            </button>
+            <div id="fu-circle-lock-row" style="display:none;margin:-4px 0 10px;align-items:center;gap:8px;flex-wrap:wrap">
+              <button id="fu-circle-lock-btn" onclick="fuToggleCircleLock()" style="padding:5px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);color:var(--muted);font-family:Syne,sans-serif;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.2s">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Verrouiller sur l'image
+              </button>
+              <span id="fu-circle-lock-status" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);flex-basis:100%">Déverrouillé : glisser déplace le cercle</span>
+            </div>
+            <div class="fu-slider-row">
+              <span class="fu-label">Bords arrondis</span><span class="fu-val" id="fu-radius-val">0%</span>
+            </div>
+            <input type="range" id="fu-radius" min="0" max="50" value="0" oninput="fuSlider('radius',this.value)" style="width:100%">
+            <div class="fu-slider-row" style="margin-top:10px">
+              <span class="fu-label">Ombre portée</span><span class="fu-val" id="fu-shadow-val">0%</span>
+            </div>
+            <input type="range" id="fu-shadow" min="0" max="100" value="0" oninput="fuSlider('shadow',this.value)" style="width:100%">
+          </div>
+        </div>
+
         <!-- D. LOGO -->
         <div class="fu-group">
           <div style="display:flex;align-items:center;justify-content:space-between">
@@ -2962,9 +2986,9 @@ const fu = {
   bgImg: null,
   // 3 images superposées, chacune avec ses propres réglages.
   overlays: [
-    { img: null, x: 0.5, y: 0.5, size: 60, opacity: 100, gradMode: 'none', gradSize: 50, gradStart: 0, gradPxTop: 0.5, gradPyTop: 0.5, pointLocked: false },
-    { img: null, x: 0.5, y: 0.5, size: 60, opacity: 100, gradMode: 'none', gradSize: 50, gradStart: 0, gradPxTop: 0.5, gradPyTop: 0.5, pointLocked: false },
-    { img: null, x: 0.5, y: 0.5, size: 60, opacity: 100, gradMode: 'none', gradSize: 50, gradStart: 0, gradPxTop: 0.5, gradPyTop: 0.5, pointLocked: false },
+    { img: null, x: 0.5, y: 0.5, size: 60, opacity: 100, gradMode: 'none', gradSize: 50, gradStart: 0, gradPxTop: 0.5, gradPyTop: 0.5, pointLocked: false, radius: 0, circle: false, shadow: 0, circleOffX: 0.5, circleOffY: 0.5, circleLocked: false },
+    { img: null, x: 0.5, y: 0.5, size: 60, opacity: 100, gradMode: 'none', gradSize: 50, gradStart: 0, gradPxTop: 0.5, gradPyTop: 0.5, pointLocked: false, radius: 0, circle: false, shadow: 0, circleOffX: 0.5, circleOffY: 0.5, circleLocked: false },
+    { img: null, x: 0.5, y: 0.5, size: 60, opacity: 100, gradMode: 'none', gradSize: 50, gradStart: 0, gradPxTop: 0.5, gradPyTop: 0.5, pointLocked: false, radius: 0, circle: false, shadow: 0, circleOffX: 0.5, circleOffY: 0.5, circleLocked: false },
   ],
   activeOverlay: 0,    // index de l'image en cours d'édition (0,1,2)
   gradPx: 0.5, gradPy: 0.5, // point libre en coords canvas (0-1) de l'image active
@@ -3235,11 +3259,56 @@ function fuSetGrad(mode, btn) {
   fuUpdate();
 }
 
+// Active/désactive le masque cercle sur l'image active.
+function fuToggleCircle() {
+  fu.activeOv.circle = !fu.activeOv.circle;
+  fuSyncCircleBtn();
+  fuUpdate();
+}
+
+// Verrouille / déverrouille le cercle sur l'image (verrouillé = glisser recadre).
+function fuToggleCircleLock() {
+  fu.activeOv.circleLocked = !fu.activeOv.circleLocked;
+  fuSyncCircleBtn();
+}
+
+// Met à jour l'apparence du bouton cercle + cadenas selon l'image active.
+function fuSyncCircleBtn() {
+  const btn = document.getElementById('fu-circle-btn');
+  if (!btn) return;
+  const on = fu.activeOv.circle;
+  btn.style.borderColor = on ? 'var(--accent1)' : 'var(--border)';
+  btn.style.background  = on ? 'var(--accent1)' : 'var(--card)';
+  btn.style.color       = on ? 'white' : 'var(--muted)';
+
+  // Ligne du cadenas visible seulement quand le cercle est actif
+  const lockRow = document.getElementById('fu-circle-lock-row');
+  if (lockRow) lockRow.style.display = on ? 'flex' : 'none';
+
+  const lockBtn = document.getElementById('fu-circle-lock-btn');
+  const lockStatus = document.getElementById('fu-circle-lock-status');
+  if (lockBtn) {
+    const locked = fu.activeOv.circleLocked;
+    const openLock  = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 019.9-1"/></svg>';
+    const closedLock = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>';
+    lockBtn.style.borderColor = locked ? 'var(--accent1)' : 'var(--border)';
+    lockBtn.style.background  = locked ? 'var(--accent1)' : 'var(--card)';
+    lockBtn.style.color       = locked ? 'white' : 'var(--muted)';
+    lockBtn.innerHTML = (locked ? closedLock : openLock) + (locked ? 'Verrouillé sur l\'image' : 'Verrouiller sur l\'image');
+    if (lockStatus) {
+      lockStatus.textContent = locked
+        ? '🔒 Glisser recadre l\'image dans le cercle'
+        : 'Déverrouillé : glisser déplace le cercle';
+      lockStatus.style.color = locked ? 'var(--accent1)' : 'var(--muted)';
+    }
+  }
+}
+
 // Écrit la valeur d'un curseur dans l'image superposée active, puis redessine.
 function fuSlider(prop, value) {
   fu.activeOv[prop] = parseInt(value, 10);
   // Mettre à jour l'étiquette correspondante immédiatement
-  const labelMap = { size: 'fu-size-val', opacity: 'fu-opacity-val', gradSize: 'fu-grad-size-val', gradStart: 'fu-grad-start-val' };
+  const labelMap = { size: 'fu-size-val', opacity: 'fu-opacity-val', gradSize: 'fu-grad-size-val', gradStart: 'fu-grad-start-val', radius: 'fu-radius-val', shadow: 'fu-shadow-val' };
   const el = document.getElementById(labelMap[prop]);
   if (el) el.textContent = parseInt(value, 10) + '%';
   fuUpdate();
@@ -3325,6 +3394,11 @@ function fuUpdate() {
   setVal('fu-grad-size-val', act.gradSize + '%');
   document.getElementById('fu-grad-start').value = act.gradStart;
   setVal('fu-grad-start-val', act.gradStart + '%');
+  const radSlider = document.getElementById('fu-radius');
+  if (radSlider) { radSlider.value = act.radius; setVal('fu-radius-val', act.radius + '%'); }
+  const shadSlider = document.getElementById('fu-shadow');
+  if (shadSlider) { shadSlider.value = act.shadow; setVal('fu-shadow-val', act.shadow + '%'); }
+  fuSyncCircleBtn();
 
   // Dessiner chaque image superposée avec SES propres réglages.
   for (let oi = 0; oi < fu.overlays.length; oi++) {
@@ -3351,10 +3425,8 @@ function fuUpdate() {
     tmp.height = canvas.height;
     const tc = tmp.getContext('2d');
 
-    tc.save();
-    tc.globalAlpha = opacity;
-    tc.drawImage(ov.img, topX, topY, topW, topH);
-    tc.restore();
+    // Dessin de l'image avec arrondi / cercle / ombre
+    fuDrawShapedImage(tc, ov, topX, topY, topW, topH);
 
     if (ov.gradMode !== 'none') {
       const grd = fuMakeGradientFor(ov, tc, canvas.width, canvas.height, topX, topY, topW, topH, gradSize, gradStart);
@@ -3376,6 +3448,91 @@ function fuUpdate() {
   // 6. Textes (toujours au premier plan)
   fuDrawTexts(ctx, canvas.width, canvas.height);
 }
+
+// Dessine l'image d'un overlay (avec arrondi/cercle/ombre) dans un contexte tc,
+// à la position et taille données, en appliquant opacité et masque de forme.
+// Retourne true si un masque de forme (arrondi/cercle) a été appliqué.
+function fuDrawShapedImage(tc, ov, topX, topY, topW, topH) {
+  const r = ov.radius || 0;       // 0..50 (% du plus petit côté)
+  const circle = !!ov.circle;
+  const opacity = ov.opacity / 100;
+
+  const minSide = Math.min(topW, topH);
+  const radiusPx = circle ? 0 : Math.round(minSide * (r / 100));
+
+  // Géométrie du cercle parfait : centré dans la zone, diamètre = plus petit côté.
+  const circleD = minSide;
+  const circleCx = topX + topW / 2;
+  const circleCy = topY + topH / 2;
+  const circleR = circleD / 2;
+
+  // Construit le chemin de la forme.
+  function shapePath() {
+    tc.beginPath();
+    if (circle) {
+      // VRAI cercle (pas ellipse), même si l'image est rectangulaire.
+      tc.arc(circleCx, circleCy, circleR, 0, Math.PI * 2);
+    } else if (radiusPx > 0) {
+      const x = topX, y = topY, w = topW, h = topH, rad = Math.min(radiusPx, w / 2, h / 2);
+      tc.moveTo(x + rad, y);
+      tc.arcTo(x + w, y,     x + w, y + h, rad);
+      tc.arcTo(x + w, y + h, x,     y + h, rad);
+      tc.arcTo(x,     y + h, x,     y,     rad);
+      tc.arcTo(x,     y,     x + w, y,     rad);
+      tc.closePath();
+    } else {
+      tc.rect(topX, topY, topW, topH);
+    }
+  }
+
+  const hasShape = circle || radiusPx > 0;
+
+  tc.save();
+  tc.globalAlpha = opacity;
+
+  // Ombre posée sur la forme (sinon le clip la couperait).
+  if (ov.shadow > 0) {
+    tc.shadowColor = 'rgba(0,0,0,' + Math.min(0.85, ov.shadow / 100) + ')';
+    tc.shadowBlur = Math.round(minSide * 0.06 * (ov.shadow / 50));
+    tc.shadowOffsetX = 0;
+    tc.shadowOffsetY = Math.round(minSide * 0.02 * (ov.shadow / 50));
+    if (hasShape) {
+      shapePath();
+      tc.fillStyle = 'rgba(0,0,0,1)';
+      tc.fill();
+      tc.shadowColor = 'transparent'; tc.shadowBlur = 0; tc.shadowOffsetY = 0;
+    }
+  }
+
+  if (circle) {
+    // Cercle : clip rond, puis on dessine une portion CARRÉE de l'image source
+    // (recadrée selon circleOffX/Y) pour remplir le cercle sans déformation.
+    shapePath();
+    tc.clip();
+
+    const iw = ov.img.width, ih = ov.img.height;
+    const srcSide = Math.min(iw, ih);              // côté du carré découpé dans la source
+    const maxOffX = iw - srcSide, maxOffY = ih - srcSide;
+    const sx = Math.round(maxOffX * (ov.circleOffX != null ? ov.circleOffX : 0.5));
+    const sy = Math.round(maxOffY * (ov.circleOffY != null ? ov.circleOffY : 0.5));
+    // Destination : le carré englobant le cercle.
+    const dX = circleCx - circleR, dY = circleCy - circleR, dSize = circleR * 2;
+    tc.drawImage(ov.img, sx, sy, srcSide, srcSide, dX, dY, dSize, dSize);
+    tc.restore();
+    return true;
+  }
+
+  // Arrondi ou rectangle : clip éventuel puis dessin classique (image entière).
+  if (hasShape) {
+    shapePath();
+    tc.clip();
+  }
+  tc.drawImage(ov.img, topX, topY, topW, topH);
+  tc.restore();
+
+  return hasShape;
+}
+
 
 function fuMakeGradientFor(ov, ctx, W, H, topX, topY, topW, topH, gradSize, gradStart) {
   let grd;
@@ -3541,11 +3698,17 @@ function fuRestorePointFromRelative(canvas) {
         fuUpdate(); return;
       }
 
-      // Mode déplacer image
+      // Mode déplacer image (ou recadrer dans le cercle si cercle actif)
       fu.dragging = true;
       rect = canvas.getBoundingClientRect();
       fu.dragStartX = e.clientX; fu.dragStartY = e.clientY;
-      fu.imgStartX = fu.x; fu.imgStartY = fu.y;
+      if (fu.activeOv.circle && fu.activeOv.circleLocked) {
+        // On mémorise le recadrage de départ
+        fu.cropStartX = (fu.activeOv.circleOffX != null ? fu.activeOv.circleOffX : 0.5);
+        fu.cropStartY = (fu.activeOv.circleOffY != null ? fu.activeOv.circleOffY : 0.5);
+      } else {
+        fu.imgStartX = fu.x; fu.imgStartY = fu.y;
+      }
       canvas.style.cursor = 'grabbing';
     });
 
@@ -3554,8 +3717,14 @@ function fuRestorePointFromRelative(canvas) {
       rect = canvas.getBoundingClientRect();
       const dx = (e.clientX - fu.dragStartX) / canvas.width;
       const dy = (e.clientY - fu.dragStartY) / canvas.height;
-      fu.x = Math.max(0, Math.min(1, fu.imgStartX + dx));
-      fu.y = Math.max(0, Math.min(1, fu.imgStartY + dy));
+      if (fu.activeOv.circle && fu.activeOv.circleLocked) {
+        // Recadrage dans le cercle : on déplace la portion visible (sens inverse du glisser)
+        fu.activeOv.circleOffX = Math.max(0, Math.min(1, fu.cropStartX - dx * 1.5));
+        fu.activeOv.circleOffY = Math.max(0, Math.min(1, fu.cropStartY - dy * 1.5));
+      } else {
+        fu.x = Math.max(0, Math.min(1, fu.imgStartX + dx));
+        fu.y = Math.max(0, Math.min(1, fu.imgStartY + dy));
+      }
       fuUpdate();
     });
 
@@ -3577,7 +3746,12 @@ function fuRestorePointFromRelative(canvas) {
       fu.dragging = true;
       rect = canvas.getBoundingClientRect();
       fu.dragStartX = t.clientX; fu.dragStartY = t.clientY;
-      fu.imgStartX = fu.x; fu.imgStartY = fu.y;
+      if (fu.activeOv.circle && fu.activeOv.circleLocked) {
+        fu.cropStartX = (fu.activeOv.circleOffX != null ? fu.activeOv.circleOffX : 0.5);
+        fu.cropStartY = (fu.activeOv.circleOffY != null ? fu.activeOv.circleOffY : 0.5);
+      } else {
+        fu.imgStartX = fu.x; fu.imgStartY = fu.y;
+      }
     }, { passive: true });
 
     document.addEventListener('touchmove', e => {
@@ -3586,8 +3760,13 @@ function fuRestorePointFromRelative(canvas) {
       rect = canvas.getBoundingClientRect();
       const dx = (t.clientX - fu.dragStartX) / canvas.width;
       const dy = (t.clientY - fu.dragStartY) / canvas.height;
-      fu.x = Math.max(0, Math.min(1, fu.imgStartX + dx));
-      fu.y = Math.max(0, Math.min(1, fu.imgStartY + dy));
+      if (fu.activeOv.circle && fu.activeOv.circleLocked) {
+        fu.activeOv.circleOffX = Math.max(0, Math.min(1, fu.cropStartX - dx * 1.5));
+        fu.activeOv.circleOffY = Math.max(0, Math.min(1, fu.cropStartY - dy * 1.5));
+      } else {
+        fu.x = Math.max(0, Math.min(1, fu.imgStartX + dx));
+        fu.y = Math.max(0, Math.min(1, fu.imgStartY + dy));
+      }
       fuUpdate();
     }, { passive: true });
 
@@ -3641,9 +3820,7 @@ async function fuExport(format) {
     const tmp = document.createElement('canvas');
     tmp.width = W; tmp.height = H;
     const tc = tmp.getContext('2d');
-    tc.save(); tc.globalAlpha = opacity;
-    tc.drawImage(ov.img, topX, topY, topW, topH);
-    tc.restore();
+    fuDrawShapedImage(tc, ov, topX, topY, topW, topH);
 
     if (ov.gradMode !== 'none') {
       const grd = fuMakeGradientFor(ov, tc, W, H, topX, topY, topW, topH, gradSize, gradStart);
