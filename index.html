@@ -3234,8 +3234,8 @@ function fuClearTop(e, idx) {
     const input = zone.querySelector('input[type=file]');
     if (input) input.value = '';
   }
-  // Désactiver l'export seulement s'il ne reste plus aucune image superposée
-  if (!fuHasAnyOverlay()) {
+  // Désactiver l'export seulement s'il ne reste plus AUCUNE image (ni fond ni overlay)
+  if (!fuHasAnyOverlay() && !fu.bgImg) {
     const btn = document.getElementById('btn-fusion');
     if (btn) btn.disabled = true;
     const btnW = document.getElementById('btn-fusion-webp');
@@ -3378,7 +3378,8 @@ function fuUpdate() {
 
   // ── Images superposées : on dessine les 3 dans l'ordre (1 derrière, 3 devant) ──
   const anyOverlay = fuHasAnyOverlay();
-  if (anyOverlay) {
+  // L'export est possible dès qu'il y a au moins une image (fond OU superposée).
+  if (fu.bgImg || anyOverlay) {
     btnExport.disabled = false;
     if (btnExportWebp) btnExportWebp.disabled = false;
   }
@@ -3442,8 +3443,8 @@ function fuUpdate() {
     ctx.drawImage(tmp, 0, 0);
   }
 
-  // 5. Logo DEVANT les photos (au premier plan)
-  if (anyOverlay && fu.logoLayer === 'front') fuDrawLogo(ctx, canvas.width, canvas.height);
+  // 5. Logo DEVANT les photos (au premier plan) — même si une seule photo (image de fond)
+  if (fu.logoLayer === 'front') fuDrawLogo(ctx, canvas.width, canvas.height);
 
   // 6. Textes (toujours au premier plan)
   fuDrawTexts(ctx, canvas.width, canvas.height);
