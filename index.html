@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AKELI Convert</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&family=Roboto:ital,wght@0,400;0,500;0,700;1,400;1,700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -1307,6 +1307,7 @@
                   <option value="sans-serif">Sans-serif</option><option value="serif">Serif</option>
                   <option value="Georgia,serif">Georgia</option><option value="'Courier New',monospace">Courier</option>
                   <option value="Arial,sans-serif">Arial</option><option value="'Times New Roman',serif">Times NR</option>
+                  <option value="'Roboto',sans-serif">Roboto</option>
                 </select>
               </div>
               <div>
@@ -1346,6 +1347,7 @@
                   <option value="sans-serif">Sans-serif</option><option value="serif">Serif</option>
                   <option value="Georgia,serif">Georgia</option><option value="'Courier New',monospace">Courier</option>
                   <option value="Arial,sans-serif">Arial</option><option value="'Times New Roman',serif">Times NR</option>
+                  <option value="'Roboto',sans-serif">Roboto</option>
                 </select>
               </div>
               <div>
@@ -3928,9 +3930,11 @@ function fuDrawTexts(ctx, W, H) {
     ctx.fillStyle = color;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    // Ombre légère pour lisibilité
-    ctx.shadowColor = 'rgba(0,0,0,0.35)';
-    ctx.shadowBlur  = 3;
+    // Pas d'ombre portée
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur  = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
     ctx.fillText(text, pos.x * W, pos.y * H);
     ctx.restore();
 
