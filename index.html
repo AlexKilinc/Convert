@@ -3839,8 +3839,8 @@ async function fuExport(format) {
   }
   // Logo devant
   if (fu.logoLayer === 'front') fuDrawLogo(ctx, W, H);
-  // Textes
-  fuDrawTexts(ctx, W, H);
+  // Textes (sans indicateur de sélection à l'export)
+  fuDrawTexts(ctx, W, H, false);
 
   // Encodage selon le format demandé (avec fallback PNG si WebP non supporté)
   let mime = format === 'webp' ? 'image/webp' : 'image/png';
@@ -3908,7 +3908,7 @@ function fuSyncTextColor(n) {
   if (picker) { picker.value = '#' + hex; fuUpdate(); }
 }
 
-function fuDrawTexts(ctx, W, H) {
+function fuDrawTexts(ctx, W, H, showSelection = true) {
   [1, 2].forEach(n => {
     const enabled = document.getElementById('fu-t' + n + '-enable');
     if (!enabled || !enabled.checked) return;
@@ -3938,8 +3938,8 @@ function fuDrawTexts(ctx, W, H) {
     ctx.fillText(text, pos.x * W, pos.y * H);
     ctx.restore();
 
-    // Dessiner un indicateur de sélection si mode actif
-    if (fu.dragMode === 'text' + n) {
+    // Dessiner un indicateur de sélection si mode actif (aperçu uniquement)
+    if (showSelection && fu.dragMode === 'text' + n) {
       ctx.save();
       ctx.strokeStyle = n === 1 ? '#4a8fd4' : '#e63946';
       ctx.lineWidth = 2;
