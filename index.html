@@ -826,9 +826,14 @@
   }
   .fu-tile-clear:hover { background: #e84545; transform: scale(1.1); }
   /* Œil de visibilité en haut à gauche de chaque tuile */
-  .fu-tile-eye {
+  .fu-tile-controls {
     position: absolute;
     top: 6px; left: 6px;
+    display: flex;
+    gap: 4px;
+    z-index: 5;
+  }
+  .fu-tile-eye {
     width: 24px; height: 24px;
     border-radius: 50%;
     border: 1.5px solid var(--border);
@@ -838,10 +843,27 @@
     padding: 0;
     display: flex; align-items: center; justify-content: center;
     transition: background 0.15s, transform 0.1s, color 0.15s;
-    z-index: 5;
   }
   .fu-tile-eye:hover { background: var(--surface); transform: scale(1.08); }
   .fu-tile-eye.fu-eye-off { color: #d23030; background: rgba(210,48,48,0.08); border-color: #d23030; }
+  /* Flèches d'échange entre cases */
+  .fu-tile-swap {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    color: var(--accent1);
+    cursor: pointer;
+    padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, transform 0.1s, border-color 0.15s, color 0.15s;
+  }
+  .fu-tile-swap:hover {
+    background: #001A4D;
+    color: white;
+    border-color: #001A4D;
+    transform: scale(1.1);
+  }
   /* Sections pliables — chevron + animation */
   .fu-collapsible .fu-group-title {
     cursor: pointer;
@@ -1148,7 +1170,10 @@
 
       <!-- Image de fond -->
       <div class="fu-tile fu-layer-tile fu-active" data-layer="0" onclick="fuSetActiveLayer(0)">
-        <button type="button" class="fu-tile-eye" id="fu-eye-0" onclick="fuToggleVisible(0,event)" title="Masquer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        <div class="fu-tile-controls">
+          <button type="button" class="fu-tile-eye" id="fu-eye-0" onclick="fuToggleVisible(0,event)" title="Masquer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <button type="button" class="fu-tile-swap" onclick="fuSwapImages(0,1,event)" title="Échanger avec Calque 1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+        </div>
         <div class="fu-tile-title">Image de fond</div>
         <div class="fu-tile-drop" id="fu-bg-drop">
           <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadBg(this)">
@@ -1160,7 +1185,11 @@
 
       <!-- Calque superposé 1 -->
       <div class="fu-tile fu-layer-tile" data-layer="1" onclick="fuSetActiveLayer(1)">
-        <button type="button" class="fu-tile-eye" id="fu-eye-1" onclick="fuToggleVisible(1,event)" title="Masquer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        <div class="fu-tile-controls">
+          <button type="button" class="fu-tile-eye" id="fu-eye-1" onclick="fuToggleVisible(1,event)" title="Masquer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <button type="button" class="fu-tile-swap" onclick="fuSwapImages(1,0,event)" title="Échanger avec Image de fond"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <button type="button" class="fu-tile-swap" onclick="fuSwapImages(1,2,event)" title="Échanger avec Calque 2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+        </div>
         <div class="fu-tile-title">Calque superposé 1</div>
         <div class="fu-tile-drop">
           <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadTopInto(0,this)">
@@ -1172,7 +1201,11 @@
 
       <!-- Calque superposé 2 -->
       <div class="fu-tile fu-layer-tile" data-layer="2" onclick="fuSetActiveLayer(2)">
-        <button type="button" class="fu-tile-eye" id="fu-eye-2" onclick="fuToggleVisible(2,event)" title="Masquer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        <div class="fu-tile-controls">
+          <button type="button" class="fu-tile-eye" id="fu-eye-2" onclick="fuToggleVisible(2,event)" title="Masquer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <button type="button" class="fu-tile-swap" onclick="fuSwapImages(2,1,event)" title="Échanger avec Calque 1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <button type="button" class="fu-tile-swap" onclick="fuSwapImages(2,3,event)" title="Échanger avec Calque 3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+        </div>
         <div class="fu-tile-title">Calque superposé 2</div>
         <div class="fu-tile-drop">
           <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadTopInto(1,this)">
@@ -1184,7 +1217,10 @@
 
       <!-- Calque superposé 3 -->
       <div class="fu-tile fu-layer-tile" data-layer="3" onclick="fuSetActiveLayer(3)">
-        <button type="button" class="fu-tile-eye" id="fu-eye-3" onclick="fuToggleVisible(3,event)" title="Masquer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        <div class="fu-tile-controls">
+          <button type="button" class="fu-tile-eye" id="fu-eye-3" onclick="fuToggleVisible(3,event)" title="Masquer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <button type="button" class="fu-tile-swap" onclick="fuSwapImages(3,2,event)" title="Échanger avec Calque 2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+        </div>
         <div class="fu-tile-title">Calque superposé 3</div>
         <div class="fu-tile-drop">
           <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadTopInto(2,this)">
@@ -1406,17 +1442,21 @@
         <!-- F. EXPORT -->
         <div class="fu-group">
           <div class="fu-group-title">Export</div>
-          <div style="display:flex;gap:8px">
-            <button class="btn-convert" id="btn-fusion-png" onclick="fuExport('png')" disabled style="margin-top:0;flex:1">
+          <div style="display:flex;gap:6px">
+            <button class="btn-convert" id="btn-fusion-png" onclick="fuExport('png')" disabled style="margin-top:0;flex:1;font-size:12px;padding:10px 4px">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               PNG
             </button>
-            <button class="btn-convert" id="btn-fusion-webp" onclick="fuExport('webp')" disabled style="margin-top:0;flex:1">
+            <button class="btn-convert" id="btn-fusion-png-c" onclick="fuExport('png-c')" disabled style="margin-top:0;flex:1;font-size:12px;padding:10px 4px" title="PNG avec résolution réduite à 70% — fichier ~2× plus léger">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              PNG 70%
+            </button>
+            <button class="btn-convert" id="btn-fusion-webp" onclick="fuExport('webp')" disabled style="margin-top:0;flex:1;font-size:12px;padding:10px 4px">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               WebP
             </button>
           </div>
-          <p style="font-size:10px;color:var(--muted);margin-top:6px;text-align:center">PNG : meilleure qualité — WebP : plus léger</p>
+          <p style="font-size:10px;color:var(--muted);margin-top:6px;text-align:center">PNG : qualité maximale — PNG 70% : ~50% du poids — WebP : plus léger</p>
           <div id="fu-result-wrap" style="display:none;margin-top:10px">
             <div class="preview-label" id="fu-result-label" style="margin-bottom:6px;color:var(--accent3)">✓ Aperçu de l'export</div>
             <img id="fu-result-img" style="width:100%;border-radius:8px;border:1px solid var(--border);margin-bottom:10px">
@@ -3054,6 +3094,45 @@ function fuUpdateEyeIcon(idx) {
   }
 }
 
+// Échange les IMAGES entre deux cases (idx 0=fond, 1/2/3=calques)
+// Les paramètres (taille/opacité/rotation/position/visible) restent attachés à la case ;
+// seules les images se déplacent. Cela préserve les réglages de mise en page.
+function fuSwapImages(idxA, idxB, evt) {
+  if (evt) evt.stopPropagation();
+  if (idxA === idxB) return;
+  // Référence vers l'image de chaque case
+  const getImg = (i) => i === 0 ? fu.bgImg : fu.tops[i - 1].img;
+  const setImg = (i, img) => { if (i === 0) fu.bgImg = img; else fu.tops[i - 1].img = img; };
+  const a = getImg(idxA);
+  const b = getImg(idxB);
+  setImg(idxA, b);
+  setImg(idxB, a);
+  // Rafraîchir les vignettes des deux cases
+  fuRefreshTileImg(idxA);
+  fuRefreshTileImg(idxB);
+  fuUpdate();
+}
+
+// Met à jour la vignette/label/croix d'une case (peu importe son type fond/calque)
+function fuRefreshTileImg(idx) {
+  if (idx === 0) {
+    const thumb = document.getElementById('fu-bg-thumb');
+    const label = document.getElementById('fu-bg-label');
+    const clrBtn = document.getElementById('fu-clear-bg');
+    if (fu.bgImg) {
+      if (thumb) { thumb.src = fu.bgImg.src; thumb.style.display = 'block'; }
+      if (label) label.style.display = 'none';
+      if (clrBtn) clrBtn.style.display = 'flex';
+    } else {
+      if (thumb) thumb.style.display = 'none';
+      if (label) label.style.display = 'block';
+      if (clrBtn) clrBtn.style.display = 'none';
+    }
+  } else {
+    fuRefreshLayerSlot(idx - 1);
+  }
+}
+
 
 // ── Fond : mode image / couleur ──
 // fuSetBgMode supprimé — couleur et image coexistent toujours
@@ -3289,6 +3368,7 @@ function fuUpdate() {
   const wrap = document.getElementById('fu-canvas-wrap');
   const placeholder = document.getElementById('fu-placeholder');
   const btnPng  = document.getElementById('btn-fusion-png');
+  const btnPngC = document.getElementById('btn-fusion-png-c');
   const btnWebp = document.getElementById('btn-fusion-webp');
   if (!canvas || !wrap) return;
 
@@ -3327,6 +3407,7 @@ function fuUpdate() {
   // Activer les boutons d'export dès qu'il y a quelque chose à exporter
   const canExport = !!(fu.bgImg || firstTop);
   if (btnPng)  btnPng.disabled  = !canExport;
+  if (btnPngC) btnPngC.disabled = !canExport;
   if (btnWebp) btnWebp.disabled = !canExport;
 
   // ───── BRANCHEMENT SELON LE MODE ─────
@@ -3714,27 +3795,33 @@ function fuRestorePointFromRelative(canvas) {
   });
 })();
 
-// Les contenus initiaux des deux boutons d'export (utilisés pour les remettre proprement)
+// Les contenus initiaux des boutons d'export (pour restauration propre après clic)
 const FU_EXPORT_BTN_HTML = {
-  png:  '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> PNG',
-  webp: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> WebP'
+  'png':   '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> PNG',
+  'png-c': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> PNG 70%',
+  'webp':  '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> WebP'
 };
 
-// ── Export haute résolution (format = 'png' ou 'webp') ──
-async function fuExport(format) {
-  format = format || 'png';
-  const mime = format === 'webp' ? 'image/webp' : 'image/png';
-  const ext  = format === 'webp' ? 'webp' : 'png';
-  const filename = 'fusion.' + ext;
+// ── Export haute résolution (formatKey = 'png', 'png-c' ou 'webp') ──
+async function fuExport(formatKey) {
+  formatKey = formatKey || 'png';
+  // Détermine le format réel + échelle + extension + suggestions de fichier
+  const isWebp = formatKey === 'webp';
+  const isCompactPng = formatKey === 'png-c';
+  const mime = isWebp ? 'image/webp' : 'image/png';
+  const ext  = isWebp ? 'webp' : 'png';
+  const scale = isCompactPng ? 0.7 : 1; // PNG 70% : résolution réduite à 70%
+  const filename = isCompactPng ? 'fusion-light.png' : ('fusion.' + ext);
 
   const firstTop = fu.tops.find(t => t.img);
   if (!firstTop && !fu.bgImg) return;
 
-  const btnPng  = document.getElementById('btn-fusion-png');
-  const btnWebp = document.getElementById('btn-fusion-webp');
-  const btn = format === 'webp' ? btnWebp : btnPng;
-  const otherBtn = format === 'webp' ? btnPng : btnWebp;
-  btn.disabled = true; if (otherBtn) otherBtn.disabled = true;
+  const btnPng   = document.getElementById('btn-fusion-png');
+  const btnPngC  = document.getElementById('btn-fusion-png-c');
+  const btnWebp  = document.getElementById('btn-fusion-webp');
+  const allBtns = [btnPng, btnPngC, btnWebp].filter(Boolean);
+  const btn = isWebp ? btnWebp : (isCompactPng ? btnPngC : btnPng);
+  allBtns.forEach(b => b.disabled = true);
   btn.innerHTML = '<span style="font-size:12px">Export…</span>';
 
   try {
@@ -3834,9 +3921,22 @@ async function fuExport(format) {
       fuDrawTexts(ctx, W, H);
     }
 
-    // Génère le blob (qualité 0.92 pour WebP)
+    // Redimensionnement éventuel (PNG 70%) : downscale en haute qualité avant export
+    let outCanvas = canvas;
+    if (scale !== 1) {
+      const sw = Math.max(1, Math.round(canvas.width  * scale));
+      const sh = Math.max(1, Math.round(canvas.height * scale));
+      outCanvas = document.createElement('canvas');
+      outCanvas.width = sw; outCanvas.height = sh;
+      const sctx = outCanvas.getContext('2d');
+      sctx.imageSmoothingEnabled = true;
+      sctx.imageSmoothingQuality = 'high';
+      sctx.drawImage(canvas, 0, 0, sw, sh);
+    }
+
+    // Génère le blob (qualité 0.92 pour WebP, ignorée par PNG)
     const blob = await new Promise((resolve, reject) => {
-      canvas.toBlob(b => b ? resolve(b) : reject(new Error('toBlob a échoué')), mime, 0.92);
+      outCanvas.toBlob(b => b ? resolve(b) : reject(new Error('toBlob a échoué')), mime, 0.92);
     });
 
     // Aperçu dans la page
@@ -3902,9 +4002,8 @@ async function fuExport(format) {
     alert('L\u2019export a échoué : ' + (e && e.message ? e.message : e));
   } finally {
     // Restaure le contenu initial du bouton à partir d'un HTML statique connu (anti-charabia)
-    btn.innerHTML = FU_EXPORT_BTN_HTML[format];
-    btn.disabled = false;
-    if (otherBtn) otherBtn.disabled = false;
+    btn.innerHTML = FU_EXPORT_BTN_HTML[formatKey];
+    allBtns.forEach(b => b.disabled = false);
   }
 }
 
