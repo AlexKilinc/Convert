@@ -1169,7 +1169,7 @@
     <div class="fu-tiles-grid" style="margin-bottom:16px">
 
       <!-- Image de fond -->
-      <div class="fu-tile fu-layer-tile fu-active" data-layer="0" onclick="fuSetActiveLayer(0)">
+      <div class="fu-tile fu-layer-tile fu-active" data-layer="0" onclick="fuSetActiveLayer(0)" draggable="true" ondragstart="fuTileDragStart(event,0)" ondragover="fuTileDragOver(event)" ondrop="fuTileDrop(event,0)">
         <div class="fu-tile-controls">
           <button type="button" class="fu-tile-eye" id="fu-eye-0" onclick="fuToggleVisible(0,event)" title="Masquer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
           <button type="button" class="fu-tile-swap" onclick="fuSwapImages(0,1,event)" title="Échanger avec Calque 1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
@@ -1184,7 +1184,7 @@
       </div>
 
       <!-- Calque superposé 1 -->
-      <div class="fu-tile fu-layer-tile" data-layer="1" onclick="fuSetActiveLayer(1)">
+      <div class="fu-tile fu-layer-tile" data-layer="1" onclick="fuSetActiveLayer(1)" draggable="true" ondragstart="fuTileDragStart(event,1)" ondragover="fuTileDragOver(event)" ondrop="fuTileDrop(event,1)">
         <div class="fu-tile-controls">
           <button type="button" class="fu-tile-eye" id="fu-eye-1" onclick="fuToggleVisible(1,event)" title="Masquer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
           <button type="button" class="fu-tile-swap" onclick="fuSwapImages(1,0,event)" title="Échanger avec Image de fond"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
@@ -1200,7 +1200,7 @@
       </div>
 
       <!-- Calque superposé 2 -->
-      <div class="fu-tile fu-layer-tile" data-layer="2" onclick="fuSetActiveLayer(2)">
+      <div class="fu-tile fu-layer-tile" data-layer="2" onclick="fuSetActiveLayer(2)" draggable="true" ondragstart="fuTileDragStart(event,2)" ondragover="fuTileDragOver(event)" ondrop="fuTileDrop(event,2)">
         <div class="fu-tile-controls">
           <button type="button" class="fu-tile-eye" id="fu-eye-2" onclick="fuToggleVisible(2,event)" title="Masquer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
           <button type="button" class="fu-tile-swap" onclick="fuSwapImages(2,1,event)" title="Échanger avec Calque 1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
@@ -1216,7 +1216,7 @@
       </div>
 
       <!-- Calque superposé 3 -->
-      <div class="fu-tile fu-layer-tile" data-layer="3" onclick="fuSetActiveLayer(3)">
+      <div class="fu-tile fu-layer-tile" data-layer="3" onclick="fuSetActiveLayer(3)" draggable="true" ondragstart="fuTileDragStart(event,3)" ondragover="fuTileDragOver(event)" ondrop="fuTileDrop(event,3)">
         <div class="fu-tile-controls">
           <button type="button" class="fu-tile-eye" id="fu-eye-3" onclick="fuToggleVisible(3,event)" title="Masquer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
           <button type="button" class="fu-tile-swap" onclick="fuSwapImages(3,2,event)" title="Échanger avec Calque 2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
@@ -1473,9 +1473,10 @@
       <div class="fu-preview-col">
         <div class="fu-preview-header">
           <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">Aperçu en direct</span>
-          <div style="display:flex;gap:6px">
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
             <button type="button" class="fu-layout-badge fu-layout-active" data-layout="fusion" onclick="fuSetLayoutMode('fusion')">Mode : Fusion Image</button>
             <button type="button" class="fu-layout-badge" data-layout="grid" onclick="fuSetLayoutMode('grid')">Mode : Grid 2×2</button>
+            <button type="button" class="fu-layout-badge" data-layout="grid6" onclick="fuSetLayoutMode('grid6')">Mode : Grid 6 ID</button>
           </div>
         </div>
         <div class="fusion-canvas-wrap" id="fu-canvas-wrap">
@@ -1485,6 +1486,10 @@
           </div>
           <canvas id="fu-canvas" style="display:none;width:100%;cursor:move;border-radius:10px;"></canvas>
         </div>
+        <p id="fu-grid6-hint" style="display:none;font-size:11px;color:var(--muted);margin-top:8px;text-align:center;line-height:1.5">
+          <strong style="color:var(--accent1)">Planche photo d'identité 10×15 cm</strong><br>
+          Double-cliquez sur une case pour choisir une photo · Glissez un fichier sur une case · Glissez une vignette du haut sur une case · Ajustez la taille/position via les curseurs
+        </p>
       </div>
 
     </div><!-- /fu-main-layout -->
@@ -2930,7 +2935,12 @@ const fu = {
   pointMode: false,
   pointLocked: false,
   dragMode: 'top',
-  layoutMode: 'fusion',  // 'fusion' = superposition | 'grid' = grille 2×2
+  layoutMode: 'fusion',  // 'fusion' | 'grid' | 'grid6'
+  // Mode Grid 6 ID : 6 photos d'identité indépendantes (35×45 mm sur planche 10×15 cm)
+  idPhotos: Array.from({ length: 6 }, () => ({
+    img: null, x: 0.5, y: 0.5, size: 100, opacity: 100, rotation: 0, visible: true
+  })),
+  activeIdCell: 0,  // 0..5 — case sélectionnée en mode Grid 6 ID
 };
 
 // Helpers unifiés : le calque actif est soit le fond (idx 0) soit l'un des 3 superposés
@@ -2966,12 +2976,17 @@ function fuToggleCollapse(groupEl) {
   else groupEl.classList.add('fu-collapsed');
 }
 
-// Bascule entre Mode Fusion et Mode Grid 2×2
+// Bascule entre Mode Fusion, Mode Grid 2×2 et Mode Grid 6 ID
 function fuSetLayoutMode(mode) {
   fu.layoutMode = mode;
   document.querySelectorAll('.fu-layout-badge').forEach(b => {
     b.classList.toggle('fu-layout-active', b.dataset.layout === mode);
   });
+  // Légende d'aide visible uniquement en Grid 6 ID
+  const hint = document.getElementById('fu-grid6-hint');
+  if (hint) hint.style.display = mode === 'grid6' ? 'block' : 'none';
+  // Synchronise les sliders avec la case/calque actif du nouveau mode
+  fuSyncControlsFromLayer();
   fuUpdate();
 }
 
@@ -3076,6 +3091,225 @@ function fuRenderGrid(ctx, W, H, forExport) {
       ctx.restore();
     }
   });
+}
+
+// ═══════════════════════════════════════════════
+// MODE GRID 6 ID : planche 10×15 cm, 6 photos 35×45 mm
+// ═══════════════════════════════════════════════
+
+// Calcule les 6 rectangles de photo sur la planche W×H (ratio 2:3 portrait)
+// Layout : 2 colonnes × 3 lignes
+// - Photo : 35×45 mm → 35% W et 30% H
+// - Marges H : 10 mm (10% W) ; marges V : (H - 3*photoH) / 4
+function fuGrid6Cells(W, H) {
+  const photoW = 0.35 * W;
+  const photoH = 0.30 * H;
+  const marginH = 0.10 * W;
+  const marginV = (H - 3 * photoH) / 4;
+  const cells = [];
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 2; col++) {
+      cells.push({
+        x: marginH + col * (photoW + marginH),
+        y: marginV + row * (photoH + marginV),
+        w: photoW,
+        h: photoH
+      });
+    }
+  }
+  return cells;
+}
+
+// Renvoie l'index de la case sous (px, py), ou -1 si en dehors
+function fuGrid6CellAt(px, py, W, H) {
+  const cells = fuGrid6Cells(W, H);
+  for (let i = 0; i < cells.length; i++) {
+    const c = cells[i];
+    if (px >= c.x && px <= c.x + c.w && py >= c.y && py <= c.y + c.h) return i;
+  }
+  return -1;
+}
+
+// Dessine la planche 6 ID dans le contexte ctx (de taille W×H)
+function fuRenderGrid6ID(ctx, W, H, forExport) {
+  // Fond blanc de la planche
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, W, H);
+
+  const cells = fuGrid6Cells(W, H);
+  cells.forEach((c, idx) => {
+    const photo = fu.idPhotos[idx];
+
+    if (photo.img && photo.visible) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(c.x, c.y, c.w, c.h);
+      ctx.clip();
+
+      const sizePct = photo.size / 100;
+      const opacity = photo.opacity / 100;
+      // Pour qu'une photo non recadrée remplisse au mieux la case : on calcule
+      // un "facteur de remplissage" basé sur le ratio. À 100 %, la photo
+      // couvre la case en utilisant la dimension la plus contraignante (cover).
+      const ratioImg = photo.img.width / photo.img.height;
+      const ratioCell = c.w / c.h;
+      let baseW, baseH;
+      if (ratioImg > ratioCell) {
+        // image plus large que la case → on cale sur la hauteur
+        baseH = c.h;
+        baseW = baseH * ratioImg;
+      } else {
+        baseW = c.w;
+        baseH = baseW / ratioImg;
+      }
+      const imgW = baseW * sizePct;
+      const imgH = baseH * sizePct;
+      const imgX = c.x + photo.x * c.w - imgW / 2;
+      const imgY = c.y + photo.y * c.h - imgH / 2;
+
+      ctx.globalAlpha = opacity;
+      if (photo.rotation) {
+        const cx = imgX + imgW / 2, cy = imgY + imgH / 2;
+        ctx.translate(cx, cy);
+        ctx.rotate(photo.rotation * Math.PI / 180);
+        ctx.translate(-cx, -cy);
+      }
+      ctx.drawImage(photo.img, imgX, imgY, imgW, imgH);
+      ctx.restore();
+    } else if (!forExport) {
+      // Aperçu uniquement : remplir d'un gris clair + numéro central
+      ctx.save();
+      ctx.fillStyle = '#f5f5f7';
+      ctx.fillRect(c.x, c.y, c.w, c.h);
+      ctx.fillStyle = '#bbb';
+      ctx.font = 'bold ' + Math.round(Math.min(c.w, c.h) * 0.22) + 'px Syne, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(String(idx + 1), c.x + c.w / 2, c.y + c.h / 2);
+      ctx.restore();
+    }
+
+    // Cadre fin gris autour de la case (utile à l'aperçu, omis à l'export)
+    if (!forExport) {
+      ctx.save();
+      ctx.strokeStyle = '#d0d4dc';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(c.x + 0.5, c.y + 0.5, c.w - 1, c.h - 1);
+      ctx.restore();
+    }
+
+    // Liséré bleu marine sur la case active (aperçu seulement)
+    if (idx === fu.activeIdCell && !forExport) {
+      ctx.save();
+      ctx.strokeStyle = '#001A4D';
+      ctx.lineWidth = 2.5;
+      ctx.strokeRect(c.x + 1.25, c.y + 1.25, c.w - 2.5, c.h - 2.5);
+      ctx.restore();
+    }
+  });
+}
+
+// Sélectionne une case du mode Grid 6 ID + synchronise les sliders
+function fuSetActiveIdCell(idx) {
+  if (idx < 0 || idx > 5) return;
+  fu.activeIdCell = idx;
+  fuSyncControlsFromLayer();
+  fuUpdate();
+}
+
+// Charge une image dans une case ID (depuis un File, un objet Image ou une dataURL)
+function fuLoadIntoIdCell(idx, source) {
+  if (source instanceof Image) {
+    fu.idPhotos[idx].img = source;
+    fu.activeIdCell = idx;
+    fuSyncControlsFromLayer();
+    fuUpdate();
+    return;
+  }
+  if (source instanceof File || source instanceof Blob) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        fu.idPhotos[idx].img = img;
+        fu.activeIdCell = idx;
+        fuSyncControlsFromLayer();
+        fuUpdate();
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(source);
+    return;
+  }
+  if (typeof source === 'string') {
+    const img = new Image();
+    img.onload = () => {
+      fu.idPhotos[idx].img = img;
+      fu.activeIdCell = idx;
+      fuSyncControlsFromLayer();
+      fuUpdate();
+    };
+    img.src = source;
+  }
+}
+
+function fuClearIdCell(idx) {
+  fu.idPhotos[idx].img = null;
+  fuUpdate();
+}
+
+// Démarre le drag d'une tuile (Image de fond ou Calque 1/2/3).
+// Cible possible : autre tuile (échange) ou case ID en mode Grid 6 (copie).
+function fuTileDragStart(evt, layerIdx) {
+  const srcImg = layerIdx === 0 ? fu.bgImg : (fu.tops[layerIdx - 1] && fu.tops[layerIdx - 1].img);
+  if (!srcImg) { evt.preventDefault(); return; }
+  evt.dataTransfer.setData('text/plain', String(layerIdx));
+  evt.dataTransfer.effectAllowed = 'copyMove';
+}
+
+// Drop sur une tuile : soit un fichier OS (chargement), soit une autre tuile (échange)
+function fuTileDragOver(evt) {
+  evt.preventDefault();
+  evt.dataTransfer.dropEffect = 'copy';
+}
+
+function fuTileDrop(evt, targetIdx) {
+  evt.preventDefault();
+  evt.stopPropagation();
+  // 1) Fichier OS déposé
+  const file = evt.dataTransfer.files && evt.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) {
+    fuLoadIntoTile(targetIdx, file);
+    return;
+  }
+  // 2) Drag depuis une autre tuile → échange des images
+  const data = evt.dataTransfer.getData('text/plain');
+  if (data !== '') {
+    const srcIdx = parseInt(data);
+    if (!isNaN(srcIdx) && srcIdx !== targetIdx) {
+      fuSwapImages(srcIdx, targetIdx);
+    }
+  }
+}
+
+// Charge un fichier image dans une tuile (idx 0 = fond, 1/2/3 = calques superposés)
+function fuLoadIntoTile(idx, file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      if (idx === 0) {
+        fu.bgImg = img;
+      } else {
+        fu.tops[idx - 1].img = img;
+      }
+      fuRefreshTileImg(idx);
+      fuSetActiveLayer(idx);
+      fuUpdate();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
 }
 
 function fuUpdateEyeIcon(idx) {
@@ -3298,7 +3532,7 @@ function fuRefreshLayerSlot(idx) {
 
 // Lit les valeurs des sliders et les écrit dans le calque actif
 function fuSyncLayerFromControls() {
-  const t = fuCurTop();
+  const t = fu.layoutMode === 'grid6' ? fu.idPhotos[fu.activeIdCell] : fuCurTop();
   const size = parseInt(document.getElementById('fu-size').value);
   const op   = parseInt(document.getElementById('fu-opacity').value);
   const rot  = parseInt(document.getElementById('fu-rotation').value);
@@ -3312,13 +3546,20 @@ function fuSyncLayerFromControls() {
 
 // Synchronise les sliders avec les valeurs mémorisées du calque actif
 function fuSyncControlsFromLayer() {
-  const t = fuCurTop();
+  const t = fu.layoutMode === 'grid6' ? fu.idPhotos[fu.activeIdCell] : fuCurTop();
   const sz = document.getElementById('fu-size');     if (sz) sz.value = t.size;
   const op = document.getElementById('fu-opacity');  if (op) op.value = t.opacity;
   const ro = document.getElementById('fu-rotation'); if (ro) ro.value = t.rotation;
   const sv = document.getElementById('fu-size-val');     if (sv) sv.textContent = t.size + '%';
   const ov = document.getElementById('fu-opacity-val');  if (ov) ov.textContent = t.opacity + '%';
   const rv = document.getElementById('fu-rotation-val'); if (rv) rv.textContent = t.rotation + '\u00b0';
+  // Met à jour le label du calque actif dans la sidebar
+  const lbl = document.getElementById('fu-active-layer-label');
+  if (lbl) {
+    if (fu.layoutMode === 'grid6') lbl.textContent = '(Photo ' + (fu.activeIdCell + 1) + ')';
+    else if (fu.activeLayer === 0) lbl.textContent = '(Image de fond)';
+    else lbl.textContent = '(Calque ' + fu.activeLayer + ')';
+  }
 }
 
 function fuClearLayer(idx) {
@@ -3385,6 +3626,12 @@ function fuUpdate() {
     const scale = Math.min(1, maxW / totalW);
     canvas.width  = Math.round(totalW * scale);
     canvas.height = Math.round(totalH * scale);
+  } else if (fu.layoutMode === 'grid6') {
+    // Mode Grid 6 ID : planche 10×15 cm portrait → ratio 2:3
+    const totalW = 1000, totalH = 1500; // unités arbitraires, ratio respecté
+    const scale = Math.min(1, maxW / totalW);
+    canvas.width  = Math.round(totalW * scale);
+    canvas.height = Math.round(totalH * scale);
   } else {
     const refW = fu.bgImg ? fu.bgImg.width  : (firstTop ? firstTop.img.width  : 800);
     const refH = fu.bgImg ? fu.bgImg.height : (firstTop ? firstTop.img.height : 600);
@@ -3405,7 +3652,8 @@ function fuUpdate() {
   if (gradSizeVal) gradSizeVal.textContent = Math.round(gradSize * 100) + '%';
 
   // Activer les boutons d'export dès qu'il y a quelque chose à exporter
-  const canExport = !!(fu.bgImg || firstTop);
+  const hasIdPhoto = fu.idPhotos.some(p => p.img);
+  const canExport = !!(fu.bgImg || firstTop) || (fu.layoutMode === 'grid6' && hasIdPhoto);
   if (btnPng)  btnPng.disabled  = !canExport;
   if (btnPngC) btnPngC.disabled = !canExport;
   if (btnWebp) btnWebp.disabled = !canExport;
@@ -3416,6 +3664,11 @@ function fuUpdate() {
     // Logo et textes au-dessus de la grille
     if (fu.logoLayer === 'front') fuDrawLogo(ctx, canvas.width, canvas.height);
     fuDrawTexts(ctx, canvas.width, canvas.height);
+    return;
+  }
+  if (fu.layoutMode === 'grid6') {
+    fuRenderGrid6ID(ctx, canvas.width, canvas.height, false);
+    // En mode planche photo d'identité, on n'ajoute ni logo ni textes
     return;
   }
 
@@ -3639,7 +3892,25 @@ function fuRestorePointFromRelative(canvas) {
     }
 
     canvas.addEventListener('mousedown', e => {
-      // ── Mode Grid 2×2 : déterminer la case sous le curseur ──
+      // ── Mode Grid 6 ID : sélection/déplacement par case ──
+      if (fu.layoutMode === 'grid6') {
+        const rectC = canvas.getBoundingClientRect();
+        const px = (e.clientX - rectC.left) * (canvas.width  / rectC.width);
+        const py = (e.clientY - rectC.top)  * (canvas.height / rectC.height);
+        const cellIdx = fuGrid6CellAt(px, py, canvas.width, canvas.height);
+        if (cellIdx < 0) return;
+        if (cellIdx !== fu.activeIdCell) fuSetActiveIdCell(cellIdx);
+        const photo = fu.idPhotos[cellIdx];
+        if (!photo.img) return;
+        fu.dragging = true;
+        rect = canvas.getBoundingClientRect();
+        fu.dragStartX = e.clientX; fu.dragStartY = e.clientY;
+        fu.imgStartX = photo.x; fu.imgStartY = photo.y;
+        canvas.style.cursor = 'grabbing';
+        return;
+      }
+
+      // ── Mode Grid 2×2 ──
       if (fu.layoutMode === 'grid') {
         const rectC = canvas.getBoundingClientRect();
         const px = (e.clientX - rectC.left) * (canvas.width  / rectC.width);
@@ -3690,6 +3961,20 @@ function fuRestorePointFromRelative(canvas) {
 
     document.addEventListener('mousemove', e => {
       if (!fu.dragging || fu.dragMode !== 'top') return;
+
+      if (fu.layoutMode === 'grid6') {
+        const photo = fu.idPhotos[fu.activeIdCell];
+        if (!photo.img) return;
+        const cells = fuGrid6Cells(canvas.width, canvas.height);
+        const cell = cells[fu.activeIdCell];
+        const rectC = canvas.getBoundingClientRect();
+        const dx = (e.clientX - fu.dragStartX) * (canvas.width  / rectC.width)  / cell.w;
+        const dy = (e.clientY - fu.dragStartY) * (canvas.height / rectC.height) / cell.h;
+        photo.x = Math.max(0, Math.min(1, fu.imgStartX + dx));
+        photo.y = Math.max(0, Math.min(1, fu.imgStartY + dy));
+        fuUpdate();
+        return;
+      }
 
       if (fu.layoutMode === 'grid') {
         const ref = fuLayerForCell(fu.activeLayer);
@@ -3792,6 +4077,81 @@ function fuRestorePointFromRelative(canvas) {
     }, { passive: true });
 
     document.addEventListener('touchend', () => { fu.dragging = false; });
+
+    // ── Mode Grid 6 ID : double-clic pour ouvrir un sélecteur de fichier ──
+    canvas.addEventListener('dblclick', e => {
+      if (fu.layoutMode !== 'grid6') return;
+      const rectC = canvas.getBoundingClientRect();
+      const px = (e.clientX - rectC.left) * (canvas.width  / rectC.width);
+      const py = (e.clientY - rectC.top)  * (canvas.height / rectC.height);
+      const cellIdx = fuGrid6CellAt(px, py, canvas.width, canvas.height);
+      if (cellIdx < 0) return;
+      fuSetActiveIdCell(cellIdx);
+      // Crée un input file temporaire et déclenche le sélecteur
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.jpg,.jpeg,.png,.webp';
+      input.style.display = 'none';
+      input.onchange = () => {
+        const file = input.files[0];
+        if (file) fuLoadIntoIdCell(cellIdx, file);
+        document.body.removeChild(input);
+      };
+      document.body.appendChild(input);
+      input.click();
+    });
+
+    // ── Drag-drop sur le canvas : fichier OS ou image d'une tuile ──
+    canvas.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+    });
+    canvas.addEventListener('drop', e => {
+      e.preventDefault();
+      const rectC = canvas.getBoundingClientRect();
+      const px = (e.clientX - rectC.left) * (canvas.width  / rectC.width);
+      const py = (e.clientY - rectC.top)  * (canvas.height / rectC.height);
+
+      // Récupération source (fichier OS ou tuile)
+      const file = e.dataTransfer.files && e.dataTransfer.files[0];
+      const srcLayerStr = e.dataTransfer.getData('text/plain');
+      const srcLayerIdx = srcLayerStr !== '' ? parseInt(srcLayerStr) : -1;
+      const srcImg = srcLayerIdx >= 0 ? (srcLayerIdx === 0 ? fu.bgImg : (fu.tops[srcLayerIdx - 1] && fu.tops[srcLayerIdx - 1].img)) : null;
+
+      // ── Mode Grid 6 ID : drop sur une case ID ──
+      if (fu.layoutMode === 'grid6') {
+        const cellIdx = fuGrid6CellAt(px, py, canvas.width, canvas.height);
+        if (cellIdx < 0) return;
+        if (file && file.type.startsWith('image/')) { fuLoadIntoIdCell(cellIdx, file); return; }
+        if (srcImg) { fuLoadIntoIdCell(cellIdx, srcImg); }
+        return;
+      }
+
+      // ── Mode Grid 2×2 : drop sur la case sous le curseur ──
+      if (fu.layoutMode === 'grid') {
+        const cellIdx = fuCellAt(px, py, canvas.width, canvas.height);
+        if (cellIdx < 0) return;
+        // cellIdx 0..3 → activeLayer 0..3 (même indexation)
+        if (file && file.type.startsWith('image/')) {
+          fuLoadIntoTile(cellIdx, file);
+          return;
+        }
+        if (srcLayerIdx >= 0 && srcLayerIdx !== cellIdx) {
+          fuSwapImages(srcLayerIdx, cellIdx);
+        }
+        return;
+      }
+
+      // ── Mode Fusion : drop sur le canvas → calque actif ──
+      const targetIdx = fu.activeLayer; // 0..3
+      if (file && file.type.startsWith('image/')) {
+        fuLoadIntoTile(targetIdx, file);
+        return;
+      }
+      if (srcLayerIdx >= 0 && srcLayerIdx !== targetIdx) {
+        fuSwapImages(srcLayerIdx, targetIdx);
+      }
+    });
   });
 })();
 
@@ -3814,7 +4174,9 @@ async function fuExport(formatKey) {
   const filename = isCompactPng ? 'fusion-light.png' : ('fusion.' + ext);
 
   const firstTop = fu.tops.find(t => t.img);
-  if (!firstTop && !fu.bgImg) return;
+  const hasIdPhoto = fu.idPhotos.some(p => p.img);
+  const isGrid6 = fu.layoutMode === 'grid6';
+  if (!firstTop && !fu.bgImg && !(isGrid6 && hasIdPhoto)) return;
 
   const btnPng   = document.getElementById('btn-fusion-png');
   const btnPngC  = document.getElementById('btn-fusion-png-c');
@@ -3840,6 +4202,13 @@ async function fuExport(formatKey) {
       // Logo et textes par-dessus (le logo "derrière" n'a pas de sens en grid)
       if (fu.logoLayer === 'front' || fu.logoLayer === 'behind') fuDrawLogo(ctxG, W, H);
       fuDrawTexts(ctxG, W, H);
+    } else if (fu.layoutMode === 'grid6') {
+      // Mode Grid 6 ID : planche 10×15 cm à 300 DPI → 1181×1772 px
+      W = 1181;
+      H = 1772;
+      canvas.width = W; canvas.height = H;
+      const ctxG = canvas.getContext('2d');
+      fuRenderGrid6ID(ctxG, W, H, true);
     } else {
       const refImg = fu.bgImg || firstTop.img;
       W = refImg.width;
@@ -3939,8 +4308,17 @@ async function fuExport(formatKey) {
       outCanvas.toBlob(b => b ? resolve(b) : reject(new Error('toBlob a échoué')), mime, 0.92);
     });
 
-    // Aperçu dans la page
-    const dataUrl = URL.createObjectURL(blob);
+    // Convertit le blob en dataURL (compatible CSP : certains environnements
+    // sandboxés comme Claude.ai bloquent les blob: URLs via une CSP stricte
+    // "img-src ... blob: data:". Les dataURL data: sont toujours acceptées).
+    const dataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(blob);
+    });
+
+    // Aperçu dans la page (via dataURL)
     const wrap = document.getElementById('fu-result-wrap');
     const img  = document.getElementById('fu-result-img');
     img.src = dataUrl;
@@ -3954,7 +4332,6 @@ async function fuExport(formatKey) {
     // Détection iframe cross-origin (showSaveFilePicker y est interdit)
     let inCrossOriginFrame = false;
     try {
-      // Si window !== window.parent ET on ne peut pas lire parent.location → cross-origin
       if (window.self !== window.top) {
         try { void window.top.location.href; }
         catch (_) { inCrossOriginFrame = true; }
@@ -3967,20 +4344,19 @@ async function fuExport(formatKey) {
       try {
         const handle = await window.showSaveFilePicker({
           suggestedName: filename,
-          types: [{ description: format.toUpperCase(), accept: { [mime]: ['.' + ext] } }]
+          types: [{ description: formatKey.toUpperCase(), accept: { [mime]: ['.' + ext] } }]
         });
         const writable = await handle.createWritable();
         await writable.write(blob);
         await writable.close();
         saved = true;
       } catch(err) {
-        // AbortError (utilisateur a annulé) ou SecurityError (iframe) → fallback silencieux
         if (err && err.name !== 'AbortError' && err.name !== 'SecurityError') {
           console.warn('showSaveFilePicker indisponible, fallback :', err.name);
         }
       }
     }
-    // 2) Fallback universel : <a download> automatique
+    // 2) Fallback universel : <a download> avec dataURL (CSP-compatible)
     if (!saved) {
       try {
         const a = document.createElement('a');
@@ -3991,7 +4367,7 @@ async function fuExport(formatKey) {
         a.click();
         document.body.removeChild(a);
       } catch(e) {
-        // 3) Dernier recours : ouvrir dans un nouvel onglet (clic droit → enregistrer)
+        // 3) Dernier recours : ouvrir dans un nouvel onglet
         console.warn('Téléchargement automatique bloqué, ouverture dans un onglet :', e);
         window.open(dataUrl, '_blank');
         if (lbl) lbl.textContent = 'Téléchargement bloqué — clic droit sur l\u2019aperçu pour enregistrer';
