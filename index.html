@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AKELI Convert</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&family=Roboto:ital,wght@0,400;0,500;0,700;1,400;1,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -71,7 +71,6 @@
     align-items: center;
     gap: 16px;
     margin-bottom: 56px;
-    flex-wrap: wrap;
   }
 
 
@@ -83,19 +82,6 @@
   }
 
   header h1 span { color: var(--accent1); }
-
-  .header-link {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px; font-weight: 700;
-    color: var(--accent1); text-decoration: none;
-    padding: 8px 14px; border: 1px solid var(--accent1); border-radius: 999px;
-    background: var(--card);
-    transition: all 0.2s ease;
-    white-space: nowrap;
-  }
-  .header-link:hover { background: var(--accent1); color: white; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(13,35,84,0.2); }
-  .header-link svg { flex-shrink: 0; }
 
   .badge {
     margin-left: auto;
@@ -740,52 +726,10 @@
   .fusion-controls { display: flex; flex-direction: column; gap: 14px; }
   .fusion-section { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; }
   .fusion-section h4 { font-size: 13px; font-weight: 700; color: var(--accent1); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
-  .fusion-upload {
-    border: 2px dashed var(--border); border-radius: 12px;
-    padding: 18px 14px; text-align: center; cursor: pointer;
-    position: relative; transition: all 0.2s;
-    font-size: 12px; color: var(--muted);
-    min-height: 200px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 8px;
-  }
+  .fusion-upload { border: 2px dashed var(--border); border-radius: 10px; padding: 14px; text-align: center; cursor: pointer; position: relative; transition: border-color 0.2s; font-size: 12px; color: var(--muted); }
   .fusion-upload:hover { border-color: var(--accent1); }
-  .fusion-upload.drag-over {
-    border-color: var(--accent1); border-style: solid;
-    background: rgba(13,35,84,0.06); transform: scale(1.02);
-    box-shadow: 0 4px 18px rgba(13,35,84,0.18);
-  }
-  .fusion-upload input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; z-index: 1; }
-  .fusion-upload.has-image input[type=file] { display: none; }
-  .fusion-upload .fu-thumb { width: 100%; height: 160px; object-fit: contain; border-radius: 8px; display: block; margin-bottom: 4px; background: var(--card); }
-  .fusion-upload:not(.has-image)::before {
-    content: '';
-    display: block;
-    width: 32px; height: 32px;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%2390a4be' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/><polyline points='17 8 12 3 7 8'/><line x1='12' y1='3' x2='12' y2='15'/></svg>");
-    background-repeat: no-repeat; background-position: center;
-    margin-bottom: 4px;
-  }
-  .fu-remove-btn {
-    position: absolute; top: 6px; right: 6px;
-    width: 24px; height: 24px; border-radius: 50%;
-    background: rgba(220,38,38,0.92); color: white;
-    border: none; cursor: pointer; font-size: 14px; font-weight: 700;
-    display: none; align-items: center; justify-content: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-    transition: transform 0.15s, background 0.15s;
-    z-index: 2;
-  }
-  .fu-remove-btn:hover { background: rgba(220,38,38,1); transform: scale(1.12); }
-  .fusion-upload.has-image .fu-remove-btn { display: flex; }
-  .fu-replace-hint {
-    position: absolute; left: 0; right: 0; bottom: 6px;
-    font-family: 'JetBrains Mono', monospace; font-size: 10px;
-    color: var(--accent1); text-align: center; pointer-events: none;
-    opacity: 0; transition: opacity 0.2s;
-  }
-  .fusion-upload.has-image:hover .fu-replace-hint,
-  .fusion-upload.has-image.drag-over .fu-replace-hint { opacity: 1; }
+  .fusion-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .fusion-upload .fu-thumb { width: 100%; height: 80px; object-fit: cover; border-radius: 6px; display: block; margin-bottom: 6px; }
   .fusion-canvas-wrap { position: relative; background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; min-height: 300px; display: flex; align-items: center; justify-content: center; }
   .fusion-canvas-wrap canvas { display: block; max-width: 100%; cursor: move; border-radius: 12px; }
   .fusion-placeholder { color: var(--muted); font-size: 13px; text-align: center; padding: 40px; }
@@ -796,6 +740,148 @@
   .fusion-point-hint { font-size: 11px; color: var(--muted); font-style: italic; margin-top: 6px; display: none; }
   .fusion-point-hint.visible { display: block; }
   .fu-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent1); }
+  /* Grille 2×2 — 4 tuiles carrées (Image de fond + 3 calques) */
+  .fu-tiles-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 600px) {
+    .fu-tiles-grid { grid-template-columns: 1fr; }
+  }
+  .fu-tile {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  }
+  .fu-layer-tile { cursor: pointer; }
+  .fu-layer-tile:hover { border-color: var(--accent1); }
+  .fu-layer-tile.fu-active {
+    border-color: #001A4D;
+    background: rgba(0,26,77,0.05);
+    box-shadow: inset 0 0 0 1px #001A4D;
+  }
+  .fu-tile-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--accent1);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .fu-layer-tile.fu-active .fu-tile-title { color: #001A4D; }
+  .fu-tile-drop {
+    position: relative;
+    flex: 1;
+    border: 1.5px dashed var(--border);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: var(--card);
+  }
+  .fu-tile-drop input[type=file] {
+    position: absolute; inset: 0;
+    opacity: 0; cursor: pointer;
+    width: 100%; height: 100%;
+  }
+  .fu-tile-thumb {
+    display: block;
+    width: 100%; height: 100%;
+    object-fit: contain;
+    background: var(--card);
+  }
+  .fu-tile-label {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    padding: 8px;
+  }
+  .fu-tile-clear {
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--bg);
+    background: #d23030;
+    color: white;
+    font-size: 14px; font-weight: 700; line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    transition: background 0.15s, transform 0.1s;
+    z-index: 5;
+  }
+  .fu-tile-clear:hover { background: #e84545; transform: scale(1.1); }
+  /* Œil de visibilité en haut à gauche de chaque tuile */
+  .fu-tile-eye {
+    position: absolute;
+    top: 6px; left: 6px;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    color: var(--accent1);
+    cursor: pointer;
+    padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, transform 0.1s, color 0.15s;
+    z-index: 5;
+  }
+  .fu-tile-eye:hover { background: var(--surface); transform: scale(1.08); }
+  .fu-tile-eye.fu-eye-off { color: #d23030; background: rgba(210,48,48,0.08); border-color: #d23030; }
+  /* Sections pliables — chevron + animation */
+  .fu-collapsible .fu-group-title {
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: color 0.15s;
+  }
+  .fu-collapsible .fu-group-title:hover { color: var(--accent1); }
+  .fu-chevron {
+    display: inline-flex;
+    transition: transform 0.2s ease;
+    color: var(--muted);
+  }
+  .fu-collapsible.fu-collapsed .fu-chevron { transform: rotate(-90deg); }
+  .fu-collapsible-body { transition: max-height 0.25s ease, opacity 0.2s ease; overflow: hidden; }
+  .fu-collapsible.fu-collapsed .fu-collapsible-body { max-height: 0 !important; opacity: 0; pointer-events: none; }
+  /* Badges de mode de composition (Fusion / Grid 2x2) */
+  .fu-layout-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--muted);
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    padding: 5px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+  .fu-layout-badge:hover { color: var(--accent1); border-color: var(--accent1); }
+  .fu-layout-badge.fu-layout-active {
+    background: #001A4D;
+    color: white;
+    border-color: #001A4D;
+    box-shadow: 0 2px 6px rgba(0,26,77,0.25);
+  }
   /* Responsive */
   @media (max-width: 600px) {
     .tabs { flex-direction: column; }
@@ -810,12 +896,8 @@
 
   <header>
     <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjcwIiB2aWV3Qm94PSIwIDAgNDAwIDcwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iNDAwIiBoZWlnaHQ9IjcwIiByeD0iMTAiIGZpbGw9IiMwZDIzNTQiLz4KPHJlY3QgeD0iMTIiIHk9IjEwIiB3aWR0aD0iNCIgaGVpZ2h0PSI1MCIgcng9IjIiIGZpbGw9IiM0YThmZDQiLz4KPHRleHQgeD0iMjYiIHk9IjQ4IiBmb250LWZhbWlseT0iU3luZSxETSBTYW5zLHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI4MDAiIGZvbnQtc2l6ZT0iNDAiIGxldHRlci1zcGFjaW5nPSItMSI+CiAgPHRzcGFuIGZpbGw9IiNmZmZmZmYiPkFLPC90c3Bhbj48dHNwYW4gZmlsbD0iIzRhOGZkNCI+RUxJPC90c3Bhbj4KPC90ZXh0Pgo8cmVjdCB4PSIxNTUiIHk9IjEyIiB3aWR0aD0iMiIgaGVpZ2h0PSI0NiIgcng9IjEiIGZpbGw9IiM0YThmZDQiIG9wYWNpdHk9IjAuNSIvPgo8dGV4dCB4PSIxNjciIHk9IjM4IiBmb250LWZhbWlseT0iU3luZSxETSBTYW5zLHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI3MDAiIGZvbnQtc2l6ZT0iMjYiIGZpbGw9IiNmZmZmZmYiIGxldHRlci1zcGFjaW5nPSIwIj5Db252ZXJ0PC90ZXh0Pgo8dGV4dCB4PSIxNjciIHk9IjU3IiBmb250LWZhbWlseT0iSmV0QnJhaW5zIE1vbm8sbW9ub3NwYWNlIiBmb250LXNpemU9IjExIiBmaWxsPSIjNGE4ZmQ0IiBsZXR0ZXItc3BhY2luZz0iMiI+YnkgQUtFTEk8L3RleHQ+CjxyZWN0IHg9IjMwOCIgeT0iMTIiIHdpZHRoPSIyIiBoZWlnaHQ9IjQ2IiByeD0iMSIgZmlsbD0iIzRhOGZkNCIgb3BhY2l0eT0iMC4zIi8+CjxwYXRoIGQ9Ik0zMjIsMjIgTDM3MCwyMiBMMzYzLDE1IiBmaWxsPSJub25lIiBzdHJva2U9IiM0YThmZDQiIHN0cm9rZS13aWR0aD0iMi4yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTM3MCwyMiBMMzYzLDI5IiBmaWxsPSJub25lIiBzdHJva2U9IiM0YThmZDQiIHN0cm9rZS13aWR0aD0iMi4yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTM3MCwzNSBMMzIyLDM1IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMS44IiBzdHJva2UtbGluZWNhcD0icm91bmQiIG9wYWNpdHk9IjAuNDUiLz4KPHBhdGggZD0iTTMyMiwzNSBMMzI5LDI4IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMS44IiBzdHJva2UtbGluZWNhcD0icm91bmQiIG9wYWNpdHk9IjAuNDUiLz4KPHBhdGggZD0iTTMyMiwzNSBMMzI5LDQyIiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMS44IiBzdHJva2UtbGluZWNhcD0icm91bmQiIG9wYWNpdHk9IjAuNDUiLz4KPHBhdGggZD0iTTMyMiw0OCBMMzcwLDQ4IEwzNjMsNDEiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzRhOGZkNCIgc3Ryb2tlLXdpZHRoPSIyLjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNMzcwLDQ4IEwzNjMsNTUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzRhOGZkNCIgc3Ryb2tlLXdpZHRoPSIyLjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4=" alt="AKELI Convert" style="height:60px;width:auto;object-fit:contain;flex-shrink:0;">
-
+    
     <span class="badge">100% LOCAL — AUCUN SERVEUR</span>
-    <a href="https://www.docteur-kilinc.com" target="_blank" rel="noopener noreferrer" class="header-link" title="Visiter le site">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.72"/><path d="M14 10a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-      www.docteur-kilinc.com
-    </a>
   </header>
 
   <!-- TABS -->
@@ -947,8 +1029,8 @@
                 <input type="range" id="wm-text-opacity" min="5" max="100" value="35" oninput="document.getElementById('wm-text-opacity-val').textContent=this.value+'%';updatePreview()">
               </div>
               <div class="control-group">
-                <label>Rotation <span id="wm-text-angle-val" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent1)">0°</span></label>
-                <input type="range" id="wm-text-angle" min="-90" max="90" value="0" oninput="document.getElementById('wm-text-angle-val').textContent=this.value+'°';updatePreview()">
+                <label>Rotation <span id="wm-text-angle-val" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent1)">-30°</span></label>
+                <input type="range" id="wm-text-angle" min="-90" max="90" value="-30" oninput="document.getElementById('wm-text-angle-val').textContent=this.value+'°';updatePreview()">
               </div>
             </div>
             <div class="wm-pos-label">Position — grille</div>
@@ -1031,22 +1113,7 @@
     <div class="progress-bar-wrap" id="prog-watermark"><div class="progress-bar" id="pb-watermark"></div></div>
 
     <button class="btn-convert" id="btn-wm" onclick="applyWatermarks()" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 2C6 9 4 13 4 16a8 8 0 0016 0c0-3-2-7-8-14z"/><path d="M12 2v14"/></svg> Appliquer le filigrane</button>
-
-    <div class="zip-section" id="zip-section-wm" style="display:none">
-      <div class="zip-row">
-        <div class="zip-name-group">
-          <label>Nom du fichier ZIP</label>
-          <div class="zip-input-wrap">
-            <input type="text" id="zip-name-wm" value="images_filigrane" placeholder="nom_du_zip">
-            <span class="zip-ext">.zip</span>
-          </div>
-        </div>
-        <button class="btn-zip" id="btn-zip-wm" onclick="downloadZipWM()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP</button>
-      </div>
-      <div style="margin-top:10px;font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:0.04em">
-        Astuce : vous pouvez aussi télécharger chaque image individuellement via le bouton « Enregistrer » à côté de chaque aperçu.
-      </div>
-    </div>
+    <button class="btn-dl-all" id="dl-wm" onclick="downloadZipWM()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="2" y="4" width="20" height="4" rx="1"/><path d="M4 8v10a2 2 0 002 2h12a2 2 0 002-2V8"/><path d="M10 12h4"/></svg> Tout télécharger (ZIP)</button>
   </div>
 
 
@@ -1054,103 +1121,80 @@
   <div class="panel" id="panel-fusion">
     <p class="section-label">Superposition avec transparence progressive</p>
 
-    <!-- ① Couleur + swap à gauche | grille 2×2 des images à droite -->
-    <div style="display:grid;grid-template-columns:1fr auto 2fr;gap:12px;align-items:stretch;margin-bottom:16px">
-
-      <!-- Couleur de fond -->
-      <div class="fusion-section" style="margin:0">
-        <h4>Couleur de fond</h4>
-        <p style="font-size:11px;color:var(--muted);margin-bottom:8px">Derrière l'image de fond</p>
-        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">
-          <div onclick="fuSetBgColor('#ffffff')" title="Blanc"     style="width:24px;height:24px;border-radius:5px;background:#ffffff;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></div>
-          <div onclick="fuSetBgColor('#001A4D')" title="#001A4D"   style="width:24px;height:24px;border-radius:5px;background:#001A4D;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></div>
-          <div onclick="fuSetBgColor('#0d2354')" title="#0d2354"   style="width:24px;height:24px;border-radius:5px;background:#0d2354;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></div>
-          <div onclick="fuSetBgColor('#000000')" title="Noir"      style="width:24px;height:24px;border-radius:5px;background:#000000;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></div>
-          <div onclick="fuSetBgColor('#f0f2f7')" title="Gris"      style="width:24px;height:24px;border-radius:5px;background:#f0f2f7;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></div>
-          <div onclick="fuSetBgColor('#e8f0fe')" title="Bleu pâle" style="width:24px;height:24px;border-radius:5px;background:#e8f0fe;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></div>
+    <!-- ① Couleur de fond (bandeau compact) -->
+    <div class="fusion-section" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <h4 style="margin:0;white-space:nowrap">Couleur de fond</h4>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <div onclick="fuSetBgColor('#ffffff')" title="Blanc"     style="width:22px;height:22px;border-radius:5px;background:#ffffff;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></div>
+          <div onclick="fuSetBgColor('#001A4D')" title="#001A4D"   style="width:22px;height:22px;border-radius:5px;background:#001A4D;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></div>
+          <div onclick="fuSetBgColor('#0d2354')" title="#0d2354"   style="width:22px;height:22px;border-radius:5px;background:#0d2354;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></div>
+          <div onclick="fuSetBgColor('#000000')" title="Noir"      style="width:22px;height:22px;border-radius:5px;background:#000000;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></div>
+          <div onclick="fuSetBgColor('#f0f2f7')" title="Gris"      style="width:22px;height:22px;border-radius:5px;background:#f0f2f7;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></div>
+          <div onclick="fuSetBgColor('#e8f0fe')" title="Bleu pâle" style="width:22px;height:22px;border-radius:5px;background:#e8f0fe;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></div>
         </div>
-        <div style="display:flex;gap:6px;align-items:center">
+        <div style="display:flex;gap:6px;align-items:center;margin-left:auto">
           <input type="color" id="fu-bg-color" value="#ffffff" oninput="fuSyncColorHex(this.value);fuUpdate()" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;cursor:pointer;padding:2px;flex-shrink:0">
-          <div style="display:flex;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden;flex:1">
+          <div style="display:flex;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden">
             <span style="padding:0 6px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted)">#</span>
-            <input type="text" id="fu-bg-hex" value="ffffff" maxlength="6" oninput="fuSyncColorPicker(this.value)" style="border:none;outline:none;background:transparent;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text);width:100%;padding:6px 4px 6px 0">
+            <input type="text" id="fu-bg-hex" value="ffffff" maxlength="6" oninput="fuSyncColorPicker(this.value)" style="border:none;outline:none;background:transparent;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text);width:80px;padding:6px 4px 6px 0">
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Bouton swap (entre couleur et grille d'images) -->
-      <div style="display:flex;align-items:center;justify-content:center">
-        <button class="fu-swap-btn" onclick="fuSwap()" title="Intervertir le fond et l'image superposée active">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
-        </button>
+    <!-- ② Grille 2×2 : Image de fond + 3 calques superposés -->
+    <div class="fu-tiles-grid" style="margin-bottom:16px">
+
+      <!-- Image de fond -->
+      <div class="fu-tile fu-layer-tile fu-active" data-layer="0" onclick="fuSetActiveLayer(0)">
+        <button type="button" class="fu-tile-eye" id="fu-eye-0" onclick="fuToggleVisible(0,event)" title="Masquer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        <div class="fu-tile-title">Image de fond</div>
+        <div class="fu-tile-drop" id="fu-bg-drop">
+          <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadBg(this)">
+          <img id="fu-bg-thumb" class="fu-tile-thumb" style="display:none">
+          <span id="fu-bg-label" class="fu-tile-label">Cliquez ou glissez</span>
+        </div>
+        <button type="button" class="fu-tile-clear" id="fu-clear-bg" onclick="event.stopPropagation();fuClearBg()" title="Vider l'image de fond" style="display:none">×</button>
       </div>
 
-      <!-- Grille 2×2 : fond + superposée 1 (haut), superposées 2 + 3 (bas) -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch">
-
-        <!-- Image de fond -->
-        <div class="fusion-section" style="margin:0">
-          <h4>Image de fond</h4>
-          <div class="fusion-upload" id="fu-bg-drop"
-               ondragover="fuDragOver(event,'fu-bg-drop')"
-               ondragleave="fuDragLeave(event,'fu-bg-drop')"
-               ondrop="fuDropBg(event)">
-            <button type="button" class="fu-remove-btn" id="fu-bg-remove" onclick="fuClearBg(event)" title="Supprimer l'image">×</button>
-            <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadBg(this)">
-            <img id="fu-bg-thumb" class="fu-thumb" style="display:none">
-            <span id="fu-bg-label">Cliquez ou glissez</span>
-            <div class="fu-replace-hint">↻ Cliquez ou déposez pour remplacer</div>
-          </div>
+      <!-- Calque superposé 1 -->
+      <div class="fu-tile fu-layer-tile" data-layer="1" onclick="fuSetActiveLayer(1)">
+        <button type="button" class="fu-tile-eye" id="fu-eye-1" onclick="fuToggleVisible(1,event)" title="Masquer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        <div class="fu-tile-title">Calque superposé 1</div>
+        <div class="fu-tile-drop">
+          <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadTopInto(0,this)">
+          <img id="fu-top-thumb-0" class="fu-tile-thumb" style="display:none">
+          <span id="fu-top-label-0" class="fu-tile-label">Cliquez ou glissez</span>
         </div>
+        <button type="button" class="fu-tile-clear" id="fu-clear-0" onclick="event.stopPropagation();fuClearLayer(0)" title="Vider ce calque" style="display:none">×</button>
+      </div>
 
-        <!-- Image superposée 1 -->
-        <div class="fusion-section" style="margin:0">
-          <h4>Image superposée 1</h4>
-          <div class="fusion-upload fu-overlay-zone" id="fu-top-drop-0"
-               ondragover="fuDragOver(event,'fu-top-drop-0')"
-               ondragleave="fuDragLeave(event,'fu-top-drop-0')"
-               ondrop="fuDropTop(event,0)">
-            <button type="button" class="fu-remove-btn" id="fu-top-remove-0" onclick="fuClearTop(event,0)" title="Supprimer l'image">×</button>
-            <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadTop(this,0)">
-            <img id="fu-top-thumb-0" class="fu-thumb" style="display:none">
-            <span id="fu-top-label-0">Cliquez ou glissez</span>
-            <div class="fu-replace-hint">↻ Cliquez ou déposez pour remplacer</div>
-          </div>
+      <!-- Calque superposé 2 -->
+      <div class="fu-tile fu-layer-tile" data-layer="2" onclick="fuSetActiveLayer(2)">
+        <button type="button" class="fu-tile-eye" id="fu-eye-2" onclick="fuToggleVisible(2,event)" title="Masquer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        <div class="fu-tile-title">Calque superposé 2</div>
+        <div class="fu-tile-drop">
+          <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadTopInto(1,this)">
+          <img id="fu-top-thumb-1" class="fu-tile-thumb" style="display:none">
+          <span id="fu-top-label-1" class="fu-tile-label">Cliquez ou glissez</span>
         </div>
+        <button type="button" class="fu-tile-clear" id="fu-clear-1" onclick="event.stopPropagation();fuClearLayer(1)" title="Vider ce calque" style="display:none">×</button>
+      </div>
 
-        <!-- Image superposée 2 (sous l'image de fond) -->
-        <div class="fusion-section" style="margin:0">
-          <h4>Image superposée 2</h4>
-          <div class="fusion-upload fu-overlay-zone" id="fu-top-drop-1"
-               ondragover="fuDragOver(event,'fu-top-drop-1')"
-               ondragleave="fuDragLeave(event,'fu-top-drop-1')"
-               ondrop="fuDropTop(event,1)">
-            <button type="button" class="fu-remove-btn" id="fu-top-remove-1" onclick="fuClearTop(event,1)" title="Supprimer l'image">×</button>
-            <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadTop(this,1)">
-            <img id="fu-top-thumb-1" class="fu-thumb" style="display:none">
-            <span id="fu-top-label-1">Cliquez ou glissez</span>
-            <div class="fu-replace-hint">↻ Cliquez ou déposez pour remplacer</div>
-          </div>
+      <!-- Calque superposé 3 -->
+      <div class="fu-tile fu-layer-tile" data-layer="3" onclick="fuSetActiveLayer(3)">
+        <button type="button" class="fu-tile-eye" id="fu-eye-3" onclick="fuToggleVisible(3,event)" title="Masquer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        <div class="fu-tile-title">Calque superposé 3</div>
+        <div class="fu-tile-drop">
+          <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadTopInto(2,this)">
+          <img id="fu-top-thumb-2" class="fu-tile-thumb" style="display:none">
+          <span id="fu-top-label-2" class="fu-tile-label">Cliquez ou glissez</span>
         </div>
+        <button type="button" class="fu-tile-clear" id="fu-clear-2" onclick="event.stopPropagation();fuClearLayer(2)" title="Vider ce calque" style="display:none">×</button>
+      </div>
 
-        <!-- Image superposée 3 (sous l'image superposée 1) -->
-        <div class="fusion-section" style="margin:0">
-          <h4>Image superposée 3</h4>
-          <div class="fusion-upload fu-overlay-zone" id="fu-top-drop-2"
-               ondragover="fuDragOver(event,'fu-top-drop-2')"
-               ondragleave="fuDragLeave(event,'fu-top-drop-2')"
-               ondrop="fuDropTop(event,2)">
-            <button type="button" class="fu-remove-btn" id="fu-top-remove-2" onclick="fuClearTop(event,2)" title="Supprimer l'image">×</button>
-            <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadTop(this,2)">
-            <img id="fu-top-thumb-2" class="fu-thumb" style="display:none">
-            <span id="fu-top-label-2">Cliquez ou glissez</span>
-            <div class="fu-replace-hint">↻ Cliquez ou déposez pour remplacer</div>
-          </div>
-        </div>
-
-      </div><!-- /grille 2×2 -->
-
-    </div><!-- /cards -->
+    </div><!-- /fu-tiles-grid -->
 
     <!-- ② Menu gauche | Aperçu sticky droite -->
     <div class="fu-main-layout">
@@ -1158,25 +1202,10 @@
       <!-- ══════ COLONNE GAUCHE : menu scrollable ══════ -->
       <div class="fu-sidebar">
 
-        <!-- B. IMAGE SUPERPOSÉE -->
+        <!-- A. MODE CLIC APERÇU -->
         <div class="fu-group">
-          <div class="fu-group-title">Image superposée</div>
+          <div class="fu-group-title">Mode clic aperçu</div>
           <div class="fusion-section">
-            <div style="display:flex;gap:6px;margin-bottom:12px">
-              <button id="fu-ov-sel-0" class="fu-mode-btn fu-active" onclick="fuSetActiveOverlay(0)" style="flex:1;font-size:12px;padding:7px 4px">Image 1</button>
-              <button id="fu-ov-sel-1" class="fu-mode-btn" onclick="fuSetActiveOverlay(1)" style="flex:1;font-size:12px;padding:7px 4px">Image 2</button>
-              <button id="fu-ov-sel-2" class="fu-mode-btn" onclick="fuSetActiveOverlay(2)" style="flex:1;font-size:12px;padding:7px 4px">Image 3</button>
-            </div>
-            <p style="font-size:10.5px;color:var(--muted);margin:-4px 0 10px">Les réglages ci-dessous s'appliquent à l'image sélectionnée.</p>
-            <div class="fu-slider-row">
-              <span class="fu-label">Taille</span><span class="fu-val" id="fu-size-val">60%</span>
-            </div>
-            <input type="range" id="fu-size" min="5" max="150" value="60" oninput="fuSlider('size',this.value)" style="width:100%">
-            <div class="fu-slider-row" style="margin-top:10px">
-              <span class="fu-label">Opacité</span><span class="fu-val" id="fu-opacity-val">100%</span>
-            </div>
-            <input type="range" id="fu-opacity" min="0" max="100" value="100" oninput="fuSlider('opacity',this.value)" style="width:100%">
-            <div class="fu-group-title" style="margin:12px 0 8px">Mode clic aperçu</div>
             <div style="display:flex;gap:6px">
               <button id="fu-mode-top"   class="fu-mode-btn fu-active" onclick="fuSetDragMode('top')" style="flex:1;font-size:11px;padding:6px 4px">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:middle"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3"/></svg> Image
@@ -1191,9 +1220,32 @@
           </div>
         </div>
 
-        <!-- C. TRANSPARENCE -->
+        <!-- B. CALQUE ACTIF -->
         <div class="fu-group">
-          <div class="fu-group-title">Transparence progressive</div>
+          <div class="fu-group-title">Calque actif <span id="fu-active-layer-label" style="color:var(--accent3);font-family:'JetBrains Mono',monospace;font-size:11px">(Image de fond)</span></div>
+          <div class="fusion-section">
+            <div class="fu-slider-row">
+              <span class="fu-label">Taille</span><span class="fu-val" id="fu-size-val">100%</span>
+            </div>
+            <input type="range" id="fu-size" min="1" max="150" value="100" oninput="fuSyncLayerFromControls();fuUpdate()" style="width:100%">
+            <div class="fu-slider-row" style="margin-top:10px">
+              <span class="fu-label">Opacité</span><span class="fu-val" id="fu-opacity-val">100%</span>
+            </div>
+            <input type="range" id="fu-opacity" min="0" max="100" value="100" oninput="fuSyncLayerFromControls();fuUpdate()" style="width:100%">
+            <div class="fu-slider-row" style="margin-top:10px">
+              <span class="fu-label">Rotation</span><span class="fu-val" id="fu-rotation-val">0°</span>
+            </div>
+            <input type="range" id="fu-rotation" min="-180" max="180" value="0" step="1" oninput="fuSyncLayerFromControls();fuUpdate()" style="width:100%">
+          </div>
+        </div>
+
+        <!-- C. TRANSPARENCE -->
+        <div class="fu-group fu-collapsible fu-collapsed" id="fu-group-grad">
+          <div class="fu-group-title" onclick="fuToggleCollapse(this.parentElement)">
+            <span>Transparence progressive</span>
+            <span class="fu-chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </div>
+          <div class="fu-collapsible-body" style="max-height:1000px">
           <div class="fusion-section">
             <div class="fusion-grad-grid">
               <button class="fusion-grad-btn active" onclick="fuSetGrad('none',this)">Aucune</button>
@@ -1216,45 +1268,22 @@
               <span id="fu-lock-status" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">Libre</span>
             </div>
             <div class="fu-slider-row" style="margin-top:12px">
-              <span class="fu-label">Début</span><span class="fu-val" id="fu-grad-start-val">0%</span>
-            </div>
-            <input type="range" id="fu-grad-start" min="0" max="95" value="0" oninput="fuSlider('gradStart',this.value)" style="width:100%">
-            <div class="fu-slider-row" style="margin-top:10px">
               <span class="fu-label">Étendue</span><span class="fu-val" id="fu-grad-size-val">50%</span>
             </div>
-            <input type="range" id="fu-grad-size" min="5" max="100" value="50" oninput="fuSlider('gradSize',this.value)" style="width:100%">
+            <input type="range" id="fu-grad-size" min="5" max="100" value="50" oninput="fuUpdate()" style="width:100%">
           </div>
-        </div>
-
-        <!-- C-bis. FORME & EFFETS -->
-        <div class="fu-group">
-          <div class="fu-group-title">Forme &amp; effets</div>
-          <div class="fusion-section">
-            <button id="fu-circle-btn" onclick="fuToggleCircle()" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);color:var(--muted);font-family:Syne,sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.2s;margin-bottom:12px">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg> Masque cercle
-            </button>
-            <div id="fu-circle-lock-row" style="display:none;margin:-4px 0 10px;align-items:center;gap:8px;flex-wrap:wrap">
-              <button id="fu-circle-lock-btn" onclick="fuToggleCircleLock()" style="padding:5px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);color:var(--muted);font-family:Syne,sans-serif;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.2s">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Verrouiller sur l'image
-              </button>
-              <span id="fu-circle-lock-status" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);flex-basis:100%">Déverrouillé : glisser déplace le cercle</span>
-            </div>
-            <div class="fu-slider-row">
-              <span class="fu-label">Bords arrondis</span><span class="fu-val" id="fu-radius-val">0%</span>
-            </div>
-            <input type="range" id="fu-radius" min="0" max="50" value="0" oninput="fuSlider('radius',this.value)" style="width:100%">
-            <div class="fu-slider-row" style="margin-top:10px">
-              <span class="fu-label">Ombre portée</span><span class="fu-val" id="fu-shadow-val">0%</span>
-            </div>
-            <input type="range" id="fu-shadow" min="0" max="100" value="0" oninput="fuSlider('shadow',this.value)" style="width:100%">
-          </div>
+          </div><!-- /fu-collapsible-body Transparence -->
         </div>
 
         <!-- D. LOGO -->
-        <div class="fu-group">
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div class="fu-group-title" style="margin:0">Logo</div>
-            <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+        <div class="fu-group fu-collapsible fu-collapsed" id="fu-group-logo">
+          <div class="fu-group-title" onclick="fuToggleCollapse(this.parentElement)">
+            <span>Logo</span>
+            <span class="fu-chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </div>
+          <div class="fu-collapsible-body" style="max-height:1500px">
+          <div style="padding:6px 12px 0">
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;color:var(--muted)">
               <input type="checkbox" id="fu-logo-enable" onchange="fuUpdate()" style="accent-color:var(--accent1)"> Activer
             </label>
           </div>
@@ -1284,12 +1313,16 @@
               <button id="fu-logo-behind" class="fu-mode-btn"           onclick="fuSetLogoLayer('behind')" style="flex:1;font-size:11px;padding:5px">↓ Derrière</button>
             </div>
           </div>
+          </div><!-- /fu-collapsible-body Logo -->
         </div>
 
         <!-- E. TEXTES -->
-        <div class="fu-group">
-          <div class="fu-group-title">Zones de texte</div>
-
+        <div class="fu-group fu-collapsible fu-collapsed" id="fu-group-text">
+          <div class="fu-group-title" onclick="fuToggleCollapse(this.parentElement)">
+            <span>Zones de texte</span>
+            <span class="fu-chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </div>
+          <div class="fu-collapsible-body" style="max-height:3000px">
           <!-- Texte 1 -->
           <div class="fusion-section">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -1307,7 +1340,6 @@
                   <option value="sans-serif">Sans-serif</option><option value="serif">Serif</option>
                   <option value="Georgia,serif">Georgia</option><option value="'Courier New',monospace">Courier</option>
                   <option value="Arial,sans-serif">Arial</option><option value="'Times New Roman',serif">Times NR</option>
-                  <option value="'Roboto',sans-serif">Roboto</option>
                 </select>
               </div>
               <div>
@@ -1347,7 +1379,6 @@
                   <option value="sans-serif">Sans-serif</option><option value="serif">Serif</option>
                   <option value="Georgia,serif">Georgia</option><option value="'Courier New',monospace">Courier</option>
                   <option value="Arial,sans-serif">Arial</option><option value="'Times New Roman',serif">Times NR</option>
-                  <option value="'Roboto',sans-serif">Roboto</option>
                 </select>
               </div>
               <div>
@@ -1369,29 +1400,26 @@
             </div>
             <p style="font-size:10px;color:var(--muted);margin-top:6px">Mode clic → T2 puis glissez sur l'aperçu</p>
           </div>
+          </div><!-- /fu-collapsible-body Zones de texte -->
         </div>
 
         <!-- F. EXPORT -->
         <div class="fu-group">
           <div class="fu-group-title">Export</div>
-          <button class="btn-convert" id="btn-fusion" onclick="fuExport('png')" disabled style="margin-top:0;width:100%">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Exporter la fusion (.png)
-          </button>
-          <div style="margin-top:10px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:10px">
-            <div class="fu-slider-row" style="margin:0">
-              <span class="fu-label">Qualité WebP</span>
-              <span class="fu-val" id="fu-webp-q-val">92%</span>
-            </div>
-            <input type="range" id="fu-webp-quality" min="10" max="100" value="92" oninput="document.getElementById('fu-webp-q-val').textContent=this.value+'%'" style="width:100%;margin-top:6px">
+          <div style="display:flex;gap:8px">
+            <button class="btn-convert" id="btn-fusion-png" onclick="fuExport('png')" disabled style="margin-top:0;flex:1">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              PNG
+            </button>
+            <button class="btn-convert" id="btn-fusion-webp" onclick="fuExport('webp')" disabled style="margin-top:0;flex:1">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              WebP
+            </button>
           </div>
-          <button class="btn-convert" id="btn-fusion-webp" onclick="fuExport('webp')" disabled style="margin-top:8px;width:100%">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Exporter la fusion (.webp)
-          </button>
+          <p style="font-size:10px;color:var(--muted);margin-top:6px;text-align:center">PNG : meilleure qualité — WebP : plus léger</p>
           <div id="fu-result-wrap" style="display:none;margin-top:10px">
-            <div class="preview-label" style="margin-bottom:6px">↗ Clic droit → Enregistrer sous</div>
-            <img id="fu-result-img" style="width:100%;border-radius:8px;border:1px solid var(--border);margin-bottom:10px" title="Clic droit → Enregistrer sous: fusion.png">
+            <div class="preview-label" id="fu-result-label" style="margin-bottom:6px;color:var(--accent3)">✓ Aperçu de l'export</div>
+            <img id="fu-result-img" style="width:100%;border-radius:8px;border:1px solid var(--border);margin-bottom:10px">
             <button onclick="fuSendToWatermark()" style="width:100%;padding:10px;background:var(--card);border:1.5px solid var(--accent1);border-radius:10px;color:var(--accent1);font-family:Syne,sans-serif;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s" onmouseover="this.style.background='var(--accent1)';this.style.color='white'" onmouseout="this.style.background='var(--card)';this.style.color='var(--accent1)'">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6 9 4 13 4 16a8 8 0 0016 0c0-3-2-7-8-14z"/><path d="M12 2v14"/></svg>
               Envoyer vers Filigrane
@@ -1405,7 +1433,10 @@
       <div class="fu-preview-col">
         <div class="fu-preview-header">
           <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">Aperçu en direct</span>
-          <span id="fu-mode-indicator" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent1);background:rgba(13,35,84,0.08);padding:3px 8px;border-radius:20px">Mode : Image</span>
+          <div style="display:flex;gap:6px">
+            <button type="button" class="fu-layout-badge fu-layout-active" data-layout="fusion" onclick="fuSetLayoutMode('fusion')">Mode : Fusion Image</button>
+            <button type="button" class="fu-layout-badge" data-layout="grid" onclick="fuSetLayoutMode('grid')">Mode : Grid 2×2</button>
+          </div>
         </div>
         <div class="fusion-canvas-wrap" id="fu-canvas-wrap">
           <div class="fusion-placeholder" id="fu-placeholder">
@@ -1461,28 +1492,24 @@
 
     <div class="controls">
       <div class="control-group">
-        <label>Débit vidéo (qualité) — plus haut = meilleure qualité, fichier plus gros</label>
-        <input type="range" id="vid-bitrate" min="1" max="12" step="0.5" value="4" oninput="updateBitrateLabel()">
-      </div>
-      <div>
-        <label style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">DÉBIT</label>
-        <div class="value-display" id="vid-bitrate-val">4 Mbit/s</div>
+        <label>Qualité vidéo</label>
+        <select id="vid-quality">
+          <option value="high">Haute qualité</option>
+          <option value="medium" selected>Qualité moyenne</option>
+          <option value="low">Taille minimale</option>
+        </select>
       </div>
       <div class="control-group">
         <label>Format de sortie</label>
         <select id="vid-format">
-          <option value="webm-vp9" selected>WebM (VP9) — recommandé</option>
           <option value="webm">WebM (VP8)</option>
+          <option value="webm-vp9">WebM (VP9)</option>
         </select>
       </div>
     </div>
 
-    <div class="info-box" id="vid-estimate" style="display:none">
-      <strong>Estimation :</strong> <span id="vid-est-text">—</span>
-    </div>
-
     <div class="info-box">
-      <strong>Conversion navigateur :</strong> La conversion utilise l'API MediaRecorder native du navigateur (aucun envoi sur Internet, tout reste local). Le temps de traitement est égal à la durée de la vidéo. Réglez le débit selon vos besoins : vers 3-4 Mbit/s pour un bon équilibre, plus bas pour compresser davantage. Pour les vidéos longues (&gt;5 min) ou une compression optimale, <strong>HandBrake</strong> (handbrake.fr) reste supérieur.
+      <strong>Conversion navigateur :</strong> La conversion utilise l'API MediaRecorder native du navigateur. Les vidéos sont lues en arrière-plan et ré-encodées en WebM. Le temps de traitement est égal à la durée de la vidéo. Pour des vidéos longues (>5 min), préférez un outil dédié comme FFmpeg CLI ou HandBrake.
     </div>
 
     <div class="file-list" id="list-video"></div>
@@ -1595,9 +1622,6 @@ function updateConvertBtn(type) {
   const idMap = { images: 'btn-img', pdf: 'btn-pdf', video: 'btn-vid' };
   const btn = document.getElementById(idMap[type]);
   if (btn) btn.disabled = state[type].length === 0;
-  if (type === 'video' && typeof refreshVideoEstimate === 'function') {
-    refreshVideoEstimate();
-  }
   if (type === 'images') {
     const btnC = document.getElementById('btn-img-compress');
     if (btnC) btnC.disabled = state.images.length === 0;
@@ -1641,47 +1665,18 @@ function addDownloadBtn(type, idx, blob, filename) {
   if (existing) existing.remove();
 
   if (type === 'images') {
-    // Aperçu avec bouton « Enregistrer » direct + clic droit possible
+    // Show inline preview — user can right-click → Save
     const reader = new FileReader();
     reader.onload = e => {
       const preview = document.createElement('div');
       preview.className = 'inline-preview';
       preview.innerHTML = `
         <img src="${e.target.result}" alt="${filename}" title="Clic droit → Enregistrer sous: ${filename}">
-        <div style="flex:1;min-width:0">
-          <div class="preview-label">↗ Clic droit ou bouton ci-contre</div>
+        <div>
+          <div class="preview-label">↗ Clic droit → Enregistrer sous</div>
           <div class="preview-filename">${filename}</div>
         </div>
-        <button class="btn-dl-single" style="padding:8px 14px;background:var(--accent3);border:none;border-radius:8px;color:var(--bg);font-family:Syne,sans-serif;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:opacity 0.2s" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg>
-          Enregistrer
-        </button>
       `;
-      const dlBtn = preview.querySelector('.btn-dl-single');
-      if (dlBtn) dlBtn.addEventListener('click', async () => {
-        const mimeType = blob.type || 'image/webp';
-        const ext = (filename.match(/\.([^.]+)$/) || [,'webp'])[1];
-        const extDesc = ext === 'webp' ? 'Image WebP' : ext === 'jpg' || ext === 'jpeg' ? 'Image JPEG' : 'Image';
-        if (window.showSaveFilePicker) {
-          try {
-            const handle = await window.showSaveFilePicker({
-              suggestedName: filename,
-              types: [{ description: extDesc, accept: { [mimeType]: ['.' + ext] } }]
-            });
-            const writable = await handle.createWritable();
-            await writable.write(blob);
-            await writable.close();
-            return;
-          } catch(err) {
-            if (err.name === 'AbortError') return;
-          }
-        }
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = filename;
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-      });
       // Insert after the file item
       item.parentNode.insertBefore(preview, item.nextSibling);
     };
@@ -1692,9 +1687,10 @@ function addDownloadBtn(type, idx, blob, filename) {
     const ext = type === 'pdf' ? 'pdf' : 'webm';
     const extDesc = type === 'pdf' ? 'Fichier PDF' : 'Vidéo WebM';
 
+    const dlIcon = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg> Enregistrer';
     const btn = document.createElement('button');
     btn.className = 'file-download';
-    btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg> Enregistrer';
+    btn.innerHTML = dlIcon;
     btn.onclick = async () => {
       btn.textContent = 'Traitement…';
       btn.disabled = true;
@@ -1710,11 +1706,11 @@ function addDownloadBtn(type, idx, blob, filename) {
           await writable.write(blob);
           await writable.close();
           btn.textContent = 'Enregistré ✓';
-          setTimeout(() => { btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg> Enregistrer'; btn.disabled = false; }, 2500);
+          setTimeout(() => { btn.innerHTML = dlIcon; btn.disabled = false; }, 2500);
           return;
         } catch (err) {
           if (err.name === 'AbortError') {
-            btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg> Enregistrer'; btn.disabled = false; return;
+            btn.innerHTML = dlIcon; btn.disabled = false; return;
           }
         }
       }
@@ -1728,11 +1724,11 @@ function addDownloadBtn(type, idx, blob, filename) {
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg> Enregistrer'; btn.disabled = false;
+        btn.innerHTML = dlIcon; btn.disabled = false;
       };
       reader.onerror = () => {
         alert('Téléchargement bloqué.\nOuvrez le fichier .html directement dans Chrome.');
-        btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg> Enregistrer'; btn.disabled = false;
+        btn.innerHTML = dlIcon; btn.disabled = false;
       };
       reader.readAsDataURL(blob);
     };
@@ -1756,6 +1752,7 @@ function showDLAll(type) {
 
 async function downloadZip() {
   const btn = document.getElementById('btn-zip');
+  const zipIcon = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP';
   if (btn) { btn.disabled = true; btn.textContent = 'Création du ZIP…'; }
 
   const zipName = (document.getElementById('zip-name').value.trim() || 'images_converties') + '.zip';
@@ -1786,11 +1783,11 @@ async function downloadZip() {
       await writable.write(zipBlob);
       await writable.close();
       if (btn) { btn.disabled = false; btn.textContent = 'ZIP enregistré !'; }
-      setTimeout(() => { if (btn) btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP'; }, 3000);
+      setTimeout(() => { if (btn) btn.innerHTML = zipIcon; }, 3000);
       return;
     } catch (err) {
       if (err.name === 'AbortError') {
-        if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP'; }
+        if (btn) { btn.disabled = false; btn.innerHTML = zipIcon; }
         return;
       }
       // Continuer vers méthode 2 si erreur autre
@@ -1806,11 +1803,11 @@ async function downloadZip() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = zipIcon; }
   };
   reader.onerror = () => {
     alert('Téléchargement bloqué par le navigateur.\nOuvrez ce fichier directement (double-clic) pour télécharger.');
-    if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = zipIcon; }
   };
   reader.readAsDataURL(zipBlob);
 }
@@ -2196,65 +2193,13 @@ async function compressPDF(buffer, onProgress) {
 // ─────────────────────────────────────────────
 // VIDEO CONVERSION (MediaRecorder API)
 // ─────────────────────────────────────────────
-
-// Durée totale (en secondes) des vidéos chargées, pour estimer la taille de sortie.
-let videoTotalDuration = 0;
-
-// Met à jour l'étiquette du curseur et l'estimation de taille en direct.
-function updateBitrateLabel() {
-  const slider = document.getElementById('vid-bitrate');
-  if (!slider) return;
-  const mbps = parseFloat(slider.value);
-  const valEl = document.getElementById('vid-bitrate-val');
-  if (valEl) valEl.textContent = mbps + ' Mbit/s';
-
-  const estBox = document.getElementById('vid-estimate');
-  const estText = document.getElementById('vid-est-text');
-  if (!estBox || !estText) return;
-
-  if (videoTotalDuration > 0) {
-    const totalBps = mbps * 1000000 + 128000; // vidéo + audio
-    const bytes = (totalBps * videoTotalDuration) / 8;
-    estText.textContent = `taille de sortie estimée ≈ ${formatSize(bytes)} (pour ${Math.round(videoTotalDuration)} s de vidéo)`;
-    estBox.style.display = 'block';
-  } else {
-    estBox.style.display = 'none';
-  }
-}
-
-// Calcule la durée d'un fichier vidéo (Promise).
-function getVideoDuration(file) {
-  return new Promise((resolve) => {
-    const v = document.createElement('video');
-    v.preload = 'metadata';
-    const url = URL.createObjectURL(file);
-    v.onloadedmetadata = () => {
-      URL.revokeObjectURL(url);
-      resolve(isFinite(v.duration) ? v.duration : 0);
-    };
-    v.onerror = () => { URL.revokeObjectURL(url); resolve(0); };
-    v.src = url;
-  });
-}
-
-// Recalcule la durée totale des vidéos chargées puis met à jour l'estimation.
-async function refreshVideoEstimate() {
-  const files = state.video || [];
-  let total = 0;
-  for (const f of files) total += await getVideoDuration(f);
-  videoTotalDuration = total;
-  updateBitrateLabel();
-}
-
 async function convertVideos() {
   const btn = document.getElementById('btn-vid');
   if (!btn) return;
   btn.disabled = true;
   const files = state.video;
-  // Débit choisi par l'utilisateur via le curseur (en Mbit/s → bits/s).
-  const mbps = parseFloat(document.getElementById('vid-bitrate').value);
-  const bitsPerSec = Math.round(mbps * 1000000);
-  const audioBps = 128000; // 128 kbps audio, au lieu d'une valeur aléatoire
+  const qualityMap = { high: 8000000, medium: 2500000, low: 800000 };
+  const bitsPerSec = qualityMap[document.getElementById('vid-quality').value];
   const mimeType = document.getElementById('vid-format').value === 'webm-vp9'
     ? 'video/webm;codecs=vp9,opus'
     : 'video/webm;codecs=vp8,opus';
@@ -2264,7 +2209,7 @@ async function convertVideos() {
     setStatus('video', i, 'status-processing', 'Conversion en cours…');
     setProgress('video', Math.round((i / files.length) * 90));
     try {
-      const blob = await convertVideoToWebM(file, bitsPerSec, audioBps, mimeType, (p) => {
+      const blob = await convertVideoToWebM(file, bitsPerSec, mimeType, (p) => {
         const base = Math.round((i / files.length) * 90);
         const chunk = Math.round(90 / files.length);
         setProgress('video', base + Math.round(p * chunk));
@@ -2287,13 +2232,13 @@ async function convertVideos() {
   showDLAll('video');
 }
 
-function convertVideoToWebM(file, bitsPerSec, audioBps, mimeType, onProgress) {
+function convertVideoToWebM(file, bitsPerSec, mimeType, onProgress) {
   return new Promise((resolve, reject) => {
 
     // ── 1. Vérifier le support AVANT de créer la vidéo ──
     let selectedMime = mimeType;
     if (!MediaRecorder.isTypeSupported(selectedMime)) {
-      const fallbacks = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm;codecs=vp8', 'video/webm'];
+      const fallbacks = ['video/webm;codecs=vp8,opus', 'video/webm;codecs=vp8', 'video/webm'];
       selectedMime = fallbacks.find(m => MediaRecorder.isTypeSupported(m));
       if (!selectedMime) return reject(new Error('WebM non supporté par ce navigateur. Utilisez Chrome ou Edge.'));
     }
@@ -2301,8 +2246,12 @@ function convertVideoToWebM(file, bitsPerSec, audioBps, mimeType, onProgress) {
     const video = document.createElement('video');
     const objectURL = URL.createObjectURL(file);
     video.src = objectURL;
-    // NB : on ne met PAS video.muted = true, car cela couperait aussi le signal
-    // envoyé à l'AudioContext (donc pas de son dans le fichier final).
+    // On NE met PAS muted=true : un élément muté ne fournit aucun signal à
+    // createMediaElementSource, ce qui produit un WebM sans son. On laisse la
+    // vidéo non-mutée mais on évite de la router vers les haut-parleurs (voir
+    // le graphe audio plus bas) pour qu'elle reste silencieuse à l'écoute.
+    video.muted = false;
+    video.volume = 1;
     video.playsInline = true;
     video.preload = 'auto';
 
@@ -2328,44 +2277,40 @@ function convertVideoToWebM(file, bitsPerSec, audioBps, mimeType, onProgress) {
       const canvas = document.createElement('canvas');
       canvas.width  = W;
       canvas.height = H;
-      const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
-      ctx.imageSmoothingQuality = 'high';
+      const ctx = canvas.getContext('2d', { alpha: false });
 
-      // ── 2. Audio : on capture le son à plein volume pour l'enregistrement,
-      // mais on le coupe vers les haut-parleurs (gain 0) pour ne rien entendre
-      // pendant la conversion. Ainsi le fichier final CONSERVE l'audio.
+      // ── 2. Audio : contexte séparé avec gestion d'erreur ──
       let audioTracks = [];
       try {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // Les navigateurs démarrent souvent le contexte en état "suspended"
+        // tant qu'il n'y a pas eu d'interaction : on tente de le reprendre.
         if (audioCtx.state === 'suspended') {
           try { await audioCtx.resume(); } catch (_) {}
         }
         const dest = audioCtx.createMediaStreamDestination();
         const src  = audioCtx.createMediaElementSource(video);
-        src.connect(dest); // vers l'enregistreur : signal complet
-        const muteGain = audioCtx.createGain();
-        muteGain.gain.value = 0;
-        src.connect(muteGain);
-        muteGain.connect(audioCtx.destination); // vers les HP : silencieux
+        // On connecte UNIQUEMENT vers le flux capturé (dest) afin que l'audio
+        // soit enregistré dans le WebM. On NE connecte PAS à audioCtx.destination
+        // (haut-parleurs) pour ne pas entendre la vidéo pendant la conversion.
+        src.connect(dest);
         audioTracks = dest.stream.getAudioTracks();
       } catch (e) {
+        // Audio non disponible → vidéo muette
         audioTracks = [];
       }
 
       // ── 3. Assembler le stream ──
-      const canvasStream = canvas.captureStream(60);
+      const canvasStream = canvas.captureStream(30);
       const combined = new MediaStream([
         ...canvasStream.getVideoTracks(),
         ...audioTracks,
       ]);
 
-      const recorderOpts = {
+      recorder = new MediaRecorder(combined, {
         mimeType: selectedMime,
         videoBitsPerSecond: bitsPerSec,
-      };
-      if (audioTracks.length > 0) recorderOpts.audioBitsPerSecond = audioBps;
-
-      recorder = new MediaRecorder(combined, recorderOpts);
+      });
 
       const chunks = [];
       recorder.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
@@ -2403,13 +2348,8 @@ function convertVideoToWebM(file, bitsPerSec, audioBps, mimeType, onProgress) {
       try {
         await video.play();
       } catch (e) {
-        try {
-          video.muted = true;
-          await video.play();
-        } catch (e2) {
-          cleanup();
-          reject(new Error('Lecture vidéo impossible : ' + e2.message));
-        }
+        cleanup();
+        reject(new Error('Lecture vidéo impossible : ' + e.message));
       }
     };
   });
@@ -2450,6 +2390,21 @@ function addFilesFromListWM(files) {
   const btn = document.getElementById('btn-wm');
   if (btn) btn.disabled = wmState.files.length === 0;
   if (wmState.files.length > 0) updatePreview();
+  // Le bouton "Tout télécharger (ZIP)" devient visible dès qu'il y a des images.
+  // Il reste désactivé tant qu'aucun filigrane n'a été appliqué (voir applyWatermarks).
+  syncWMDownloadBtn();
+}
+
+// Gère la visibilité + l'état actif du bouton ZIP du filigrane
+function syncWMDownloadBtn() {
+  const dlBtn = document.getElementById('dl-wm');
+  if (!dlBtn) return;
+  const hasFiles   = wmState.files.length > 0;
+  const hasOutputs = wmState.outputs.some(b => b);
+  dlBtn.classList.toggle('visible', hasFiles);
+  dlBtn.disabled = !hasOutputs;
+  dlBtn.style.opacity = hasOutputs ? '1' : '0.5';
+  dlBtn.title = hasOutputs ? '' : 'Appliquez d\u2019abord le filigrane';
 }
 
 function renderWMItem(file, idx) {
@@ -2476,8 +2431,7 @@ function removeWMFile(idx) {
   wmState.files.forEach((f, i) => renderWMItem(f, i));
   const btn = document.getElementById('btn-wm');
   if (btn) btn.disabled = wmState.files.length === 0;
-  const zipSec = document.getElementById('zip-section-wm');
-  if (zipSec && !wmState.outputs.some(b => b)) zipSec.style.display = 'none';
+  syncWMDownloadBtn();
 }
 
 function loadLogoWM(input) {
@@ -2672,7 +2626,6 @@ async function applyWatermarks() {
 
   const pb = document.getElementById('pb-watermark');
   const pw = document.getElementById('prog-watermark');
-  if (pw) pw.classList.add('visible');
 
   for (let i = 0; i < wmState.files.length; i++) {
     const file = wmState.files[i];
@@ -2680,6 +2633,7 @@ async function applyWatermarks() {
     const metaEl   = document.getElementById('meta-wm-' + i);
     if (statusEl) { statusEl.className = 'file-status status-processing'; statusEl.textContent = 'Traitement…'; }
 
+    if (pw) pw.classList.add('visible');
     if (pb) pb.style.width = Math.round((i / wmState.files.length) * 90) + '%';
 
     try {
@@ -2689,9 +2643,8 @@ async function applyWatermarks() {
       if (statusEl) { statusEl.className = 'file-status status-done'; statusEl.textContent = '✓ Filigrane ajouté'; }
       if (metaEl) metaEl.textContent = formatSize(file.size) + ' → ' + formatSize(blob.size);
 
-      // Miniature + téléchargement (clic droit OU bouton)
-      const wmExt = blob.type === 'image/webp' ? 'webp' : 'png';
-      const outName = file.name.replace(/\.[^.]+$/, '') + '_watermark.' + wmExt;
+      // Miniature + téléchargement
+      const outName = file.name.replace(/\.[^.]+$/, '') + '_watermark.png';
       const item = document.getElementById('fi-wm-' + i);
       if (item) {
         const reader2 = new FileReader();
@@ -2700,22 +2653,14 @@ async function applyWatermarks() {
           prev.className = 'inline-preview';
           prev.innerHTML = `
             <img src="${ev.target.result}" style="width:64px;height:64px;object-fit:cover;border-radius:6px;border:1px solid var(--border)" title="Clic droit → Enregistrer sous: ${outName}">
-            <div style="flex:1;min-width:0">
-              <div class="preview-label">↗ Clic droit ou bouton ci-contre</div>
-              <div class="preview-filename">${outName}</div>
-            </div>
-            <button class="btn-dl-single" data-idx="${i}" style="padding:8px 14px;background:var(--accent3);border:none;border-radius:8px;color:var(--bg);font-family:Syne,sans-serif;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:opacity 0.2s" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg>
-              Enregistrer
-            </button>
+            <div><div class="preview-label">↗ Clic droit → Enregistrer sous</div><div class="preview-filename">${outName}</div></div>
           `;
-          const dlSingle = prev.querySelector('.btn-dl-single');
-          if (dlSingle) dlSingle.addEventListener('click', () => downloadSingleWM(i));
           item.parentNode.insertBefore(prev, item.nextSibling);
         };
         reader2.readAsDataURL(blob);
       }
     } catch(e) {
+      console.error('Filigrane — erreur sur', file.name, e);
       if (statusEl) { statusEl.className = 'file-status status-error'; statusEl.textContent = 'Erreur'; }
     }
   }
@@ -2723,42 +2668,7 @@ async function applyWatermarks() {
   if (pb) pb.style.width = '100%';
   setTimeout(() => { if (pw) pw.classList.remove('visible'); }, 800);
   if (btn) btn.disabled = false;
-  const zipSec = document.getElementById('zip-section-wm');
-  if (zipSec && wmState.outputs.some(b => b)) {
-    zipSec.style.display = 'block';
-    zipSec.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-}
-
-// Téléchargement individuel d'une image avec filigrane
-async function downloadSingleWM(i) {
-  const blob = wmState.outputs[i];
-  if (!blob) return;
-  const orig = wmState.files[i];
-  const ext = blob.type === 'image/webp' ? 'webp' : 'png';
-  const outName = (orig ? orig.name.replace(/\.[^.]+$/, '') : 'image_' + i) + '_watermark.' + ext;
-  const mime = blob.type || (ext === 'webp' ? 'image/webp' : 'image/png');
-  const desc = ext === 'webp' ? 'Image WebP' : 'Image PNG';
-
-  if (window.showSaveFilePicker) {
-    try {
-      const handle = await window.showSaveFilePicker({
-        suggestedName: outName,
-        types: [{ description: desc, accept: { [mime]: ['.' + ext] } }]
-      });
-      const writable = await handle.createWritable();
-      await writable.write(blob);
-      await writable.close();
-      return;
-    } catch(err) {
-      if (err.name === 'AbortError') return;
-    }
-  }
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = outName;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  syncWMDownloadBtn();
 }
 
 function applyWMToFile(file) {
@@ -2773,13 +2683,7 @@ function applyWMToFile(file) {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0);
         applyWatermarkToCanvas(canvas, ctx, canvas.width, canvas.height);
-        // Sortie en WebP (avec fallback PNG si le navigateur ne supporte pas WebP)
-        const webp = canvas.toDataURL('image/webp', 0.92);
-        if (webp.startsWith('data:image/webp')) {
-          resolve(dataURLtoBlob(webp));
-        } else {
-          resolve(dataURLtoBlob(canvas.toDataURL('image/png')));
-        }
+        resolve(dataURLtoBlob(canvas.toDataURL('image/png')));
       };
       img.onerror = reject;
       img.src = e.target.result;
@@ -2790,18 +2694,13 @@ function applyWMToFile(file) {
 }
 
 async function downloadZipWM() {
-  const btn = document.getElementById('btn-zip-wm');
-  const defaultLabel = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP';
-  if (btn) { btn.disabled = true; btn.textContent = 'Création du ZIP…'; }
-
-  const nameInput = document.getElementById('zip-name-wm');
-  const zipName = ((nameInput && nameInput.value.trim()) || 'images_filigrane') + '.zip';
-
+  const btn = document.getElementById('dl-wm');
+  const wmZipIcon = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="2" y="4" width="20" height="4" rx="1"/><path d="M4 8v10a2 2 0 002 2h12a2 2 0 002-2V8"/><path d="M10 12h4"/></svg> Tout télécharger (ZIP)';
+  if (btn) { btn.textContent = 'Création ZIP…'; }
   const zip = new JSZip();
   const promises = wmState.outputs.map((blob, i) => {
     if (!blob) return Promise.resolve();
-    const ext = blob.type === 'image/webp' ? 'webp' : 'png';
-    const name = (wmState.files[i]?.name.replace(/\.[^.]+$/, '') || 'image_' + i) + '_watermark.' + ext;
+    const name = (wmState.files[i]?.name.replace(/\.[^.]+$/, '') || 'image_' + i) + '_watermark.png';
     return blob.arrayBuffer().then(buf => zip.file(name, buf));
   });
   await Promise.all(promises);
@@ -2811,29 +2710,26 @@ async function downloadZipWM() {
   if (window.showSaveFilePicker) {
     try {
       const handle = await window.showSaveFilePicker({
-        suggestedName: zipName,
-        types: [{ description: 'ZIP Archive', accept: { 'application/zip': ['.zip'] } }]
+        suggestedName: 'images_filigrane.zip',
+        types: [{ description: 'ZIP', accept: { 'application/zip': ['.zip'] } }]
       });
       const writable = await handle.createWritable();
       await writable.write(zipBlob);
       await writable.close();
-      if (btn) { btn.disabled = false; btn.textContent = 'ZIP enregistré !'; }
-      setTimeout(() => { if (btn) btn.innerHTML = defaultLabel; }, 3000);
+      if (btn) btn.textContent = 'ZIP enregistré';
+      setTimeout(() => { if (btn) btn.innerHTML = wmZipIcon; }, 3000);
       return;
     } catch(err) {
-      if (err.name === 'AbortError') {
-        if (btn) { btn.disabled = false; btn.innerHTML = defaultLabel; }
-        return;
-      }
+      if (err.name === 'AbortError') { if (btn) btn.innerHTML = wmZipIcon; return; }
     }
   }
   // Fallback
   const reader = new FileReader();
   reader.onload = e => {
     const a = document.createElement('a');
-    a.href = e.target.result; a.download = zipName;
+    a.href = e.target.result; a.download = 'images_filigrane.zip';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    if (btn) { btn.disabled = false; btn.innerHTML = defaultLabel; }
+    if (btn) btn.innerHTML = wmZipIcon;
   };
   reader.readAsDataURL(zipBlob);
 }
@@ -2882,8 +2778,6 @@ function sendToWatermark() {
   wmState.files = [];
   wmState.outputs = [];
   document.getElementById('list-watermark').innerHTML = '';
-  const zipSecWM1 = document.getElementById('zip-section-wm');
-  if (zipSecWM1) zipSecWM1.style.display = 'none';
 
   // Transférer chaque blob converti comme fichier
   blobs.forEach((blob, i) => {
@@ -2901,6 +2795,7 @@ function sendToWatermark() {
   // Activer le bouton
   const btn = document.getElementById('btn-wm');
   if (btn) btn.disabled = wmState.files.length === 0;
+  syncWMDownloadBtn();
 
   // Basculer sur l'onglet Filigrane
   switchTab('watermark');
@@ -2911,41 +2806,27 @@ function sendToWatermark() {
 
 
 
-// ── Intervertir les deux images ──
+// ── Intervertir l'image de fond avec l'image du calque actif ──
 function fuSwap() {
-  const idx = fu.activeOverlay;
-  // Échange l'image de fond avec l'image superposée ACTIVE
-  const tmpImg = fu.bgImg;
-  fu.bgImg = fu.overlays[idx].img;
-  fu.overlays[idx].img = tmpImg;
+  const t = fuCurTop();
+  if (!fu.bgImg && !t.img) return;
+  const tmp = fu.bgImg;
+  fu.bgImg = t.img;
+  t.img = tmp;
 
-  // Swap thumbs
+  // Mise à jour vignette de fond
   const bgThumb  = document.getElementById('fu-bg-thumb');
-  const topThumb = document.getElementById('fu-top-thumb-' + idx);
   const bgLabel  = document.getElementById('fu-bg-label');
-  const topLabel = document.getElementById('fu-top-label-' + idx);
-  if (bgThumb && topThumb) {
-    const tmpSrc  = bgThumb.src;
-    const tmpDisp = bgThumb.style.display;
-    bgThumb.src   = topThumb.src;   bgThumb.style.display  = topThumb.style.display;
-    topThumb.src  = tmpSrc;         topThumb.style.display = tmpDisp;
+  if (fu.bgImg) {
+    bgThumb.src = fu.bgImg.src;
+    bgThumb.style.display = 'block';
+    bgLabel.style.display = 'none';
+  } else {
+    bgThumb.style.display = 'none';
+    bgLabel.style.display = 'block';
   }
-  if (bgLabel && topLabel) {
-    const tmpLbl   = bgLabel.style.display;
-    bgLabel.style.display  = topLabel.style.display;
-    topLabel.style.display = tmpLbl;
-  }
-
-  // Swap des classes has-image
-  const bgZone  = document.getElementById('fu-bg-drop');
-  const topZone = document.getElementById('fu-top-drop-' + idx);
-  if (bgZone && topZone) {
-    const bgHas   = bgZone.classList.contains('has-image');
-    const topHas  = topZone.classList.contains('has-image');
-    bgZone.classList.toggle('has-image', topHas);
-    topZone.classList.toggle('has-image', bgHas);
-  }
-
+  // Mise à jour vignette du calque actif
+  fuRefreshLayerSlot(fu.activeLayer);
   fuUpdate();
 }
 
@@ -2969,12 +2850,11 @@ function fuSendToWatermark() {
   wmState.files = [file];
   wmState.outputs = [null];
   document.getElementById('list-watermark').innerHTML = '';
-  const zipSecWM2 = document.getElementById('zip-section-wm');
-  if (zipSecWM2) zipSecWM2.style.display = 'none';
   renderWMItem(file, 0);
 
   const btn = document.getElementById('btn-wm');
   if (btn) btn.disabled = false;
+  syncWMDownloadBtn();
 
   // Basculer sur Filigrane
   switchTab('watermark');
@@ -2986,47 +2866,192 @@ function fuSendToWatermark() {
 // ═══════════════════════════════════════════════
 const fu = {
   bgImg: null,
-  // 3 images superposées, chacune avec ses propres réglages.
-  overlays: [
-    { img: null, x: 0.5, y: 0.5, size: 60, opacity: 100, gradMode: 'none', gradSize: 50, gradStart: 0, gradPxTop: 0.5, gradPyTop: 0.5, pointLocked: false, radius: 0, circle: false, shadow: 0, circleOffX: 0.5, circleOffY: 0.5, circleLocked: false },
-    { img: null, x: 0.5, y: 0.5, size: 60, opacity: 100, gradMode: 'none', gradSize: 50, gradStart: 0, gradPxTop: 0.5, gradPyTop: 0.5, pointLocked: false, radius: 0, circle: false, shadow: 0, circleOffX: 0.5, circleOffY: 0.5, circleLocked: false },
-    { img: null, x: 0.5, y: 0.5, size: 60, opacity: 100, gradMode: 'none', gradSize: 50, gradStart: 0, gradPxTop: 0.5, gradPyTop: 0.5, pointLocked: false, radius: 0, circle: false, shadow: 0, circleOffX: 0.5, circleOffY: 0.5, circleLocked: false },
+  // Image de fond — désormais traitée comme un calque (déplaçable, redimensionnable, etc.)
+  bg: { x: 0.5, y: 0.5, size: 100, opacity: 100, rotation: 0, visible: true },
+  // 3 calques superposés
+  tops: [
+    { img: null, x: 0.5, y: 0.5, size: 60, opacity: 100, rotation: 0, visible: true },
+    { img: null, x: 0.5, y: 0.5, size: 60, opacity: 100, rotation: 0, visible: true },
+    { img: null, x: 0.5, y: 0.5, size: 60, opacity: 100, rotation: 0, visible: true },
   ],
-  activeOverlay: 0,    // index de l'image en cours d'édition (0,1,2)
-  gradPx: 0.5, gradPy: 0.5, // point libre en coords canvas (0-1) de l'image active
-  // bgMode supprimé — couleur et image coexistent
+  // Index unifié : 0 = image de fond, 1/2/3 = calques superposés
+  activeLayer: 0,
+  gradMode: 'none',
+  gradPx: 0.5, gradPy: 0.5,
+  gradPxTop: 0.5, gradPyTop: 0.5,
   logoImg: null,
   logoPos: 'top-left',
-  logoLayer: 'front',   // 'front' = devant les photos | 'behind' = derrière
-  logoFreeX: 0.85,     // position libre logo (0-1)
+  logoLayer: 'front',
+  logoFreeX: 0.85,
   logoFreeY: 0.05,
   dragging: false,
   dragStartX: 0, dragStartY: 0,
   imgStartX: 0, imgStartY: 0,
   pointMode: false,
-  dragMode: 'top',     // 'top' = déplacer image active | 'point' = placer point | 'text1/2' | 'logo'
-  // ── Accès pratique à l'image superposée active ──
-  get activeOv() { return this.overlays[this.activeOverlay]; },
-  // Compat : certains anciens accès passent par fu.topImg → renvoie l'image active
-  get topImg() { return this.overlays[this.activeOverlay].img; },
-  set topImg(v) { this.overlays[this.activeOverlay].img = v; },
-  get x() { return this.overlays[this.activeOverlay].x; },
-  set x(v) { this.overlays[this.activeOverlay].x = v; },
-  get y() { return this.overlays[this.activeOverlay].y; },
-  set y(v) { this.overlays[this.activeOverlay].y = v; },
-  get gradMode() { return this.overlays[this.activeOverlay].gradMode; },
-  set gradMode(v) { this.overlays[this.activeOverlay].gradMode = v; },
-  get gradPxTop() { return this.overlays[this.activeOverlay].gradPxTop; },
-  set gradPxTop(v) { this.overlays[this.activeOverlay].gradPxTop = v; },
-  get gradPyTop() { return this.overlays[this.activeOverlay].gradPyTop; },
-  set gradPyTop(v) { this.overlays[this.activeOverlay].gradPyTop = v; },
-  get pointLocked() { return this.overlays[this.activeOverlay].pointLocked; },
-  set pointLocked(v) { this.overlays[this.activeOverlay].pointLocked = v; },
+  pointLocked: false,
+  dragMode: 'top',
+  layoutMode: 'fusion',  // 'fusion' = superposition | 'grid' = grille 2×2
 };
 
-// Y a-t-il au moins une image superposée chargée ?
-function fuHasAnyOverlay() {
-  return fu.overlays.some(o => o.img);
+// Helpers unifiés : le calque actif est soit le fond (idx 0) soit l'un des 3 superposés
+function fuCurLayer() {
+  return fu.activeLayer === 0 ? fu.bg : fu.tops[fu.activeLayer - 1];
+}
+function fuCurImg() {
+  return fu.activeLayer === 0 ? fu.bgImg : fu.tops[fu.activeLayer - 1].img;
+}
+function fuAnyTop() { return fu.tops.some(t => t.img); }
+// Compatibilité — ancien nom utilisé ailleurs
+function fuCurTop() { return fuCurLayer(); }
+
+// Bascule la visibilité d'une case (œil afficher/masquer)
+// idx : 0 = image de fond, 1/2/3 = calques superposés
+function fuToggleVisible(idx, evt) {
+  if (evt) evt.stopPropagation();
+  const layer = idx === 0 ? fu.bg : fu.tops[idx - 1];
+  layer.visible = !layer.visible;
+  fuUpdateEyeIcon(idx);
+  fuUpdate();
+}
+
+// Plie / déplie une section de la sidebar (accordéon : une seule ouverte à la fois)
+function fuToggleCollapse(groupEl) {
+  const wasCollapsed = groupEl.classList.contains('fu-collapsed');
+  // Replier toutes les autres sections pliables
+  document.querySelectorAll('.fu-collapsible').forEach(g => {
+    if (g !== groupEl) g.classList.add('fu-collapsed');
+  });
+  // Basculer celle-ci : si elle était repliée, on la déplie ; si elle était dépliée, on la replie
+  if (wasCollapsed) groupEl.classList.remove('fu-collapsed');
+  else groupEl.classList.add('fu-collapsed');
+}
+
+// Bascule entre Mode Fusion et Mode Grid 2×2
+function fuSetLayoutMode(mode) {
+  fu.layoutMode = mode;
+  document.querySelectorAll('.fu-layout-badge').forEach(b => {
+    b.classList.toggle('fu-layout-active', b.dataset.layout === mode);
+  });
+  fuUpdate();
+}
+
+// Renvoie les rectangles des 4 cases en mode Grid 2×2 (sur un canvas WxH)
+// Cases dans l'ordre : 0 = haut-gauche (image de fond), 1 = haut-droite (calque 1),
+// 2 = bas-gauche (calque 2), 3 = bas-droite (calque 3).
+function fuGridCells(W, H) {
+  const border = Math.max(8, Math.round(Math.min(W, H) * 0.02));
+  const cellW = (W - 3 * border) / 2;
+  const cellH = (H - 3 * border) / 2;
+  return [
+    { x: border,                y: border,                w: cellW, h: cellH, border },
+    { x: border + cellW + border, y: border,              w: cellW, h: cellH, border },
+    { x: border,                y: border + cellH + border, w: cellW, h: cellH, border },
+    { x: border + cellW + border, y: border + cellH + border, w: cellW, h: cellH, border },
+  ];
+}
+
+// Renvoie l'image et le layer correspondant à une case (0..3)
+function fuLayerForCell(cellIdx) {
+  if (cellIdx === 0) return { layer: fu.bg,        img: fu.bgImg,        layerIdx: 0 };
+  return                       { layer: fu.tops[cellIdx - 1], img: fu.tops[cellIdx - 1].img, layerIdx: cellIdx };
+}
+
+// Détermine la case sous un point (coordonnées en pixels canvas)
+function fuCellAt(px, py, W, H) {
+  const cells = fuGridCells(W, H);
+  for (let i = 0; i < cells.length; i++) {
+    const c = cells[i];
+    if (px >= c.x && px <= c.x + c.w && py >= c.y && py <= c.y + c.h) return i;
+  }
+  return -1;
+}
+
+// Dessine la grille 2×2 dans le contexte ctx (de taille W×H)
+// forExport=true : pas de bordure de sélection (le résultat final ne doit pas montrer
+// l'aide visuelle de sélection du calque actif).
+function fuRenderGrid(ctx, W, H, forExport) {
+  // Fond blanc complet : sert de bordure homogène
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, W, H);
+
+  const cells = fuGridCells(W, H);
+  cells.forEach((c, idx) => {
+    const { layer, img } = fuLayerForCell(idx);
+    // Fond gris très léger dans la case (visible si vide)
+    ctx.fillStyle = '#f0f2f7';
+    ctx.fillRect(c.x, c.y, c.w, c.h);
+
+    if (!img || !layer.visible) return;
+
+    ctx.save();
+    // Clip à la case pour que l'image ne déborde pas
+    ctx.beginPath();
+    ctx.rect(c.x, c.y, c.w, c.h);
+    ctx.clip();
+
+    const sizePct = layer.size / 100;
+    const opacity = layer.opacity / 100;
+    // Taille de l'image : sizePct × largeur de la case ; ratio préservé
+    const imgW = c.w * sizePct;
+    const imgH = imgW * img.height / img.width;
+    // x/y du calque (0-1) = position dans la case
+    const imgX = c.x + layer.x * c.w - imgW / 2;
+    const imgY = c.y + layer.y * c.h - imgH / 2;
+
+    ctx.globalAlpha = opacity;
+    if (layer.rotation) {
+      const cx = imgX + imgW / 2, cy = imgY + imgH / 2;
+      ctx.translate(cx, cy);
+      ctx.rotate(layer.rotation * Math.PI / 180);
+      ctx.translate(-cx, -cy);
+    }
+    ctx.drawImage(img, imgX, imgY, imgW, imgH);
+
+    // Transparence progressive sur la case active uniquement
+    const isActive = idx === fu.activeLayer;
+    if (isActive && fu.gradMode !== 'none') {
+      const gradSize = parseInt(document.getElementById('fu-grad-size').value) / 100;
+      const grd = fuMakeGradient(ctx, c.w, c.h, imgX - c.x, imgY - c.y, imgW, imgH, gradSize);
+      // fuMakeGradient calcule en coords locales ; on recalcule en coords canvas
+      const grd2 = fuMakeGradient(ctx, W, H, imgX, imgY, imgW, imgH, gradSize);
+      if (grd2) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.fillStyle = grd2;
+        ctx.fillRect(c.x, c.y, c.w, c.h);
+        ctx.restore();
+      }
+    }
+
+    ctx.restore();
+
+    // Mettre en valeur la case active avec une bordure intérieure bleu marine
+    // (uniquement à l'écran ; jamais dans le fichier exporté)
+    if (idx === fu.activeLayer && !forExport) {
+      ctx.save();
+      ctx.strokeStyle = '#001A4D';
+      ctx.lineWidth = Math.max(2, Math.round(c.border * 0.25));
+      const inset = ctx.lineWidth / 2;
+      ctx.strokeRect(c.x + inset, c.y + inset, c.w - ctx.lineWidth, c.h - ctx.lineWidth);
+      ctx.restore();
+    }
+  });
+}
+
+function fuUpdateEyeIcon(idx) {
+  const layer = idx === 0 ? fu.bg : fu.tops[idx - 1];
+  const btn = document.getElementById('fu-eye-' + idx);
+  if (!btn) return;
+  // SVG œil ouvert / œil barré
+  if (layer.visible) {
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+    btn.title = 'Masquer';
+    btn.classList.remove('fu-eye-off');
+  } else {
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+    btn.title = 'Afficher';
+    btn.classList.add('fu-eye-off');
+  }
 }
 
 
@@ -3127,8 +3152,8 @@ function fuDrawLogo(ctx, W, H) {
   ctx.restore();
 }
 
-function fuLoadBgFile(file) {
-  if (!file || !file.type.startsWith('image/')) return;
+function fuLoadBg(input) {
+  const file = input.files[0]; if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
     const img = new Image();
@@ -3137,113 +3162,111 @@ function fuLoadBgFile(file) {
       const thumb = document.getElementById('fu-bg-thumb');
       thumb.src = e.target.result; thumb.style.display = 'block';
       document.getElementById('fu-bg-label').style.display = 'none';
-      document.getElementById('fu-bg-drop').classList.add('has-image');
+      const clrBtn = document.getElementById('fu-clear-bg');
+      if (clrBtn) clrBtn.style.display = 'flex';
+      // Activer le calque "image de fond"
+      fuSetActiveLayer(0);
       fuUpdate();
     };
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
+  input.value = '';
 }
 
-function fuLoadTopFile(file, idx) {
-  if (!file || !file.type.startsWith('image/')) return;
-  if (idx === undefined) idx = fu.activeOverlay;
+function fuClearBg() {
+  fu.bgImg = null;
+  const thumb = document.getElementById('fu-bg-thumb');
+  const label = document.getElementById('fu-bg-label');
+  const clrBtn = document.getElementById('fu-clear-bg');
+  if (thumb) thumb.style.display = 'none';
+  if (label) label.style.display = 'block';
+  if (clrBtn) clrBtn.style.display = 'none';
+  fuUpdate();
+}
+
+// ── Calques (image de fond + 3 calques superposés, sélection unifiée) ──
+function fuSetActiveLayer(idx) {
+  fu.activeLayer = idx;
+  // Mise à jour visuelle des 4 tuiles (bordure bleu marine sur l'active)
+  document.querySelectorAll('.fu-layer-tile').forEach(tile => {
+    tile.classList.toggle('fu-active', parseInt(tile.dataset.layer) === idx);
+  });
+  // Label dans la sidebar
+  const lbl = document.getElementById('fu-active-layer-label');
+  if (lbl) lbl.textContent = idx === 0 ? '(Image de fond)' : '(Calque ' + idx + ')';
+  // Synchroniser les sliders avec le calque actif
+  fuSyncControlsFromLayer();
+  fuUpdate();
+}
+
+// Met à jour la vignette + croix d'un slot donné
+function fuRefreshLayerSlot(idx) {
+  const t = fu.tops[idx];
+  const thumb = document.getElementById('fu-top-thumb-' + idx);
+  const label = document.getElementById('fu-top-label-' + idx);
+  const clrBtn = document.getElementById('fu-clear-' + idx);
+  if (t.img) {
+    if (thumb) { thumb.src = t.img.src; thumb.style.display = 'block'; }
+    if (label) label.style.display = 'none';
+    if (clrBtn) clrBtn.style.display = 'flex';
+  } else {
+    if (thumb) thumb.style.display = 'none';
+    if (label) label.style.display = 'block';
+    if (clrBtn) clrBtn.style.display = 'none';
+  }
+}
+
+// Lit les valeurs des sliders et les écrit dans le calque actif
+function fuSyncLayerFromControls() {
+  const t = fuCurTop();
+  const size = parseInt(document.getElementById('fu-size').value);
+  const op   = parseInt(document.getElementById('fu-opacity').value);
+  const rot  = parseInt(document.getElementById('fu-rotation').value);
+  t.size = size;
+  t.opacity = op;
+  t.rotation = rot;
+  const sv = document.getElementById('fu-size-val');     if (sv) sv.textContent = size + '%';
+  const ov = document.getElementById('fu-opacity-val');  if (ov) ov.textContent = op + '%';
+  const rv = document.getElementById('fu-rotation-val'); if (rv) rv.textContent = rot + '\u00b0';
+}
+
+// Synchronise les sliders avec les valeurs mémorisées du calque actif
+function fuSyncControlsFromLayer() {
+  const t = fuCurTop();
+  const sz = document.getElementById('fu-size');     if (sz) sz.value = t.size;
+  const op = document.getElementById('fu-opacity');  if (op) op.value = t.opacity;
+  const ro = document.getElementById('fu-rotation'); if (ro) ro.value = t.rotation;
+  const sv = document.getElementById('fu-size-val');     if (sv) sv.textContent = t.size + '%';
+  const ov = document.getElementById('fu-opacity-val');  if (ov) ov.textContent = t.opacity + '%';
+  const rv = document.getElementById('fu-rotation-val'); if (rv) rv.textContent = t.rotation + '\u00b0';
+}
+
+function fuClearLayer(idx) {
+  fu.tops[idx].img = null;
+  fuRefreshLayerSlot(idx);
+  // Le calque actif correspond-il à ce calque superposé ? (activeLayer 1/2/3 → tops[0/1/2])
+  if (fu.activeLayer === idx + 1) fuSyncControlsFromLayer();
+  fuUpdate();
+}
+
+// Chargement d'une image dans un calque spécifique (idx = 0..2 pour les superposés)
+function fuLoadTopInto(idx, input) {
+  const file = input.files[0]; if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
     const img = new Image();
     img.onload = () => {
-      fu.overlays[idx].img = img;
-      // Position initiale : centré
-      fu.overlays[idx].x = 0.5; fu.overlays[idx].y = 0.5;
-      const thumb = document.getElementById('fu-top-thumb-' + idx);
-      if (thumb) { thumb.src = e.target.result; thumb.style.display = 'block'; }
-      const label = document.getElementById('fu-top-label-' + idx);
-      if (label) label.style.display = 'none';
-      const drop = document.getElementById('fu-top-drop-' + idx);
-      if (drop) drop.classList.add('has-image');
-      // Sélectionner automatiquement l'image qu'on vient de charger
-      fuSetActiveOverlay(idx);
+      fu.tops[idx].img = img;
+      // Activer ce calque (activeLayer 1/2/3)
+      fuSetActiveLayer(idx + 1);
+      fuRefreshLayerSlot(idx);
+      fuUpdate();
     };
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
-}
-
-function fuLoadBg(input) {
-  const file = input.files[0]; if (!file) return;
-  fuLoadBgFile(file);
-}
-
-function fuLoadTop(input, idx) {
-  const file = input.files[0]; if (!file) return;
-  fuLoadTopFile(file, idx);
-}
-
-// ── Drag & Drop sur les zones fusion ──
-function fuDragOver(e, id) {
-  e.preventDefault(); e.stopPropagation();
-  if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
-  document.getElementById(id).classList.add('drag-over');
-}
-function fuDragLeave(e, id) {
-  e.preventDefault(); e.stopPropagation();
-  // Ne retirer le surlignage que si on quitte vraiment la zone
-  const zone = document.getElementById(id);
-  if (!zone.contains(e.relatedTarget)) zone.classList.remove('drag-over');
-}
-function fuDropBg(e) {
-  e.preventDefault(); e.stopPropagation();
-  document.getElementById('fu-bg-drop').classList.remove('drag-over');
-  const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-  if (file) fuLoadBgFile(file);
-}
-function fuDropTop(e, idx) {
-  e.preventDefault(); e.stopPropagation();
-  const drop = document.getElementById('fu-top-drop-' + idx);
-  if (drop) drop.classList.remove('drag-over');
-  const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-  if (file) fuLoadTopFile(file, idx);
-}
-
-// ── Suppression d'image ──
-function fuClearBg(e) {
-  if (e) { e.preventDefault(); e.stopPropagation(); }
-  fu.bgImg = null;
-  const thumb = document.getElementById('fu-bg-thumb');
-  thumb.src = ''; thumb.style.display = 'none';
-  document.getElementById('fu-bg-label').style.display = '';
-  const zone = document.getElementById('fu-bg-drop');
-  zone.classList.remove('has-image');
-  const input = zone.querySelector('input[type=file]');
-  if (input) input.value = '';
-  fuUpdate();
-}
-function fuClearTop(e, idx) {
-  if (e) { e.preventDefault(); e.stopPropagation(); }
-  if (idx === undefined) idx = fu.activeOverlay;
-  const ov = fu.overlays[idx];
-  ov.img = null;
-  // Réinitialiser ses réglages
-  ov.size = 60; ov.opacity = 100; ov.gradMode = 'none'; ov.gradSize = 50; ov.gradStart = 0;
-  ov.x = 0.5; ov.y = 0.5; ov.pointLocked = false;
-  const thumb = document.getElementById('fu-top-thumb-' + idx);
-  if (thumb) { thumb.src = ''; thumb.style.display = 'none'; }
-  const label = document.getElementById('fu-top-label-' + idx);
-  if (label) label.style.display = '';
-  const zone = document.getElementById('fu-top-drop-' + idx);
-  if (zone) {
-    zone.classList.remove('has-image');
-    const input = zone.querySelector('input[type=file]');
-    if (input) input.value = '';
-  }
-  // Désactiver l'export seulement s'il ne reste plus AUCUNE image (ni fond ni overlay)
-  if (!fuHasAnyOverlay() && !fu.bgImg) {
-    const btn = document.getElementById('btn-fusion');
-    if (btn) btn.disabled = true;
-    const btnW = document.getElementById('btn-fusion-webp');
-    if (btnW) btnW.disabled = true;
-  }
-  fuUpdate();
+  input.value = '';
 }
 
 function fuSetGrad(mode, btn) {
@@ -3261,178 +3284,124 @@ function fuSetGrad(mode, btn) {
   fuUpdate();
 }
 
-// Active/désactive le masque cercle sur l'image active.
-function fuToggleCircle() {
-  fu.activeOv.circle = !fu.activeOv.circle;
-  fuSyncCircleBtn();
-  fuUpdate();
-}
-
-// Verrouille / déverrouille le cercle sur l'image (verrouillé = glisser recadre).
-function fuToggleCircleLock() {
-  fu.activeOv.circleLocked = !fu.activeOv.circleLocked;
-  fuSyncCircleBtn();
-}
-
-// Met à jour l'apparence du bouton cercle + cadenas selon l'image active.
-function fuSyncCircleBtn() {
-  const btn = document.getElementById('fu-circle-btn');
-  if (!btn) return;
-  const on = fu.activeOv.circle;
-  btn.style.borderColor = on ? 'var(--accent1)' : 'var(--border)';
-  btn.style.background  = on ? 'var(--accent1)' : 'var(--card)';
-  btn.style.color       = on ? 'white' : 'var(--muted)';
-
-  // Ligne du cadenas visible seulement quand le cercle est actif
-  const lockRow = document.getElementById('fu-circle-lock-row');
-  if (lockRow) lockRow.style.display = on ? 'flex' : 'none';
-
-  const lockBtn = document.getElementById('fu-circle-lock-btn');
-  const lockStatus = document.getElementById('fu-circle-lock-status');
-  if (lockBtn) {
-    const locked = fu.activeOv.circleLocked;
-    const openLock  = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 019.9-1"/></svg>';
-    const closedLock = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>';
-    lockBtn.style.borderColor = locked ? 'var(--accent1)' : 'var(--border)';
-    lockBtn.style.background  = locked ? 'var(--accent1)' : 'var(--card)';
-    lockBtn.style.color       = locked ? 'white' : 'var(--muted)';
-    lockBtn.innerHTML = (locked ? closedLock : openLock) + (locked ? 'Verrouillé sur l\'image' : 'Verrouiller sur l\'image');
-    if (lockStatus) {
-      lockStatus.textContent = locked
-        ? '🔒 Glisser recadre l\'image dans le cercle'
-        : 'Déverrouillé : glisser déplace le cercle';
-      lockStatus.style.color = locked ? 'var(--accent1)' : 'var(--muted)';
-    }
-  }
-}
-
-// Écrit la valeur d'un curseur dans l'image superposée active, puis redessine.
-function fuSlider(prop, value) {
-  fu.activeOv[prop] = parseInt(value, 10);
-  // Mettre à jour l'étiquette correspondante immédiatement
-  const labelMap = { size: 'fu-size-val', opacity: 'fu-opacity-val', gradSize: 'fu-grad-size-val', gradStart: 'fu-grad-start-val', radius: 'fu-radius-val', shadow: 'fu-shadow-val' };
-  const el = document.getElementById(labelMap[prop]);
-  if (el) el.textContent = parseInt(value, 10) + '%';
-  fuUpdate();
-}
-
-// Sélectionne l'image superposée active (0,1,2) que les réglages pilotent.
-function fuSetActiveOverlay(idx) {
-  fu.activeOverlay = idx;
-  // Boutons de sélection
-  for (let i = 0; i < 3; i++) {
-    const b = document.getElementById('fu-ov-sel-' + i);
-    if (b) b.classList.toggle('fu-active', i === idx);
-  }
-  // Si l'image active a un point de transparence, restaurer son point live
-  const ov = fu.activeOv;
-  if (ov.gradMode === 'point') {
-    fu.gradPx = ov.gradPxTop; fu.gradPy = ov.gradPyTop; // approximation; recalculé au rendu
-  }
-  fuUpdate();
-}
-
 function fuUpdate() {
   const canvas = document.getElementById('fu-canvas');
   const wrap = document.getElementById('fu-canvas-wrap');
   const placeholder = document.getElementById('fu-placeholder');
-  const btnExport = document.getElementById('btn-fusion');
-  const btnExportWebp = document.getElementById('btn-fusion-webp');
+  const btnPng  = document.getElementById('btn-fusion-png');
+  const btnWebp = document.getElementById('btn-fusion-webp');
+  if (!canvas || !wrap) return;
 
-  // Plus aucune image : on remet l'aperçu à l'état initial
-  if (!fu.bgImg && !fuHasAnyOverlay()) {
-    if (canvas) {
-      const cctx = canvas.getContext('2d');
-      cctx.clearRect(0, 0, canvas.width, canvas.height);
-      canvas.style.display = 'none';
-    }
-    if (placeholder) placeholder.style.display = '';
-    if (btnExport) btnExport.disabled = true;
-    if (btnExportWebp) btnExportWebp.disabled = true;
-    return;
+  const firstTop = fu.tops.find(t => t.img);
+  const maxW = wrap.clientWidth || 600;
+
+  // Taille du canvas selon le mode
+  if (fu.layoutMode === 'grid') {
+    // Mode Grid 2×2 : ratio paysage fixe (16:9 → 2×16:9 cellules + bordures)
+    const cellW = 800, cellH = 450;
+    const border = 30;
+    const totalW = cellW * 2 + border * 3;
+    const totalH = cellH * 2 + border * 3;
+    const scale = Math.min(1, maxW / totalW);
+    canvas.width  = Math.round(totalW * scale);
+    canvas.height = Math.round(totalH * scale);
+  } else {
+    const refW = fu.bgImg ? fu.bgImg.width  : (firstTop ? firstTop.img.width  : 800);
+    const refH = fu.bgImg ? fu.bgImg.height : (firstTop ? firstTop.img.height : 600);
+    const scale = Math.min(1, maxW / refW);
+    canvas.width  = Math.round(refW * scale);
+    canvas.height = Math.round(refH * scale);
   }
 
-  // Taille canvas = image de référence (fond prioritaire, sinon 1ʳᵉ image chargée)
-  const firstOv = fu.overlays.find(o => o.img);
-  const maxW = wrap.clientWidth || 600;
-  const refW = fu.bgImg ? fu.bgImg.width  : (firstOv ? firstOv.img.width  : 800);
-  const refH = fu.bgImg ? fu.bgImg.height : (firstOv ? firstOv.img.height : 600);
-  const scale = Math.min(1, maxW / refW);
-  canvas.width  = Math.round(refW * scale);
-  canvas.height = Math.round(refH * scale);
-
-  placeholder.style.display = 'none';
+  if (placeholder) placeholder.style.display = 'none';
   canvas.style.display = 'block';
 
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // 1. Couleur de fond (toujours en premier)
+  // Mise à jour des étiquettes de sliders du calque actif
+  const gradSize = parseInt(document.getElementById('fu-grad-size').value) / 100;
+  const gradSizeVal = document.getElementById('fu-grad-size-val');
+  if (gradSizeVal) gradSizeVal.textContent = Math.round(gradSize * 100) + '%';
+
+  // Activer les boutons d'export dès qu'il y a quelque chose à exporter
+  const canExport = !!(fu.bgImg || firstTop);
+  if (btnPng)  btnPng.disabled  = !canExport;
+  if (btnWebp) btnWebp.disabled = !canExport;
+
+  // ───── BRANCHEMENT SELON LE MODE ─────
+  if (fu.layoutMode === 'grid') {
+    fuRenderGrid(ctx, canvas.width, canvas.height);
+    // Logo et textes au-dessus de la grille
+    if (fu.logoLayer === 'front') fuDrawLogo(ctx, canvas.width, canvas.height);
+    fuDrawTexts(ctx, canvas.width, canvas.height);
+    return;
+  }
+
+  // ───── MODE FUSION (comportement original) ─────
+  // 1. Couleur de fond
   const col = document.getElementById('fu-bg-color');
   ctx.fillStyle = col ? col.value : '#ffffff';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // 2. Logo DERRIÈRE tout (entre couleur et image de fond)
+  // 2. Logo derrière
   if (fu.logoLayer === 'behind') fuDrawLogo(ctx, canvas.width, canvas.height);
 
-  // 3. Image de fond par-dessus (si chargée)
-  if (fu.bgImg) ctx.drawImage(fu.bgImg, 0, 0, canvas.width, canvas.height);
-
-  // ── Images superposées : on dessine les 3 dans l'ordre (1 derrière, 3 devant) ──
-  const anyOverlay = fuHasAnyOverlay();
-  // L'export est possible dès qu'il y a au moins une image (fond OU superposée).
-  if (fu.bgImg || anyOverlay) {
-    btnExport.disabled = false;
-    if (btnExportWebp) btnExportWebp.disabled = false;
+  // 3. Image de fond — traitée comme un calque (size, opacity, rotation, x/y)
+  if (fu.bgImg && fu.bg.visible) {
+    const sz = fu.bg.size / 100;
+    const op = fu.bg.opacity / 100;
+    const bw = Math.round(canvas.width * sz);
+    const bh = Math.round(bw * fu.bgImg.height / fu.bgImg.width);
+    const bx = Math.round(fu.bg.x * canvas.width  - bw / 2);
+    const by = Math.round(fu.bg.y * canvas.height - bh / 2);
+    ctx.save();
+    ctx.globalAlpha = op;
+    if (fu.bg.rotation) {
+      const cx = bx + bw / 2, cy = by + bh / 2;
+      ctx.translate(cx, cy);
+      ctx.rotate(fu.bg.rotation * Math.PI / 180);
+      ctx.translate(-cx, -cy);
+    }
+    ctx.drawImage(fu.bgImg, bx, by, bw, bh);
+    ctx.restore();
   }
 
-  // Mettre à jour l'affichage des curseurs selon l'IMAGE ACTIVE.
-  const act = fu.activeOv;
-  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-  document.getElementById('fu-size').value = act.size;
-  setVal('fu-size-val', act.size + '%');
-  document.getElementById('fu-opacity').value = act.opacity;
-  setVal('fu-opacity-val', act.opacity + '%');
-  document.getElementById('fu-grad-size').value = act.gradSize;
-  setVal('fu-grad-size-val', act.gradSize + '%');
-  document.getElementById('fu-grad-start').value = act.gradStart;
-  setVal('fu-grad-start-val', act.gradStart + '%');
-  const radSlider = document.getElementById('fu-radius');
-  if (radSlider) { radSlider.value = act.radius; setVal('fu-radius-val', act.radius + '%'); }
-  const shadSlider = document.getElementById('fu-shadow');
-  if (shadSlider) { shadSlider.value = act.shadow; setVal('fu-shadow-val', act.shadow + '%'); }
-  fuSyncCircleBtn();
-
-  // Dessiner chaque image superposée avec SES propres réglages.
-  for (let oi = 0; oi < fu.overlays.length; oi++) {
-    const ov = fu.overlays[oi];
-    if (!ov.img) continue;
-
-    const sizePct = ov.size / 100;
-    const opacity = ov.opacity / 100;
-    const gradSize = ov.gradSize / 100;
-    const gradStart = ov.gradStart / 100;
-
+  // 4. Les 3 calques superposés (dans l'ordre 1, 2, 3)
+  fu.tops.forEach((t, idx) => {
+    if (!t.img || !t.visible) return;
+    const sizePct = t.size / 100;
+    const opacity = t.opacity / 100;
     const topW = Math.round(canvas.width  * sizePct);
-    const topH = Math.round(topW * ov.img.height / ov.img.width);
-    const topX = Math.round(ov.x * canvas.width  - topW / 2);
-    const topY = Math.round(ov.y * canvas.height - topH / 2);
+    const topH = Math.round(topW * t.img.height / t.img.width);
+    const topX = Math.round(t.x * canvas.width  - topW / 2);
+    const topY = Math.round(t.y * canvas.height - topH / 2);
 
-    // Si point verrouillé sur cette image active → recalculer depuis coords relatives
-    if (oi === fu.activeOverlay && ov.pointLocked && ov.gradMode === 'point') {
+    // Calque actif = activeLayer (1/2/3) → on compare avec idx+1
+    const isActive = (idx + 1) === fu.activeLayer;
+    if (isActive && fu.pointLocked && fu.gradMode === 'point') {
       fuRestorePointFromRelative(canvas);
     }
 
+    // Canvas tampon pour appliquer un masque dégradé seulement au calque actif
     const tmp = document.createElement('canvas');
     tmp.width  = canvas.width;
     tmp.height = canvas.height;
     const tc = tmp.getContext('2d');
 
-    // Dessin de l'image avec arrondi / cercle / ombre
-    fuDrawShapedImage(tc, ov, topX, topY, topW, topH);
+    tc.save();
+    tc.globalAlpha = opacity;
+    if (t.rotation) {
+      const cx = topX + topW / 2, cy = topY + topH / 2;
+      tc.translate(cx, cy);
+      tc.rotate(t.rotation * Math.PI / 180);
+      tc.translate(-cx, -cy);
+    }
+    tc.drawImage(t.img, topX, topY, topW, topH);
+    tc.restore();
 
-    if (ov.gradMode !== 'none') {
-      const grd = fuMakeGradientFor(ov, tc, canvas.width, canvas.height, topX, topY, topW, topH, gradSize, gradStart);
+    if (isActive && fu.gradMode !== 'none') {
+      const grd = fuMakeGradient(tc, canvas.width, canvas.height, topX, topY, topW, topH, gradSize);
       if (grd) {
         tc.save();
         tc.globalCompositeOperation = 'destination-out';
@@ -3443,168 +3412,64 @@ function fuUpdate() {
     }
 
     ctx.drawImage(tmp, 0, 0);
-  }
+  });
 
-  // 5. Logo DEVANT les photos (au premier plan) — même si une seule photo (image de fond)
+  // 5. Logo devant
   if (fu.logoLayer === 'front') fuDrawLogo(ctx, canvas.width, canvas.height);
 
-  // 6. Textes (toujours au premier plan)
+  // 6. Textes
   fuDrawTexts(ctx, canvas.width, canvas.height);
 }
 
-// Dessine l'image d'un overlay (avec arrondi/cercle/ombre) dans un contexte tc,
-// à la position et taille données, en appliquant opacité et masque de forme.
-// Retourne true si un masque de forme (arrondi/cercle) a été appliqué.
-function fuDrawShapedImage(tc, ov, topX, topY, topW, topH) {
-  const r = ov.radius || 0;       // 0..50 (% du plus petit côté)
-  const circle = !!ov.circle;
-  const opacity = ov.opacity / 100;
-
-  const minSide = Math.min(topW, topH);
-  const radiusPx = circle ? 0 : Math.round(minSide * (r / 100));
-
-  // Géométrie du cercle parfait : centré dans la zone, diamètre = plus petit côté.
-  const circleD = minSide;
-  const circleCx = topX + topW / 2;
-  const circleCy = topY + topH / 2;
-  const circleR = circleD / 2;
-
-  // Construit le chemin de la forme.
-  function shapePath() {
-    tc.beginPath();
-    if (circle) {
-      // VRAI cercle (pas ellipse), même si l'image est rectangulaire.
-      tc.arc(circleCx, circleCy, circleR, 0, Math.PI * 2);
-    } else if (radiusPx > 0) {
-      const x = topX, y = topY, w = topW, h = topH, rad = Math.min(radiusPx, w / 2, h / 2);
-      tc.moveTo(x + rad, y);
-      tc.arcTo(x + w, y,     x + w, y + h, rad);
-      tc.arcTo(x + w, y + h, x,     y + h, rad);
-      tc.arcTo(x,     y + h, x,     y,     rad);
-      tc.arcTo(x,     y,     x + w, y,     rad);
-      tc.closePath();
-    } else {
-      tc.rect(topX, topY, topW, topH);
-    }
-  }
-
-  const hasShape = circle || radiusPx > 0;
-
-  tc.save();
-  tc.globalAlpha = opacity;
-
-  // Ombre posée sur la forme (sinon le clip la couperait).
-  if (ov.shadow > 0) {
-    tc.shadowColor = 'rgba(0,0,0,' + Math.min(0.85, ov.shadow / 100) + ')';
-    tc.shadowBlur = Math.round(minSide * 0.06 * (ov.shadow / 50));
-    tc.shadowOffsetX = 0;
-    tc.shadowOffsetY = Math.round(minSide * 0.02 * (ov.shadow / 50));
-    if (hasShape) {
-      shapePath();
-      tc.fillStyle = 'rgba(0,0,0,1)';
-      tc.fill();
-      tc.shadowColor = 'transparent'; tc.shadowBlur = 0; tc.shadowOffsetY = 0;
-    }
-  }
-
-  if (circle) {
-    // Cercle : clip rond, puis on dessine une portion CARRÉE de l'image source
-    // (recadrée selon circleOffX/Y) pour remplir le cercle sans déformation.
-    shapePath();
-    tc.clip();
-
-    const iw = ov.img.width, ih = ov.img.height;
-    const srcSide = Math.min(iw, ih);              // côté du carré découpé dans la source
-    const maxOffX = iw - srcSide, maxOffY = ih - srcSide;
-    const sx = Math.round(maxOffX * (ov.circleOffX != null ? ov.circleOffX : 0.5));
-    const sy = Math.round(maxOffY * (ov.circleOffY != null ? ov.circleOffY : 0.5));
-    // Destination : le carré englobant le cercle.
-    const dX = circleCx - circleR, dY = circleCy - circleR, dSize = circleR * 2;
-    tc.drawImage(ov.img, sx, sy, srcSide, srcSide, dX, dY, dSize, dSize);
-    tc.restore();
-    return true;
-  }
-
-  // Arrondi ou rectangle : clip éventuel puis dessin classique (image entière).
-  if (hasShape) {
-    shapePath();
-    tc.clip();
-  }
-  tc.drawImage(ov.img, topX, topY, topW, topH);
-  tc.restore();
-
-  return hasShape;
-}
-
-
-function fuMakeGradientFor(ov, ctx, W, H, topX, topY, topW, topH, gradSize, gradStart) {
+function fuMakeGradient(ctx, W, H, topX, topY, topW, topH, gradSize) {
   let grd;
-  const m = ov.gradMode;
+  const m = fu.gradMode;
   const gs = gradSize;
-  const st = gradStart || 0; // 0..0.95 — décalage du début de l'effet
 
   if (m === 'top') {
-    // Opaque jusqu'à topY + topH*st, puis transition sur topH*gs
-    const y0 = topY + topH * st;
-    const y1 = topY + topH * Math.min(1, st + gs);
-    grd = ctx.createLinearGradient(0, y0, 0, y1);
+    grd = ctx.createLinearGradient(0, topY, 0, topY + topH * gs);
     grd.addColorStop(0, 'rgba(0,0,0,1)');
     grd.addColorStop(1, 'rgba(0,0,0,0)');
   } else if (m === 'bottom') {
-    const y0 = topY + topH - topH * st;
-    const y1 = topY + topH - topH * Math.min(1, st + gs);
-    grd = ctx.createLinearGradient(0, y0, 0, y1);
+    grd = ctx.createLinearGradient(0, topY + topH, 0, topY + topH - topH * gs);
     grd.addColorStop(0, 'rgba(0,0,0,1)');
     grd.addColorStop(1, 'rgba(0,0,0,0)');
   } else if (m === 'left') {
-    const x0 = topX + topW * st;
-    const x1 = topX + topW * Math.min(1, st + gs);
-    grd = ctx.createLinearGradient(x0, 0, x1, 0);
+    grd = ctx.createLinearGradient(topX, 0, topX + topW * gs, 0);
     grd.addColorStop(0, 'rgba(0,0,0,1)');
     grd.addColorStop(1, 'rgba(0,0,0,0)');
   } else if (m === 'right') {
-    const x0 = topX + topW - topW * st;
-    const x1 = topX + topW - topW * Math.min(1, st + gs);
-    grd = ctx.createLinearGradient(x0, 0, x1, 0);
+    grd = ctx.createLinearGradient(topX + topW, 0, topX + topW - topW * gs, 0);
     grd.addColorStop(0, 'rgba(0,0,0,1)');
     grd.addColorStop(1, 'rgba(0,0,0,0)');
   } else if (m === 'center') {
-    // Disque opaque (rayon = st), puis dégradé vers transparent (rayon supplémentaire = gs)
     const cx = topX + topW / 2, cy = topY + topH / 2;
-    const base = Math.min(topW, topH) * 0.6;
-    const r0 = base * st;
-    const r1 = base * (st + gs);
-    grd = ctx.createRadialGradient(cx, cy, r0, cx, cy, Math.max(r1, r0 + 0.5));
+    const r  = Math.min(topW, topH) * gs * 0.6;
+    grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
     grd.addColorStop(0, 'rgba(0,0,0,1)');
     grd.addColorStop(1, 'rgba(0,0,0,0)');
-  } else if (m === 'corner-tl' || m === 'corner-tr' || m === 'corner-bl' || m === 'corner-br') {
-    let cx, cy;
-    if (m === 'corner-tl') { cx = topX; cy = topY; }
-    else if (m === 'corner-tr') { cx = topX + topW; cy = topY; }
-    else if (m === 'corner-bl') { cx = topX; cy = topY + topH; }
-    else { cx = topX + topW; cy = topY + topH; }
-    const base = Math.min(topW, topH);
-    const r0 = base * st;
-    const r1 = base * (st + gs);
-    grd = ctx.createRadialGradient(cx, cy, r0, cx, cy, Math.max(r1, r0 + 0.5));
-    grd.addColorStop(0, 'rgba(0,0,0,1)');
-    grd.addColorStop(1, 'rgba(0,0,0,0)');
+  } else if (m === 'corner-tl') {
+    const r = Math.min(topW, topH) * gs;
+    grd = ctx.createRadialGradient(topX, topY, 0, topX, topY, r);
+    grd.addColorStop(0, 'rgba(0,0,0,1)'); grd.addColorStop(1, 'rgba(0,0,0,0)');
+  } else if (m === 'corner-tr') {
+    const r = Math.min(topW, topH) * gs;
+    grd = ctx.createRadialGradient(topX+topW, topY, 0, topX+topW, topY, r);
+    grd.addColorStop(0, 'rgba(0,0,0,1)'); grd.addColorStop(1, 'rgba(0,0,0,0)');
+  } else if (m === 'corner-bl') {
+    const r = Math.min(topW, topH) * gs;
+    grd = ctx.createRadialGradient(topX, topY+topH, 0, topX, topY+topH, r);
+    grd.addColorStop(0, 'rgba(0,0,0,1)'); grd.addColorStop(1, 'rgba(0,0,0,0)');
+  } else if (m === 'corner-br') {
+    const r = Math.min(topW, topH) * gs;
+    grd = ctx.createRadialGradient(topX+topW, topY+topH, 0, topX+topW, topY+topH, r);
+    grd.addColorStop(0, 'rgba(0,0,0,1)'); grd.addColorStop(1, 'rgba(0,0,0,0)');
   } else if (m === 'point') {
-    // Le point est OPAQUE, la transparence augmente en s'éloignant.
-    // Pour l'image active on suit le point live (fu.gradPx/Py) ; pour les autres,
-    // on dérive le point depuis leurs coords relatives stockées sur l'image.
-    let px, py;
-    if (ov === fu.activeOv) {
-      px = fu.gradPx * W; py = fu.gradPy * H;
-    } else {
-      px = (topX + ov.gradPxTop * topW);
-      py = (topY + ov.gradPyTop * topH);
-    }
-    const base = Math.min(W, H) * 0.7;
-    const r0 = base * st;
-    const r1 = base * (st + gs);
-    grd = ctx.createRadialGradient(px, py, r0, px, py, Math.max(r1, r0 + 0.5));
-    grd.addColorStop(0, 'rgba(0,0,0,0)');   // dans r0 = opaque (pas masqué)
+    // Le point est OPAQUE, la transparence augmente en s'éloignant
+    const px = fu.gradPx * W, py = fu.gradPy * H;
+    const r  = Math.min(W, H) * gs * 0.7;
+    grd = ctx.createRadialGradient(px, py, 0, px, py, r);
+    grd.addColorStop(0, 'rgba(0,0,0,0)');   // centre = opaque (pas masqué)
     grd.addColorStop(0.4, 'rgba(0,0,0,0.3)');
     grd.addColorStop(1, 'rgba(0,0,0,1)');   // bords = transparent
   }
@@ -3614,10 +3479,6 @@ function fuMakeGradientFor(ov, ctx, W, H, topX, topY, topW, topH, gradSize, grad
 // ── Mode drag / point ──
 function fuSetDragMode(mode) {
   fu.dragMode = mode;
-  // Indicateur de mode
-  const labels = { top: 'Mode : Image', point: 'Mode : Point', text1: 'Mode : Texte 1', text2: 'Mode : Texte 2', logo: 'Mode : Logo' };
-  const ind = document.getElementById('fu-mode-indicator');
-  if (ind) ind.textContent = labels[mode] || 'Mode : ' + mode;
   // Mise à jour des boutons via classList
   const btnTop   = document.getElementById('fu-mode-top');
   const btnPoint = document.getElementById('fu-mode-point');
@@ -3652,24 +3513,28 @@ function fuToggleLock() {
 
 // ── Coordonnées relatives à l'image top ──
 function fuStoreRelativePoint(canvasX, canvasY, canvas) {
-  // Calculer la position de l'image top sur le canvas
-  const sizePct = fu.activeOv.size / 100;
+  const t = fuCurTop();
+  const img = fuCurImg();
+  if (!img) return;
+  const sizePct = t.size / 100;
   const topW = canvas.width  * sizePct;
-  const topH = topW * (fu.topImg ? fu.topImg.height / fu.topImg.width : 1);
-  const topX = fu.x * canvas.width  - topW / 2;
-  const topY = fu.y * canvas.height - topH / 2;
-  // Point en coords relatives à l'image top
+  const topH = topW * img.height / img.width;
+  const topX = t.x * canvas.width  - topW / 2;
+  const topY = t.y * canvas.height - topH / 2;
   fu.gradPxTop = (canvasX * canvas.width  - topX) / topW;
   fu.gradPyTop = (canvasY * canvas.height - topY) / topH;
 }
 
 // Recalculer gradPx/gradPy depuis coords relatives (si verrouillé)
 function fuRestorePointFromRelative(canvas) {
-  const sizePct = fu.activeOv.size / 100;
+  const t = fuCurTop();
+  const img = fuCurImg();
+  if (!img) return;
+  const sizePct = t.size / 100;
   const topW = canvas.width  * sizePct;
-  const topH = topW * (fu.topImg ? fu.topImg.height / fu.topImg.width : 1);
-  const topX = fu.x * canvas.width  - topW / 2;
-  const topY = fu.y * canvas.height - topH / 2;
+  const topH = topW * img.height / img.width;
+  const topX = t.x * canvas.width  - topW / 2;
+  const topY = t.y * canvas.height - topH / 2;
   fu.gradPx = (topX + fu.gradPxTop * topW) / canvas.width;
   fu.gradPy = (topY + fu.gradPyTop * topH) / canvas.height;
 }
@@ -3681,6 +3546,9 @@ function fuRestorePointFromRelative(canvas) {
     canvas = document.getElementById('fu-canvas');
     if (!canvas) return;
 
+    // Initialiser le calque 1 comme actif (style des onglets)
+    if (typeof fuSetActiveLayer === 'function') fuSetActiveLayer(0);
+
     function getCanvasPos(clientX, clientY) {
       rect = canvas.getBoundingClientRect();
       return {
@@ -3690,44 +3558,80 @@ function fuRestorePointFromRelative(canvas) {
     }
 
     canvas.addEventListener('mousedown', e => {
-      if (!fu.topImg) return;
+      // ── Mode Grid 2×2 : déterminer la case sous le curseur ──
+      if (fu.layoutMode === 'grid') {
+        const rectC = canvas.getBoundingClientRect();
+        const px = (e.clientX - rectC.left) * (canvas.width  / rectC.width);
+        const py = (e.clientY - rectC.top)  * (canvas.height / rectC.height);
+        const cellIdx = fuCellAt(px, py, canvas.width, canvas.height);
+        if (cellIdx < 0) return;
+        // Active la case sous le curseur
+        if (cellIdx !== fu.activeLayer) fuSetActiveLayer(cellIdx);
+        const ref = fuLayerForCell(cellIdx);
+        if (!ref.img) return;
+
+        if (fu.dragMode === 'point') {
+          if (fu.pointLocked) return;
+          // Point libre en coords relatives à la case
+          const cells = fuGridCells(canvas.width, canvas.height);
+          const cell = cells[cellIdx];
+          fu.gradPx = (px) / canvas.width;
+          fu.gradPy = (py) / canvas.height;
+          fuUpdate(); return;
+        }
+
+        fu.dragging = true;
+        rect = canvas.getBoundingClientRect();
+        fu.dragStartX = e.clientX; fu.dragStartY = e.clientY;
+        fu.imgStartX = ref.layer.x; fu.imgStartY = ref.layer.y;
+        canvas.style.cursor = 'grabbing';
+        return;
+      }
+
+      // ── Mode Fusion (comportement original) ──
+      const t = fuCurTop();
+      if (!fuCurImg()) return;
 
       if (fu.dragMode === 'point') {
-        if (fu.pointLocked) return; // point verrouillé → rien
+        if (fu.pointLocked) return;
         const pos = getCanvasPos(e.clientX, e.clientY);
         fu.gradPx = pos.x; fu.gradPy = pos.y;
-        // Stocker coords relatives à l'image top
         fuStoreRelativePoint(pos.x, pos.y, canvas);
         fuUpdate(); return;
       }
 
-      // Mode déplacer image (ou recadrer dans le cercle si cercle actif)
       fu.dragging = true;
       rect = canvas.getBoundingClientRect();
       fu.dragStartX = e.clientX; fu.dragStartY = e.clientY;
-      if (fu.activeOv.circle && fu.activeOv.circleLocked) {
-        // On mémorise le recadrage de départ
-        fu.cropStartX = (fu.activeOv.circleOffX != null ? fu.activeOv.circleOffX : 0.5);
-        fu.cropStartY = (fu.activeOv.circleOffY != null ? fu.activeOv.circleOffY : 0.5);
-      } else {
-        fu.imgStartX = fu.x; fu.imgStartY = fu.y;
-      }
+      fu.imgStartX = t.x; fu.imgStartY = t.y;
       canvas.style.cursor = 'grabbing';
     });
 
     document.addEventListener('mousemove', e => {
       if (!fu.dragging || fu.dragMode !== 'top') return;
+
+      if (fu.layoutMode === 'grid') {
+        const ref = fuLayerForCell(fu.activeLayer);
+        if (!ref.img) return;
+        const cells = fuGridCells(canvas.width, canvas.height);
+        const cell = cells[fu.activeLayer];
+        // Conversion en déplacement relatif dans la case
+        const rectC = canvas.getBoundingClientRect();
+        const dx = (e.clientX - fu.dragStartX) * (canvas.width  / rectC.width)  / cell.w;
+        const dy = (e.clientY - fu.dragStartY) * (canvas.height / rectC.height) / cell.h;
+        ref.layer.x = Math.max(0, Math.min(1, fu.imgStartX + dx));
+        ref.layer.y = Math.max(0, Math.min(1, fu.imgStartY + dy));
+        fuUpdate();
+        return;
+      }
+
+      const t = fuCurTop();
+      if (!fuCurImg()) return;
       rect = canvas.getBoundingClientRect();
       const dx = (e.clientX - fu.dragStartX) / canvas.width;
       const dy = (e.clientY - fu.dragStartY) / canvas.height;
-      if (fu.activeOv.circle && fu.activeOv.circleLocked) {
-        // Recadrage dans le cercle : on déplace la portion visible (sens inverse du glisser)
-        fu.activeOv.circleOffX = Math.max(0, Math.min(1, fu.cropStartX - dx * 1.5));
-        fu.activeOv.circleOffY = Math.max(0, Math.min(1, fu.cropStartY - dy * 1.5));
-      } else {
-        fu.x = Math.max(0, Math.min(1, fu.imgStartX + dx));
-        fu.y = Math.max(0, Math.min(1, fu.imgStartY + dy));
-      }
+      t.x = Math.max(0, Math.min(1, fu.imgStartX + dx));
+      t.y = Math.max(0, Math.min(1, fu.imgStartY + dy));
       fuUpdate();
     });
 
@@ -3738,38 +3642,71 @@ function fuRestorePointFromRelative(canvas) {
 
     // Touch
     canvas.addEventListener('touchstart', e => {
-      if (!fu.topImg) return;
-      const t = e.touches[0];
+      const tch = e.touches[0];
+
+      // ── Mode Grid 2×2 ──
+      if (fu.layoutMode === 'grid') {
+        const rectC = canvas.getBoundingClientRect();
+        const px = (tch.clientX - rectC.left) * (canvas.width  / rectC.width);
+        const py = (tch.clientY - rectC.top)  * (canvas.height / rectC.height);
+        const cellIdx = fuCellAt(px, py, canvas.width, canvas.height);
+        if (cellIdx < 0) return;
+        if (cellIdx !== fu.activeLayer) fuSetActiveLayer(cellIdx);
+        const ref = fuLayerForCell(cellIdx);
+        if (!ref.img) return;
+        if (fu.dragMode === 'point') {
+          if (fu.pointLocked) return;
+          fu.gradPx = px / canvas.width;
+          fu.gradPy = py / canvas.height;
+          fuUpdate(); return;
+        }
+        fu.dragging = true;
+        rect = canvas.getBoundingClientRect();
+        fu.dragStartX = tch.clientX; fu.dragStartY = tch.clientY;
+        fu.imgStartX = ref.layer.x; fu.imgStartY = ref.layer.y;
+        return;
+      }
+
+      // ── Mode Fusion ──
+      const t = fuCurTop();
+      if (!fuCurImg()) return;
       if (fu.dragMode === 'point') {
         if (fu.pointLocked) return;
-        const pos = getCanvasPos(t.clientX, t.clientY);
+        const pos = getCanvasPos(tch.clientX, tch.clientY);
         fu.gradPx = pos.x; fu.gradPy = pos.y;
         fuUpdate(); return;
       }
       fu.dragging = true;
       rect = canvas.getBoundingClientRect();
-      fu.dragStartX = t.clientX; fu.dragStartY = t.clientY;
-      if (fu.activeOv.circle && fu.activeOv.circleLocked) {
-        fu.cropStartX = (fu.activeOv.circleOffX != null ? fu.activeOv.circleOffX : 0.5);
-        fu.cropStartY = (fu.activeOv.circleOffY != null ? fu.activeOv.circleOffY : 0.5);
-      } else {
-        fu.imgStartX = fu.x; fu.imgStartY = fu.y;
-      }
+      fu.dragStartX = tch.clientX; fu.dragStartY = tch.clientY;
+      fu.imgStartX = t.x; fu.imgStartY = t.y;
     }, { passive: true });
 
     document.addEventListener('touchmove', e => {
       if (!fu.dragging || fu.dragMode !== 'top') return;
-      const t = e.touches[0];
-      rect = canvas.getBoundingClientRect();
-      const dx = (t.clientX - fu.dragStartX) / canvas.width;
-      const dy = (t.clientY - fu.dragStartY) / canvas.height;
-      if (fu.activeOv.circle && fu.activeOv.circleLocked) {
-        fu.activeOv.circleOffX = Math.max(0, Math.min(1, fu.cropStartX - dx * 1.5));
-        fu.activeOv.circleOffY = Math.max(0, Math.min(1, fu.cropStartY - dy * 1.5));
-      } else {
-        fu.x = Math.max(0, Math.min(1, fu.imgStartX + dx));
-        fu.y = Math.max(0, Math.min(1, fu.imgStartY + dy));
+      const tch = e.touches[0];
+
+      if (fu.layoutMode === 'grid') {
+        const ref = fuLayerForCell(fu.activeLayer);
+        if (!ref.img) return;
+        const cells = fuGridCells(canvas.width, canvas.height);
+        const cell = cells[fu.activeLayer];
+        const rectC = canvas.getBoundingClientRect();
+        const dx = (tch.clientX - fu.dragStartX) * (canvas.width  / rectC.width)  / cell.w;
+        const dy = (tch.clientY - fu.dragStartY) * (canvas.height / rectC.height) / cell.h;
+        ref.layer.x = Math.max(0, Math.min(1, fu.imgStartX + dx));
+        ref.layer.y = Math.max(0, Math.min(1, fu.imgStartY + dy));
+        fuUpdate();
+        return;
       }
+
+      const t = fuCurTop();
+      if (!fuCurImg()) return;
+      rect = canvas.getBoundingClientRect();
+      const dx = (tch.clientX - fu.dragStartX) / canvas.width;
+      const dy = (tch.clientY - fu.dragStartY) / canvas.height;
+      t.x = Math.max(0, Math.min(1, fu.imgStartX + dx));
+      t.y = Math.max(0, Math.min(1, fu.imgStartY + dy));
       fuUpdate();
     }, { passive: true });
 
@@ -3777,122 +3714,197 @@ function fuRestorePointFromRelative(canvas) {
   });
 })();
 
-// ── Export haute résolution ──
+// Les contenus initiaux des deux boutons d'export (utilisés pour les remettre proprement)
+const FU_EXPORT_BTN_HTML = {
+  png:  '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> PNG',
+  webp: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> WebP'
+};
+
+// ── Export haute résolution (format = 'png' ou 'webp') ──
 async function fuExport(format) {
-  if (!fuHasAnyOverlay() && !fu.bgImg) return;
-  format = (format === 'webp') ? 'webp' : 'png';
-  const btnPng  = document.getElementById('btn-fusion');
-  const btnWebp = document.getElementById('btn-fusion-webp');
-  const activeBtn = format === 'webp' ? btnWebp : btnPng;
-  const btn = activeBtn;
-  if (btnPng)  btnPng.disabled = true;
-  if (btnWebp) btnWebp.disabled = true;
-  activeBtn.textContent = 'Export…';
-
-  const canvas = document.createElement('canvas');
-  const firstOv = fu.overlays.find(o => o.img);
-  const refImg = fu.bgImg || (firstOv ? firstOv.img : null);
-  const W = refImg.width;
-  const H = refImg.height;
-  canvas.width  = W;
-  canvas.height = H;
-  const ctx = canvas.getContext('2d');
-
-  // 1. Couleur de fond
-  const col = document.getElementById('fu-bg-color');
-  ctx.fillStyle = col ? col.value : '#ffffff';
-  ctx.fillRect(0, 0, W, H);
-  // 2. Logo derrière (entre couleur et image de fond)
-  if (fu.logoLayer === 'behind') fuDrawLogo(ctx, W, H);
-  // 3. Image de fond par-dessus
-  if (fu.bgImg) ctx.drawImage(fu.bgImg, 0, 0);
-
-  // 4. Les 3 images superposées, chacune avec ses réglages
-  for (let oi = 0; oi < fu.overlays.length; oi++) {
-    const ov = fu.overlays[oi];
-    if (!ov.img) continue;
-    const sizePct  = ov.size / 100;
-    const opacity  = ov.opacity / 100;
-    const gradSize  = ov.gradSize / 100;
-    const gradStart = ov.gradStart / 100;
-    const topW = Math.round(W * sizePct);
-    const topH = Math.round(topW * ov.img.height / ov.img.width);
-    const topX = Math.round(ov.x * W - topW / 2);
-    const topY = Math.round(ov.y * H - topH / 2);
-
-    const tmp = document.createElement('canvas');
-    tmp.width = W; tmp.height = H;
-    const tc = tmp.getContext('2d');
-    fuDrawShapedImage(tc, ov, topX, topY, topW, topH);
-
-    if (ov.gradMode !== 'none') {
-      const grd = fuMakeGradientFor(ov, tc, W, H, topX, topY, topW, topH, gradSize, gradStart);
-      if (grd) {
-        tc.save();
-        tc.globalCompositeOperation = 'destination-out';
-        tc.fillStyle = grd;
-        tc.fillRect(0, 0, W, H);
-        tc.restore();
-      }
-    }
-    ctx.drawImage(tmp, 0, 0);
-  }
-  // Logo devant
-  if (fu.logoLayer === 'front') fuDrawLogo(ctx, W, H);
-  // Textes (sans indicateur de sélection à l'export)
-  fuDrawTexts(ctx, W, H, false);
-
-  // Encodage selon le format demandé (avec fallback PNG si WebP non supporté)
-  let mime = format === 'webp' ? 'image/webp' : 'image/png';
-  let ext  = format === 'webp' ? 'webp' : 'png';
-  const webpQinput = document.getElementById('fu-webp-quality');
-  const webpQ = webpQinput ? Math.max(0.1, Math.min(1, parseInt(webpQinput.value) / 100)) : 0.92;
-  let dataUrl = format === 'webp'
-    ? canvas.toDataURL('image/webp', webpQ)
-    : canvas.toDataURL('image/png');
-  if (format === 'webp' && !dataUrl.startsWith('data:image/webp')) {
-    dataUrl = canvas.toDataURL('image/png');
-    mime = 'image/png'; ext = 'png';
-  }
+  format = format || 'png';
+  const mime = format === 'webp' ? 'image/webp' : 'image/png';
+  const ext  = format === 'webp' ? 'webp' : 'png';
   const filename = 'fusion.' + ext;
 
-  const wrap = document.getElementById('fu-result-wrap');
-  const img  = document.getElementById('fu-result-img');
-  img.src = dataUrl; img.title = 'Clic droit → Enregistrer sous: ' + filename;
-  wrap.style.display = 'block';
+  const firstTop = fu.tops.find(t => t.img);
+  if (!firstTop && !fu.bgImg) return;
 
-  // Téléchargement direct du fichier
-  const blob = dataURLtoBlob(dataUrl);
-  const url  = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  const btnPng  = document.getElementById('btn-fusion-png');
+  const btnWebp = document.getElementById('btn-fusion-webp');
+  const btn = format === 'webp' ? btnWebp : btnPng;
+  const otherBtn = format === 'webp' ? btnPng : btnWebp;
+  btn.disabled = true; if (otherBtn) otherBtn.disabled = true;
+  btn.innerHTML = '<span style="font-size:12px">Export…</span>';
 
-  // Réactiver les deux boutons
-  if (btnPng) {
-    btnPng.disabled = false;
-    btnPng.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Exporter la fusion (.png)';
-  }
-  if (btnWebp) {
-    btnWebp.disabled = false;
-    btnWebp.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Exporter la fusion (.webp)';
-  }
+  try {
+    const canvas = document.createElement('canvas');
+    let W, H;
 
-  // Lancer showSaveFilePicker en arrière-plan (si disponible)
-  if (window.showSaveFilePicker) {
-    try {
-      const b64 = dataUrl.split(',')[1];
-      const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-      const blob = new Blob([bytes], { type: 'image/png' });
-      const handle = await window.showSaveFilePicker({
-        suggestedName: 'fusion.png',
-        types: [{ description: 'Image PNG', accept: { 'image/png': ['.png'] } }]
+    if (fu.layoutMode === 'grid') {
+      // Mode Grid 2×2 : résolution HD fixe (cellules 1280×720 + bordures 40px)
+      const cellW = 1280, cellH = 720;
+      const border = 40;
+      W = cellW * 2 + border * 3;
+      H = cellH * 2 + border * 3;
+      canvas.width = W; canvas.height = H;
+      const ctxG = canvas.getContext('2d');
+      fuRenderGrid(ctxG, W, H, true);
+      // Logo et textes par-dessus (le logo "derrière" n'a pas de sens en grid)
+      if (fu.logoLayer === 'front' || fu.logoLayer === 'behind') fuDrawLogo(ctxG, W, H);
+      fuDrawTexts(ctxG, W, H);
+    } else {
+      const refImg = fu.bgImg || firstTop.img;
+      W = refImg.width;
+      H = refImg.height;
+      canvas.width  = W;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d');
+
+      // 1. Couleur de fond
+      const col = document.getElementById('fu-bg-color');
+      ctx.fillStyle = col ? col.value : '#ffffff';
+      ctx.fillRect(0, 0, W, H);
+      // 2. Logo derrière
+      if (fu.logoLayer === 'behind') fuDrawLogo(ctx, W, H);
+      // 3. Image de fond — traitée comme un calque
+      if (fu.bgImg && fu.bg.visible) {
+        const sz = fu.bg.size / 100;
+        const op = fu.bg.opacity / 100;
+        const bw = Math.round(W * sz);
+        const bh = Math.round(bw * fu.bgImg.height / fu.bgImg.width);
+        const bx = Math.round(fu.bg.x * W - bw / 2);
+        const by = Math.round(fu.bg.y * H - bh / 2);
+        ctx.save();
+        ctx.globalAlpha = op;
+        if (fu.bg.rotation) {
+          const cx = bx + bw / 2, cy = by + bh / 2;
+          ctx.translate(cx, cy);
+          ctx.rotate(fu.bg.rotation * Math.PI / 180);
+          ctx.translate(-cx, -cy);
+        }
+        ctx.drawImage(fu.bgImg, bx, by, bw, bh);
+        ctx.restore();
+      }
+
+      const gradSize = parseInt(document.getElementById('fu-grad-size').value) / 100;
+
+      // 4. Les 3 calques
+      fu.tops.forEach((t, idx) => {
+        if (!t.img || !t.visible) return;
+        const sizePct = t.size / 100;
+        const opacity = t.opacity / 100;
+        const topW = Math.round(W * sizePct);
+        const topH = Math.round(topW * t.img.height / t.img.width);
+        const topX = Math.round(t.x * W - topW / 2);
+        const topY = Math.round(t.y * H - topH / 2);
+
+        const tmp = document.createElement('canvas');
+        tmp.width = W; tmp.height = H;
+        const tc = tmp.getContext('2d');
+
+        tc.save();
+        tc.globalAlpha = opacity;
+        if (t.rotation) {
+          const cx = topX + topW / 2, cy = topY + topH / 2;
+          tc.translate(cx, cy);
+          tc.rotate(t.rotation * Math.PI / 180);
+          tc.translate(-cx, -cy);
+        }
+        tc.drawImage(t.img, topX, topY, topW, topH);
+        tc.restore();
+
+        const isActive = (idx + 1) === fu.activeLayer;
+        if (isActive && fu.gradMode !== 'none') {
+          const grd = fuMakeGradient(tc, W, H, topX, topY, topW, topH, gradSize);
+          if (grd) {
+            tc.save();
+            tc.globalCompositeOperation = 'destination-out';
+            tc.fillStyle = grd;
+            tc.fillRect(0, 0, W, H);
+            tc.restore();
+          }
+        }
+        ctx.drawImage(tmp, 0, 0);
       });
-      const writable = await handle.createWritable();
-      await writable.write(blob);
-      await writable.close();
-    } catch(e) { /* AbortError ou non supporté — miniature déjà disponible */ }
+
+      // 5. Logo devant
+      if (fu.logoLayer === 'front') fuDrawLogo(ctx, W, H);
+      // 6. Textes
+      fuDrawTexts(ctx, W, H);
+    }
+
+    // Génère le blob (qualité 0.92 pour WebP)
+    const blob = await new Promise((resolve, reject) => {
+      canvas.toBlob(b => b ? resolve(b) : reject(new Error('toBlob a échoué')), mime, 0.92);
+    });
+
+    // Aperçu dans la page
+    const dataUrl = URL.createObjectURL(blob);
+    const wrap = document.getElementById('fu-result-wrap');
+    const img  = document.getElementById('fu-result-img');
+    img.src = dataUrl;
+    img.removeAttribute('title');
+    img.alt = filename;
+    // Met à jour le libellé pour indiquer le format exporté
+    const lbl = document.getElementById('fu-result-label');
+    if (lbl) lbl.textContent = '✓ ' + filename + ' téléchargé';
+    wrap.style.display = 'block';
+
+    // Détection iframe cross-origin (showSaveFilePicker y est interdit)
+    let inCrossOriginFrame = false;
+    try {
+      // Si window !== window.parent ET on ne peut pas lire parent.location → cross-origin
+      if (window.self !== window.top) {
+        try { void window.top.location.href; }
+        catch (_) { inCrossOriginFrame = true; }
+      }
+    } catch (_) { inCrossOriginFrame = true; }
+
+    // 1) Tentative showSaveFilePicker (Chrome/Edge récents, hors iframe cross-origin)
+    let saved = false;
+    if (window.showSaveFilePicker && !inCrossOriginFrame) {
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: filename,
+          types: [{ description: format.toUpperCase(), accept: { [mime]: ['.' + ext] } }]
+        });
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+        saved = true;
+      } catch(err) {
+        // AbortError (utilisateur a annulé) ou SecurityError (iframe) → fallback silencieux
+        if (err && err.name !== 'AbortError' && err.name !== 'SecurityError') {
+          console.warn('showSaveFilePicker indisponible, fallback :', err.name);
+        }
+      }
+    }
+    // 2) Fallback universel : <a download> automatique
+    if (!saved) {
+      try {
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = filename;
+        a.rel = 'noopener';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } catch(e) {
+        // 3) Dernier recours : ouvrir dans un nouvel onglet (clic droit → enregistrer)
+        console.warn('Téléchargement automatique bloqué, ouverture dans un onglet :', e);
+        window.open(dataUrl, '_blank');
+        if (lbl) lbl.textContent = 'Téléchargement bloqué — clic droit sur l\u2019aperçu pour enregistrer';
+      }
+    }
+  } catch(e) {
+    console.error('Export fusion :', e);
+    alert('L\u2019export a échoué : ' + (e && e.message ? e.message : e));
+  } finally {
+    // Restaure le contenu initial du bouton à partir d'un HTML statique connu (anti-charabia)
+    btn.innerHTML = FU_EXPORT_BTN_HTML[format];
+    btn.disabled = false;
+    if (otherBtn) otherBtn.disabled = false;
   }
 }
 
@@ -3908,7 +3920,7 @@ function fuSyncTextColor(n) {
   if (picker) { picker.value = '#' + hex; fuUpdate(); }
 }
 
-function fuDrawTexts(ctx, W, H, showSelection = true) {
+function fuDrawTexts(ctx, W, H) {
   [1, 2].forEach(n => {
     const enabled = document.getElementById('fu-t' + n + '-enable');
     if (!enabled || !enabled.checked) return;
@@ -3930,16 +3942,14 @@ function fuDrawTexts(ctx, W, H, showSelection = true) {
     ctx.fillStyle = color;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    // Pas d'ombre portée
-    ctx.shadowColor = 'transparent';
-    ctx.shadowBlur  = 0;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
+    // Ombre légère pour lisibilité
+    ctx.shadowColor = 'rgba(0,0,0,0.35)';
+    ctx.shadowBlur  = 3;
     ctx.fillText(text, pos.x * W, pos.y * H);
     ctx.restore();
 
-    // Dessiner un indicateur de sélection si mode actif (aperçu uniquement)
-    if (showSelection && fu.dragMode === 'text' + n) {
+    // Dessiner un indicateur de sélection si mode actif
+    if (fu.dragMode === 'text' + n) {
       ctx.save();
       ctx.strokeStyle = n === 1 ? '#4a8fd4' : '#e63946';
       ctx.lineWidth = 2;
