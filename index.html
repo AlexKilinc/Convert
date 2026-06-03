@@ -1169,22 +1169,21 @@
     <div class="fu-tiles-grid" style="margin-bottom:16px">
 
       <!-- Image de fond -->
-      <div class="fu-tile fu-layer-tile fu-active" data-layer="0" onclick="fuSetActiveLayer(0)" draggable="true" ondragstart="fuTileDragStart(event,0)" ondragover="fuTileDragOver(event)" ondrop="fuTileDrop(event,0)">
+      <div class="fu-tile fu-layer-tile fu-active" data-layer="0" onclick="fuSetActiveLayer(0)" ondblclick="fuTileUpload(0)" draggable="true" ondragstart="fuTileDragStart(event,0)" ondragover="fuTileDragOver(event)" ondrop="fuTileDrop(event,0)">
         <div class="fu-tile-controls">
           <button type="button" class="fu-tile-eye" id="fu-eye-0" onclick="fuToggleVisible(0,event)" title="Masquer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
           <button type="button" class="fu-tile-swap" onclick="fuSwapImages(0,1,event)" title="Échanger avec Calque 1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
         </div>
         <div class="fu-tile-title">Image de fond</div>
         <div class="fu-tile-drop" id="fu-bg-drop">
-          <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadBg(this)">
           <img id="fu-bg-thumb" class="fu-tile-thumb" style="display:none">
-          <span id="fu-bg-label" class="fu-tile-label">Cliquez ou glissez</span>
+          <span id="fu-bg-label" class="fu-tile-label">Double-cliquez ou glissez</span>
         </div>
         <button type="button" class="fu-tile-clear" id="fu-clear-bg" onclick="event.stopPropagation();fuClearBg()" title="Vider l'image de fond" style="display:none">×</button>
       </div>
 
       <!-- Calque superposé 1 -->
-      <div class="fu-tile fu-layer-tile" data-layer="1" onclick="fuSetActiveLayer(1)" draggable="true" ondragstart="fuTileDragStart(event,1)" ondragover="fuTileDragOver(event)" ondrop="fuTileDrop(event,1)">
+      <div class="fu-tile fu-layer-tile" data-layer="1" onclick="fuSetActiveLayer(1)" ondblclick="fuTileUpload(1)" draggable="true" ondragstart="fuTileDragStart(event,1)" ondragover="fuTileDragOver(event)" ondrop="fuTileDrop(event,1)">
         <div class="fu-tile-controls">
           <button type="button" class="fu-tile-eye" id="fu-eye-1" onclick="fuToggleVisible(1,event)" title="Masquer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
           <button type="button" class="fu-tile-swap" onclick="fuSwapImages(1,0,event)" title="Échanger avec Image de fond"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
@@ -1192,15 +1191,14 @@
         </div>
         <div class="fu-tile-title">Calque superposé 1</div>
         <div class="fu-tile-drop">
-          <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadTopInto(0,this)">
           <img id="fu-top-thumb-0" class="fu-tile-thumb" style="display:none">
-          <span id="fu-top-label-0" class="fu-tile-label">Cliquez ou glissez</span>
+          <span id="fu-top-label-0" class="fu-tile-label">Double-cliquez ou glissez</span>
         </div>
         <button type="button" class="fu-tile-clear" id="fu-clear-0" onclick="event.stopPropagation();fuClearLayer(0)" title="Vider ce calque" style="display:none">×</button>
       </div>
 
       <!-- Calque superposé 2 -->
-      <div class="fu-tile fu-layer-tile" data-layer="2" onclick="fuSetActiveLayer(2)" draggable="true" ondragstart="fuTileDragStart(event,2)" ondragover="fuTileDragOver(event)" ondrop="fuTileDrop(event,2)">
+      <div class="fu-tile fu-layer-tile" data-layer="2" onclick="fuSetActiveLayer(2)" ondblclick="fuTileUpload(2)" draggable="true" ondragstart="fuTileDragStart(event,2)" ondragover="fuTileDragOver(event)" ondrop="fuTileDrop(event,2)">
         <div class="fu-tile-controls">
           <button type="button" class="fu-tile-eye" id="fu-eye-2" onclick="fuToggleVisible(2,event)" title="Masquer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
           <button type="button" class="fu-tile-swap" onclick="fuSwapImages(2,1,event)" title="Échanger avec Calque 1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
@@ -1208,24 +1206,22 @@
         </div>
         <div class="fu-tile-title">Calque superposé 2</div>
         <div class="fu-tile-drop">
-          <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadTopInto(1,this)">
           <img id="fu-top-thumb-1" class="fu-tile-thumb" style="display:none">
-          <span id="fu-top-label-1" class="fu-tile-label">Cliquez ou glissez</span>
+          <span id="fu-top-label-1" class="fu-tile-label">Double-cliquez ou glissez</span>
         </div>
         <button type="button" class="fu-tile-clear" id="fu-clear-1" onclick="event.stopPropagation();fuClearLayer(1)" title="Vider ce calque" style="display:none">×</button>
       </div>
 
       <!-- Calque superposé 3 -->
-      <div class="fu-tile fu-layer-tile" data-layer="3" onclick="fuSetActiveLayer(3)" draggable="true" ondragstart="fuTileDragStart(event,3)" ondragover="fuTileDragOver(event)" ondrop="fuTileDrop(event,3)">
+      <div class="fu-tile fu-layer-tile" data-layer="3" onclick="fuSetActiveLayer(3)" ondblclick="fuTileUpload(3)" draggable="true" ondragstart="fuTileDragStart(event,3)" ondragover="fuTileDragOver(event)" ondrop="fuTileDrop(event,3)">
         <div class="fu-tile-controls">
           <button type="button" class="fu-tile-eye" id="fu-eye-3" onclick="fuToggleVisible(3,event)" title="Masquer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
           <button type="button" class="fu-tile-swap" onclick="fuSwapImages(3,2,event)" title="Échanger avec Calque 2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
         </div>
         <div class="fu-tile-title">Calque superposé 3</div>
         <div class="fu-tile-drop">
-          <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadTopInto(2,this)">
           <img id="fu-top-thumb-2" class="fu-tile-thumb" style="display:none">
-          <span id="fu-top-label-2" class="fu-tile-label">Cliquez ou glissez</span>
+          <span id="fu-top-label-2" class="fu-tile-label">Double-cliquez ou glissez</span>
         </div>
         <button type="button" class="fu-tile-clear" id="fu-clear-2" onclick="event.stopPropagation();fuClearLayer(2)" title="Vider ce calque" style="display:none">×</button>
       </div>
@@ -3312,6 +3308,21 @@ function fuLoadIntoTile(idx, file) {
   reader.readAsDataURL(file);
 }
 
+// Ouvre un sélecteur de fichier pour la tuile (déclenché par double-clic)
+function fuTileUpload(idx) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.jpg,.jpeg,.png,.webp';
+  input.style.display = 'none';
+  input.onchange = () => {
+    const file = input.files[0];
+    if (file) fuLoadIntoTile(idx, file);
+    document.body.removeChild(input);
+  };
+  document.body.appendChild(input);
+  input.click();
+}
+
 function fuUpdateEyeIcon(idx) {
   const layer = idx === 0 ? fu.bg : fu.tops[idx - 1];
   const btn = document.getElementById('fu-eye-' + idx);
@@ -3499,17 +3510,76 @@ function fuClearBg() {
 }
 
 // ── Calques (image de fond + 3 calques superposés, sélection unifiée) ──
+
+// Sauvegarde l'état courant de la transparence progressive dans le calque donné.
+// idx : 0 = image de fond, 1/2/3 = calques superposés
+function fuSaveGradTo(idx) {
+  const layer = idx === 0 ? fu.bg : fu.tops[idx - 1];
+  if (!layer) return;
+  layer.gradSnap = {
+    mode: fu.gradMode,
+    px: fu.gradPx, py: fu.gradPy,
+    pxTop: fu.gradPxTop, pyTop: fu.gradPyTop,
+    locked: fu.pointLocked
+  };
+}
+
+// Restaure l'état de transparence depuis le calque donné dans les variables globales.
+// Si le calque n'a pas encore de snapshot, on réinitialise à 'none'.
+function fuLoadGradFrom(idx) {
+  const layer = idx === 0 ? fu.bg : fu.tops[idx - 1];
+  const s = layer && layer.gradSnap;
+  if (s) {
+    fu.gradMode = s.mode;
+    fu.gradPx = s.px; fu.gradPy = s.py;
+    fu.gradPxTop = s.pxTop; fu.gradPyTop = s.pyTop;
+    fu.pointLocked = s.locked;
+  } else {
+    fu.gradMode = 'none';
+    fu.gradPx = 0.5; fu.gradPy = 0.5;
+    fu.gradPxTop = 0.5; fu.gradPyTop = 0.5;
+    fu.pointLocked = false;
+  }
+  fuSyncGradUI();
+}
+
+// Synchronise l'UI (boutons mode + verrou) avec les variables globales
+function fuSyncGradUI() {
+  // Boutons de mode de dégradé
+  document.querySelectorAll('.fu-grad-btn').forEach(b => {
+    b.classList.toggle('fu-active', b.dataset.grad === fu.gradMode);
+  });
+  // Bouton de verrouillage du point
+  const lockBtn = document.getElementById('fu-point-lock');
+  if (lockBtn) {
+    lockBtn.textContent = fu.pointLocked ? '🔒 Verrouillé' : '🔓 Libre';
+  }
+  // Indicateur de position (s'il existe)
+  const status = document.getElementById('fu-point-status');
+  if (status) {
+    if (fu.pointLocked) {
+      status.textContent = '🔒 Position fixe (' + Math.round(fu.gradPx*100) + '%, ' + Math.round(fu.gradPy*100) + '%)';
+      status.style.color = 'var(--accent1)';
+    } else {
+      status.textContent = 'Position libre — cliquez sur l\u2019aperçu';
+      status.style.color = 'var(--muted)';
+    }
+  }
+}
+
 function fuSetActiveLayer(idx) {
+  // Sauvegarder l'état de transparence du calque sortant
+  fuSaveGradTo(fu.activeLayer);
+
   fu.activeLayer = idx;
   // Mise à jour visuelle des 4 tuiles (bordure bleu marine sur l'active)
   document.querySelectorAll('.fu-layer-tile').forEach(tile => {
     tile.classList.toggle('fu-active', parseInt(tile.dataset.layer) === idx);
   });
-  // Label dans la sidebar
-  const lbl = document.getElementById('fu-active-layer-label');
-  if (lbl) lbl.textContent = idx === 0 ? '(Image de fond)' : '(Calque ' + idx + ')';
   // Synchroniser les sliders avec le calque actif
   fuSyncControlsFromLayer();
+  // Restaurer l'état de transparence du nouveau calque actif
+  fuLoadGradFrom(idx);
   fuUpdate();
 }
 
@@ -3716,8 +3786,19 @@ function fuUpdate() {
     if (isActive && fu.pointLocked && fu.gradMode === 'point') {
       fuRestorePointFromRelative(canvas);
     }
+    // Paramètres de dégradé propres à CE calque : actif → variables globales,
+    // sinon → son gradSnap mémorisé. Chaque calque conserve son dégradé.
+    let gradParams = null;
+    if (isActive) {
+      if (fu.gradMode !== 'none') gradParams = {
+        mode: fu.gradMode, px: fu.gradPx, py: fu.gradPy,
+        pxTop: fu.gradPxTop, pyTop: fu.gradPyTop
+      };
+    } else if (t.gradSnap && t.gradSnap.mode !== 'none') {
+      gradParams = t.gradSnap;
+    }
 
-    // Canvas tampon pour appliquer un masque dégradé seulement au calque actif
+    // Canvas tampon
     const tmp = document.createElement('canvas');
     tmp.width  = canvas.width;
     tmp.height = canvas.height;
@@ -3734,7 +3815,13 @@ function fuUpdate() {
     tc.drawImage(t.img, topX, topY, topW, topH);
     tc.restore();
 
-    if (isActive && fu.gradMode !== 'none') {
+    // Applique le dégradé propre à ce calque (s'il y en a un)
+    if (gradParams) {
+      // Backup/restore des variables globales utilisées par fuMakeGradient
+      const bk = { mode: fu.gradMode, px: fu.gradPx, py: fu.gradPy, pxTop: fu.gradPxTop, pyTop: fu.gradPyTop };
+      fu.gradMode = gradParams.mode;
+      fu.gradPx = gradParams.px; fu.gradPy = gradParams.py;
+      fu.gradPxTop = gradParams.pxTop; fu.gradPyTop = gradParams.pyTop;
       const grd = fuMakeGradient(tc, canvas.width, canvas.height, topX, topY, topW, topH, gradSize);
       if (grd) {
         tc.save();
@@ -3743,6 +3830,10 @@ function fuUpdate() {
         tc.fillRect(0, 0, canvas.width, canvas.height);
         tc.restore();
       }
+      // Restore
+      fu.gradMode = bk.mode;
+      fu.gradPx = bk.px; fu.gradPy = bk.py;
+      fu.gradPxTop = bk.pxTop; fu.gradPyTop = bk.pyTop;
     }
 
     ctx.drawImage(tmp, 0, 0);
@@ -4271,7 +4362,20 @@ async function fuExport(formatKey) {
         tc.restore();
 
         const isActive = (idx + 1) === fu.activeLayer;
-        if (isActive && fu.gradMode !== 'none') {
+        let gradParams = null;
+        if (isActive) {
+          if (fu.gradMode !== 'none') gradParams = {
+            mode: fu.gradMode, px: fu.gradPx, py: fu.gradPy,
+            pxTop: fu.gradPxTop, pyTop: fu.gradPyTop
+          };
+        } else if (t.gradSnap && t.gradSnap.mode !== 'none') {
+          gradParams = t.gradSnap;
+        }
+        if (gradParams) {
+          const bk = { mode: fu.gradMode, px: fu.gradPx, py: fu.gradPy, pxTop: fu.gradPxTop, pyTop: fu.gradPyTop };
+          fu.gradMode = gradParams.mode;
+          fu.gradPx = gradParams.px; fu.gradPy = gradParams.py;
+          fu.gradPxTop = gradParams.pxTop; fu.gradPyTop = gradParams.pyTop;
           const grd = fuMakeGradient(tc, W, H, topX, topY, topW, topH, gradSize);
           if (grd) {
             tc.save();
@@ -4280,6 +4384,9 @@ async function fuExport(formatKey) {
             tc.fillRect(0, 0, W, H);
             tc.restore();
           }
+          fu.gradMode = bk.mode;
+          fu.gradPx = bk.px; fu.gradPy = bk.py;
+          fu.gradPxTop = bk.pxTop; fu.gradPyTop = bk.pyTop;
         }
         ctx.drawImage(tmp, 0, 0);
       });
