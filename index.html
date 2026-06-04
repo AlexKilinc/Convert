@@ -731,6 +731,17 @@
   .fusion-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
   .fusion-upload .fu-thumb { width: 100%; height: 80px; object-fit: cover; border-radius: 6px; display: block; margin-bottom: 6px; }
   .fusion-canvas-wrap { position: relative; background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; min-height: 300px; display: flex; align-items: center; justify-content: center; }
+  /* Damier visible derrière le canvas quand "fond transparent" est actif */
+  .fusion-canvas-wrap.fu-transparent {
+    background-color: #ffffff;
+    background-image:
+      linear-gradient(45deg, #e0e0e0 25%, transparent 25%),
+      linear-gradient(-45deg, #e0e0e0 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #e0e0e0 75%),
+      linear-gradient(-45deg, transparent 75%, #e0e0e0 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, 10px 0px;
+  }
   .fusion-canvas-wrap canvas { display: block; max-width: 100%; cursor: move; border-radius: 12px; }
   .fusion-placeholder { color: var(--muted); font-size: 13px; text-align: center; padding: 40px; }
   .fusion-grad-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
@@ -1453,6 +1464,10 @@
             </button>
           </div>
           <p style="font-size:10px;color:var(--muted);margin-top:6px;text-align:center">PNG : qualité maximale — PNG 70% : ~50% du poids — WebP : plus léger</p>
+          <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);cursor:pointer;margin-top:8px;padding:6px 8px;background:var(--card);border:1px solid var(--border);border-radius:6px">
+            <input type="checkbox" id="fu-transparent-bg" onchange="fuUpdate()" style="accent-color:var(--accent1)">
+            Fond transparent (PNG / WebP)
+          </label>
           <div id="fu-result-wrap" style="display:none;margin-top:10px">
             <div class="preview-label" id="fu-result-label" style="margin-bottom:6px;color:var(--accent3)">✓ Aperçu de l'export</div>
             <img id="fu-result-img" style="width:100%;border-radius:8px;border:1px solid var(--border);margin-bottom:10px">
@@ -1699,83 +1714,137 @@ function setProgress(type, pct) {
   if (pct >= 100) setTimeout(() => wrap.classList.remove('visible'), 800);
 }
 
+// Télécharge un Blob de façon robuste : showSaveFilePicker → <a download> dataURL → window.open
+// Compatible avec les iframes CSP-restreints (utilise dataURL au lieu de blob:)
+async function downloadBlobFile(blob, filename, mimeType) {
+  // Conversion en dataURL (compatible CSP stricte qui bloque blob-request://)
+  const dataUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(blob);
+  });
+
+  // Détection iframe cross-origin
+  let inCrossOriginFrame = false;
+  try {
+    if (window.self !== window.top) {
+      try { void window.top.location.href; }
+      catch (_) { inCrossOriginFrame = true; }
+    }
+  } catch (_) { inCrossOriginFrame = true; }
+
+  // 1) showSaveFilePicker (Chrome/Edge récents, hors iframe cross-origin)
+  if (window.showSaveFilePicker && !inCrossOriginFrame) {
+    try {
+      const ext = (filename.split('.').pop() || '').toLowerCase();
+      const handle = await window.showSaveFilePicker({
+        suggestedName: filename,
+        types: [{ description: ext.toUpperCase(), accept: { [mimeType]: ['.' + ext] } }]
+      });
+      const writable = await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      return 'saved';
+    } catch (err) {
+      if (err && err.name === 'AbortError') return 'aborted';
+      if (err && err.name !== 'SecurityError') {
+        console.warn('showSaveFilePicker indisponible, fallback :', err.name);
+      }
+    }
+  }
+
+  // 2) Fallback universel : <a download> avec dataURL
+  try {
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = filename;
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    return 'saved';
+  } catch (e) {
+    // 3) Dernier recours : ouvrir dans un nouvel onglet
+    console.warn('Téléchargement automatique bloqué :', e);
+    window.open(dataUrl, '_blank');
+    return 'opened';
+  }
+}
+
+// Ajoute le bouton "Enregistrer" + éventuelle vignette pour un fichier converti
+// type : 'images' | 'pdf' | 'video' | 'wm' (filigrane)
 function addDownloadBtn(type, idx, blob, filename) {
-  const item = document.getElementById(`fi-${type}-${idx}`);
+  // Détermine l'élément parent selon le type (pattern fi-{type}-{idx} ou fi-wm-{idx})
+  const itemId = type === 'wm' ? 'fi-wm-' + idx : 'fi-' + type + '-' + idx;
+  const item = document.getElementById(itemId);
   if (!item) return;
+  // Retirer un bouton/preview précédent (cas de re-conversion)
   const existing = item.querySelector('.file-download');
   if (existing) existing.remove();
+  const existingPreview = item.parentNode.querySelector('.inline-preview[data-for="' + itemId + '"]');
+  if (existingPreview) existingPreview.remove();
 
-  if (type === 'images') {
-    // Show inline preview — user can right-click → Save
+  // Type MIME du blob (pour showSaveFilePicker)
+  const mimeMap = {
+    images: blob.type || 'image/png',
+    wm:     'image/png',
+    pdf:    'application/pdf',
+    video:  blob.type || 'video/webm'
+  };
+  const mimeType = mimeMap[type];
+  const isImage = (type === 'images' || type === 'wm');
+
+  // Icône SVG de téléchargement
+  const dlIcon = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg>';
+  const labelHTML = dlIcon + ' Enregistrer';
+
+  // Bouton "Enregistrer" universel
+  const btn = document.createElement('button');
+  btn.className = 'file-download';
+  btn.innerHTML = labelHTML;
+  btn.onclick = async (e) => {
+    e.stopPropagation();
+    btn.disabled = true;
+    btn.innerHTML = '<span style="font-size:12px">Téléchargement…</span>';
+    try {
+      const res = await downloadBlobFile(blob, filename, mimeType);
+      if (res === 'saved') {
+        btn.innerHTML = '✓ Enregistré';
+        setTimeout(() => { btn.innerHTML = labelHTML; btn.disabled = false; }, 2500);
+      } else {
+        btn.innerHTML = labelHTML; btn.disabled = false;
+      }
+    } catch (err) {
+      console.error('Téléchargement échoué :', err);
+      btn.innerHTML = labelHTML; btn.disabled = false;
+    }
+  };
+
+  // Position du bouton selon le type
+  if (isImage) {
+    // Vignette + bouton à côté
     const reader = new FileReader();
     reader.onload = e => {
       const preview = document.createElement('div');
       preview.className = 'inline-preview';
-      preview.innerHTML = `
-        <img src="${e.target.result}" alt="${filename}" title="Clic droit → Enregistrer sous: ${filename}">
-        <div>
-          <div class="preview-label">↗ Clic droit → Enregistrer sous</div>
-          <div class="preview-filename">${filename}</div>
-        </div>
-      `;
-      // Insert after the file item
+      preview.dataset.for = itemId;
+      preview.innerHTML =
+        '<img src="' + e.target.result + '" alt="' + filename + '">' +
+        '<div style="flex:1">' +
+          '<div class="preview-label" style="color:var(--accent3)">✓ Converti</div>' +
+          '<div class="preview-filename">' + filename + '</div>' +
+        '</div>';
+      preview.appendChild(btn);
+      // Insertion : juste après l'item
       item.parentNode.insertBefore(preview, item.nextSibling);
     };
     reader.readAsDataURL(blob);
   } else {
-    // Pour PDF et vidéo : showSaveFilePicker (Chrome/Edge) ou data URL fallback
-    const mimeType = type === 'pdf' ? 'application/pdf' : 'video/webm';
-    const ext = type === 'pdf' ? 'pdf' : 'webm';
-    const extDesc = type === 'pdf' ? 'Fichier PDF' : 'Vidéo WebM';
-
-    const dlIcon = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg> Enregistrer';
-    const btn = document.createElement('button');
-    btn.className = 'file-download';
-    btn.innerHTML = dlIcon;
-    btn.onclick = async () => {
-      btn.textContent = 'Traitement…';
-      btn.disabled = true;
-
-      // Méthode 1 : showSaveFilePicker
-      if (window.showSaveFilePicker) {
-        try {
-          const handle = await window.showSaveFilePicker({
-            suggestedName: filename,
-            types: [{ description: extDesc, accept: { [mimeType]: ['.' + ext] } }]
-          });
-          const writable = await handle.createWritable();
-          await writable.write(blob);
-          await writable.close();
-          btn.textContent = 'Enregistré ✓';
-          setTimeout(() => { btn.innerHTML = dlIcon; btn.disabled = false; }, 2500);
-          return;
-        } catch (err) {
-          if (err.name === 'AbortError') {
-            btn.innerHTML = dlIcon; btn.disabled = false; return;
-          }
-        }
-      }
-
-      // Méthode 2 : data URL fallback
-      const reader = new FileReader();
-      reader.onload = e => {
-        const a = document.createElement('a');
-        a.href = e.target.result;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        btn.innerHTML = dlIcon; btn.disabled = false;
-      };
-      reader.onerror = () => {
-        alert('Téléchargement bloqué.\nOuvrez le fichier .html directement dans Chrome.');
-        btn.innerHTML = dlIcon; btn.disabled = false;
-      };
-      reader.readAsDataURL(blob);
-    };
-
+    // PDF / vidéo : bouton inséré dans l'item, avant le bouton "Retirer"
     const removeBtn = item.querySelector('.file-remove');
-    item.insertBefore(btn, removeBtn);
+    if (removeBtn) item.insertBefore(btn, removeBtn);
+    else item.appendChild(btn);
   }
 }
 
@@ -2684,22 +2753,9 @@ async function applyWatermarks() {
       if (statusEl) { statusEl.className = 'file-status status-done'; statusEl.textContent = '✓ Filigrane ajouté'; }
       if (metaEl) metaEl.textContent = formatSize(file.size) + ' → ' + formatSize(blob.size);
 
-      // Miniature + téléchargement
+      // Aperçu + bouton "Enregistrer" individuel
       const outName = file.name.replace(/\.[^.]+$/, '') + '_watermark.png';
-      const item = document.getElementById('fi-wm-' + i);
-      if (item) {
-        const reader2 = new FileReader();
-        reader2.onload = ev => {
-          const prev = document.createElement('div');
-          prev.className = 'inline-preview';
-          prev.innerHTML = `
-            <img src="${ev.target.result}" style="width:64px;height:64px;object-fit:cover;border-radius:6px;border:1px solid var(--border)" title="Clic droit → Enregistrer sous: ${outName}">
-            <div><div class="preview-label">↗ Clic droit → Enregistrer sous</div><div class="preview-filename">${outName}</div></div>
-          `;
-          item.parentNode.insertBefore(prev, item.nextSibling);
-        };
-        reader2.readAsDataURL(blob);
-      }
+      addDownloadBtn('wm', i, blob, outName);
     } catch(e) {
       console.error('Filigrane — erreur sur', file.name, e);
       if (statusEl) { statusEl.className = 'file-status status-error'; statusEl.textContent = 'Erreur'; }
@@ -3020,17 +3076,22 @@ function fuCellAt(px, py, W, H) {
 // Dessine la grille 2×2 dans le contexte ctx (de taille W×H)
 // forExport=true : pas de bordure de sélection (le résultat final ne doit pas montrer
 // l'aide visuelle de sélection du calque actif).
-function fuRenderGrid(ctx, W, H, forExport) {
-  // Fond blanc complet : sert de bordure homogène
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, W, H);
+// transparentBg=true : ne pas remplir les bordures de blanc (PNG transparent)
+function fuRenderGrid(ctx, W, H, forExport, transparentBg) {
+  // Fond blanc complet : sert de bordure homogène (sauf si fond transparent demandé)
+  if (!transparentBg) {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, W, H);
+  }
 
   const cells = fuGridCells(W, H);
   cells.forEach((c, idx) => {
     const { layer, img } = fuLayerForCell(idx);
-    // Fond gris très léger dans la case (visible si vide)
-    ctx.fillStyle = '#f0f2f7';
-    ctx.fillRect(c.x, c.y, c.w, c.h);
+    // Fond gris très léger dans la case (visible si vide) — masqué en mode transparent
+    if (!transparentBg) {
+      ctx.fillStyle = '#f0f2f7';
+      ctx.fillRect(c.x, c.y, c.w, c.h);
+    }
 
     if (!img || !layer.visible) return;
 
@@ -3127,10 +3188,12 @@ function fuGrid6CellAt(px, py, W, H) {
 }
 
 // Dessine la planche 6 ID dans le contexte ctx (de taille W×H)
-function fuRenderGrid6ID(ctx, W, H, forExport) {
-  // Fond blanc de la planche
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, W, H);
+function fuRenderGrid6ID(ctx, W, H, forExport, transparentBg) {
+  // Fond blanc de la planche (sauf si fond transparent demandé)
+  if (!transparentBg) {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, W, H);
+  }
 
   const cells = fuGrid6Cells(W, H);
   cells.forEach((c, idx) => {
@@ -3716,6 +3779,12 @@ function fuUpdate() {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // Détecte si l'utilisateur a coché "fond transparent"
+  const transparentEl = document.getElementById('fu-transparent-bg');
+  const transparentBg = !!(transparentEl && transparentEl.checked);
+  // Affiche un damier de transparence derrière le canvas dans ce cas
+  if (wrap) wrap.classList.toggle('fu-transparent', transparentBg);
+
   // Mise à jour des étiquettes de sliders du calque actif
   const gradSize = parseInt(document.getElementById('fu-grad-size').value) / 100;
   const gradSizeVal = document.getElementById('fu-grad-size-val');
@@ -3730,23 +3799,24 @@ function fuUpdate() {
 
   // ───── BRANCHEMENT SELON LE MODE ─────
   if (fu.layoutMode === 'grid') {
-    fuRenderGrid(ctx, canvas.width, canvas.height);
+    fuRenderGrid(ctx, canvas.width, canvas.height, false, transparentBg);
     // Logo et textes au-dessus de la grille
     if (fu.logoLayer === 'front') fuDrawLogo(ctx, canvas.width, canvas.height);
     fuDrawTexts(ctx, canvas.width, canvas.height);
     return;
   }
   if (fu.layoutMode === 'grid6') {
-    fuRenderGrid6ID(ctx, canvas.width, canvas.height, false);
-    // En mode planche photo d'identité, on n'ajoute ni logo ni textes
+    fuRenderGrid6ID(ctx, canvas.width, canvas.height, false, transparentBg);
     return;
   }
 
   // ───── MODE FUSION (comportement original) ─────
-  // 1. Couleur de fond
-  const col = document.getElementById('fu-bg-color');
-  ctx.fillStyle = col ? col.value : '#ffffff';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // 1. Couleur de fond (sauf si "fond transparent" est coché)
+  if (!transparentBg) {
+    const col = document.getElementById('fu-bg-color');
+    ctx.fillStyle = col ? col.value : '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
 
   // 2. Logo derrière
   if (fu.logoLayer === 'behind') fuDrawLogo(ctx, canvas.width, canvas.height);
@@ -4281,6 +4351,10 @@ async function fuExport(formatKey) {
     const canvas = document.createElement('canvas');
     let W, H;
 
+    // État du toggle "fond transparent"
+    const transparentEl = document.getElementById('fu-transparent-bg');
+    const transparentBg = !!(transparentEl && transparentEl.checked);
+
     if (fu.layoutMode === 'grid') {
       // Mode Grid 2×2 : résolution HD fixe (cellules 1280×720 + bordures 40px)
       const cellW = 1280, cellH = 720;
@@ -4289,8 +4363,7 @@ async function fuExport(formatKey) {
       H = cellH * 2 + border * 3;
       canvas.width = W; canvas.height = H;
       const ctxG = canvas.getContext('2d');
-      fuRenderGrid(ctxG, W, H, true);
-      // Logo et textes par-dessus (le logo "derrière" n'a pas de sens en grid)
+      fuRenderGrid(ctxG, W, H, true, transparentBg);
       if (fu.logoLayer === 'front' || fu.logoLayer === 'behind') fuDrawLogo(ctxG, W, H);
       fuDrawTexts(ctxG, W, H);
     } else if (fu.layoutMode === 'grid6') {
@@ -4299,7 +4372,7 @@ async function fuExport(formatKey) {
       H = 1772;
       canvas.width = W; canvas.height = H;
       const ctxG = canvas.getContext('2d');
-      fuRenderGrid6ID(ctxG, W, H, true);
+      fuRenderGrid6ID(ctxG, W, H, true, transparentBg);
     } else {
       const refImg = fu.bgImg || firstTop.img;
       W = refImg.width;
@@ -4308,10 +4381,12 @@ async function fuExport(formatKey) {
       canvas.height = H;
       const ctx = canvas.getContext('2d');
 
-      // 1. Couleur de fond
-      const col = document.getElementById('fu-bg-color');
-      ctx.fillStyle = col ? col.value : '#ffffff';
-      ctx.fillRect(0, 0, W, H);
+      // 1. Couleur de fond (sauf si fond transparent)
+      if (!transparentBg) {
+        const col = document.getElementById('fu-bg-color');
+        ctx.fillStyle = col ? col.value : '#ffffff';
+        ctx.fillRect(0, 0, W, H);
+      }
       // 2. Logo derrière
       if (fu.logoLayer === 'behind') fuDrawLogo(ctx, W, H);
       // 3. Image de fond — traitée comme un calque
