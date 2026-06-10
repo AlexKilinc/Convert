@@ -1493,82 +1493,164 @@ function setProgress(type, pct) {
   if (pct >= 100) setTimeout(() => wrap.classList.remove('visible'), 800);
 }
 
+// ─── Détection iOS pour adapter le téléchargement ───
+// Sur iPhone/iPad, l'attribut <a download> et showSaveFilePicker ne fonctionnent pas ;
+// on ouvre le résultat dans un nouvel onglet et l'utilisateur fait "Partager → Enregistrer".
+function isIOS() {
+  const ua = navigator.userAgent || '';
+  if (/iPhone|iPad|iPod/i.test(ua)) return true;
+  // iPadOS 13+ se présente comme un Mac avec écran tactile
+  if (ua.indexOf('Mac') !== -1 && typeof document !== 'undefined' && 'ontouchend' in document) return true;
+  return false;
+}
+
+// Télécharge un Blob de façon robuste (multi-fallback CSP-compatible)
+async function downloadBlobFile(blob, filename, mimeType) {
+  // Conversion en dataURL (compatible CSP stricte qui bloque blob-request://)
+  const dataUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(blob);
+  });
+
+  // ── iOS : pas de support download/showSaveFilePicker → ouvrir l'aperçu en plein écran ──
+  if (isIOS()) {
+    const win = window.open();
+    if (win) {
+      const isVideo = (mimeType || '').startsWith('video');
+      win.document.write(
+        '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
+        '<title>' + filename + '</title>' +
+        '<style>body{margin:0;background:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:-apple-system,sans-serif;color:#fff;padding-top:60px;box-sizing:border-box}' +
+        'img,video{max-width:100%;max-height:80vh;border-radius:6px}' +
+        '.hint{position:fixed;top:0;left:0;right:0;background:rgba(0,0,0,0.9);padding:12px 14px;font-size:13px;text-align:center;line-height:1.45}</style></head><body>' +
+        '<div class="hint">📥 Appuyez longuement sur l\u2019aperçu puis « Enregistrer dans Photos » (ou utilisez le bouton Partager du navigateur)</div>' +
+        (isVideo
+          ? '<video src="' + dataUrl + '" controls playsinline></video>'
+          : '<img src="' + dataUrl + '" alt="' + filename + '">') +
+        '</body></html>'
+      );
+      win.document.close();
+      return 'opened';
+    }
+  }
+
+  // Détection iframe cross-origin (showSaveFilePicker y est interdit)
+  let inCrossOriginFrame = false;
+  try {
+    if (window.self !== window.top) {
+      try { void window.top.location.href; }
+      catch (_) { inCrossOriginFrame = true; }
+    }
+  } catch (_) { inCrossOriginFrame = true; }
+
+  // 1) showSaveFilePicker (Chrome/Edge desktop)
+  if (window.showSaveFilePicker && !inCrossOriginFrame) {
+    try {
+      const ext = (filename.split('.').pop() || '').toLowerCase();
+      const handle = await window.showSaveFilePicker({
+        suggestedName: filename,
+        types: [{ description: ext.toUpperCase(), accept: { [mimeType]: ['.' + ext] } }]
+      });
+      const writable = await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      return 'saved';
+    } catch (err) {
+      if (err && err.name === 'AbortError') return 'aborted';
+      if (err && err.name !== 'SecurityError') {
+        console.warn('showSaveFilePicker indisponible, fallback :', err.name);
+      }
+    }
+  }
+
+  // 2) Fallback universel : <a download> avec dataURL
+  try {
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = filename;
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    return 'saved';
+  } catch (e) {
+    console.warn('Téléchargement automatique bloqué :', e);
+    window.open(dataUrl, '_blank');
+    return 'opened';
+  }
+}
+
+// Icône SVG de téléchargement (utilisée à plusieurs endroits)
+const DL_ICON_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg>';
+const DL_BTN_HTML = DL_ICON_SVG + ' Enregistrer';
+
+// Ajoute le bouton "Enregistrer" (+ vignette pour images) après conversion
+// type : 'images' | 'wm' | 'pdf' | 'video'
 function addDownloadBtn(type, idx, blob, filename) {
-  const item = document.getElementById(`fi-${type}-${idx}`);
+  const itemId = type === 'wm' ? 'fi-wm-' + idx : 'fi-' + type + '-' + idx;
+  const item = document.getElementById(itemId);
   if (!item) return;
+  // Retirer un précédent bouton/preview si re-conversion
   const existing = item.querySelector('.file-download');
   if (existing) existing.remove();
+  const existingPreview = item.parentNode && item.parentNode.querySelector('.inline-preview[data-for="' + itemId + '"]');
+  if (existingPreview) existingPreview.remove();
 
-  if (type === 'images') {
-    // Show inline preview — user can right-click → Save
+  // Type MIME pour le téléchargement
+  const mimeMap = {
+    images: blob.type || 'image/png',
+    wm:     blob.type || 'image/png',
+    pdf:    'application/pdf',
+    video:  blob.type || 'video/webm'
+  };
+  const mimeType = mimeMap[type] || (blob.type || 'application/octet-stream');
+  const isImage = (type === 'images' || type === 'wm');
+
+  // Bouton "Enregistrer" universel — TOUJOURS dans l'item du fichier (donc visible mobile)
+  const btn = document.createElement('button');
+  btn.className = 'file-download';
+  btn.innerHTML = DL_BTN_HTML;
+  btn.onclick = async (e) => {
+    e.stopPropagation();
+    btn.disabled = true;
+    btn.innerHTML = '<span style="font-size:11px">Téléchargement…</span>';
+    try {
+      const res = await downloadBlobFile(blob, filename, mimeType);
+      if (res === 'saved' || res === 'opened') {
+        btn.innerHTML = res === 'saved' ? '✓ Enregistré' : '✓ Aperçu ouvert';
+        setTimeout(() => { btn.innerHTML = DL_BTN_HTML; btn.disabled = false; }, 2500);
+      } else {
+        btn.innerHTML = DL_BTN_HTML; btn.disabled = false;
+      }
+    } catch (err) {
+      console.error('Téléchargement échoué :', err);
+      btn.innerHTML = DL_BTN_HTML; btn.disabled = false;
+    }
+  };
+  // Insère le bouton juste avant le bouton "Retirer" de l'item (donc dans la ligne du fichier)
+  const removeBtn = item.querySelector('.file-remove');
+  if (removeBtn) item.insertBefore(btn, removeBtn);
+  else item.appendChild(btn);
+
+  // En complément, pour les IMAGES (et filigrane), ajouter une vignette de prévisualisation
+  if (isImage) {
     const reader = new FileReader();
     reader.onload = e => {
       const preview = document.createElement('div');
       preview.className = 'inline-preview';
-      preview.innerHTML = `
-        <img src="${e.target.result}" alt="${filename}" title="Clic droit → Enregistrer sous: ${filename}">
-        <div>
-          <div class="preview-label">↗ Clic droit → Enregistrer sous</div>
-          <div class="preview-filename">${filename}</div>
-        </div>
-      `;
-      // Insert after the file item
+      preview.dataset.for = itemId;
+      preview.innerHTML =
+        '<img src="' + e.target.result + '" alt="' + filename + '">' +
+        '<div style="flex:1">' +
+          '<div class="preview-label" style="color:var(--accent3)">✓ Converti</div>' +
+          '<div class="preview-filename">' + filename + '</div>' +
+        '</div>';
+      // Insérer juste après l'item (visible sous la ligne)
       item.parentNode.insertBefore(preview, item.nextSibling);
     };
     reader.readAsDataURL(blob);
-  } else {
-    // Pour PDF et vidéo : showSaveFilePicker (Chrome/Edge) ou data URL fallback
-    const mimeType = type === 'pdf' ? 'application/pdf' : 'video/webm';
-    const ext = type === 'pdf' ? 'pdf' : 'webm';
-    const extDesc = type === 'pdf' ? 'Fichier PDF' : 'Vidéo WebM';
-
-    const btn = document.createElement('button');
-    btn.className = 'file-download';
-    btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg> Enregistrer';
-    btn.onclick = async () => {
-      btn.textContent = 'Traitement…';
-      btn.disabled = true;
-
-      // Méthode 1 : showSaveFilePicker
-      if (window.showSaveFilePicker) {
-        try {
-          const handle = await window.showSaveFilePicker({
-            suggestedName: filename,
-            types: [{ description: extDesc, accept: { [mimeType]: ['.' + ext] } }]
-          });
-          const writable = await handle.createWritable();
-          await writable.write(blob);
-          await writable.close();
-          btn.textContent = 'Enregistré ✓';
-          setTimeout(() => { btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg> Enregistrer'; btn.disabled = false; }, 2500);
-          return;
-        } catch (err) {
-          if (err.name === 'AbortError') {
-            btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg> Enregistrer'; btn.disabled = false; return;
-          }
-        }
-      }
-
-      // Méthode 2 : data URL fallback
-      const reader = new FileReader();
-      reader.onload = e => {
-        const a = document.createElement('a');
-        a.href = e.target.result;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg> Enregistrer'; btn.disabled = false;
-      };
-      reader.onerror = () => {
-        alert('Téléchargement bloqué.\nOuvrez le fichier .html directement dans Chrome.');
-        btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg> Enregistrer'; btn.disabled = false;
-      };
-      reader.readAsDataURL(blob);
-    };
-
-    const removeBtn = item.querySelector('.file-remove');
-    item.insertBefore(btn, removeBtn);
   }
 }
 
@@ -1616,11 +1698,11 @@ async function downloadZip() {
       await writable.write(zipBlob);
       await writable.close();
       if (btn) { btn.disabled = false; btn.textContent = 'ZIP enregistré !'; }
-      setTimeout(() => { if (btn) btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP'; }, 3000);
+      setTimeout(() => { if (btn) btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP'; }, 3000);
       return;
     } catch (err) {
       if (err.name === 'AbortError') {
-        if (btn) { btn.disabled = false; btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP'; }
+        if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP'; }
         return;
       }
       // Continuer vers méthode 2 si erreur autre
@@ -1636,11 +1718,11 @@ async function downloadZip() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    if (btn) { btn.disabled = false; btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP'; }
   };
   reader.onerror = () => {
     alert('Téléchargement bloqué par le navigateur.\nOuvrez ce fichier directement (double-clic) pour télécharger.');
-    if (btn) { btn.disabled = false; btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP'; }
   };
   reader.readAsDataURL(zipBlob);
 }
@@ -2549,10 +2631,10 @@ async function downloadZipWM() {
       await writable.write(zipBlob);
       await writable.close();
       if (btn) btn.textContent = 'ZIP enregistré';
-      setTimeout(() => { if (btn) btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="2" y="4" width="20" height="4" rx="1"/><path d="M4 8v10a2 2 0 002 2h12a2 2 0 002-2V8"/><path d="M10 12h4"/></svg> Tout télécharger (ZIP)'; }, 3000);
+      setTimeout(() => { if (btn) btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="2" y="4" width="20" height="4" rx="1"/><path d="M4 8v10a2 2 0 002 2h12a2 2 0 002-2V8"/><path d="M10 12h4"/></svg> Tout télécharger (ZIP)'; }, 3000);
       return;
     } catch(err) {
-      if (err.name === 'AbortError') { if (btn) btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="2" y="4" width="20" height="4" rx="1"/><path d="M4 8v10a2 2 0 002 2h12a2 2 0 002-2V8"/><path d="M10 12h4"/></svg> Tout télécharger (ZIP)'; return; }
+      if (err.name === 'AbortError') { if (btn) btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="2" y="4" width="20" height="4" rx="1"/><path d="M4 8v10a2 2 0 002 2h12a2 2 0 002-2V8"/><path d="M10 12h4"/></svg> Tout télécharger (ZIP)'; return; }
     }
   }
   // Fallback
@@ -2561,7 +2643,7 @@ async function downloadZipWM() {
     const a = document.createElement('a');
     a.href = e.target.result; a.download = 'images_filigrane.zip';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    if (btn) btn.textContent = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="2" y="4" width="20" height="4" rx="1"/><path d="M4 8v10a2 2 0 002 2h12a2 2 0 002-2V8"/><path d="M10 12h4"/></svg> Tout télécharger (ZIP)';
+    if (btn) btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="2" y="4" width="20" height="4" rx="1"/><path d="M4 8v10a2 2 0 002 2h12a2 2 0 002-2V8"/><path d="M10 12h4"/></svg> Tout télécharger (ZIP)';
   };
   reader.readAsDataURL(zipBlob);
 }
