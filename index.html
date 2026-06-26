@@ -731,6 +731,17 @@
   .fusion-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
   .fusion-upload .fu-thumb { width: 100%; height: 80px; object-fit: cover; border-radius: 6px; display: block; margin-bottom: 6px; }
   .fusion-canvas-wrap { position: relative; background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; min-height: 300px; display: flex; align-items: center; justify-content: center; }
+  /* Damier visible derrière le canvas quand "fond transparent" est actif */
+  .fusion-canvas-wrap.fu-transparent {
+    background-color: #ffffff;
+    background-image:
+      linear-gradient(45deg, #e0e0e0 25%, transparent 25%),
+      linear-gradient(-45deg, #e0e0e0 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #e0e0e0 75%),
+      linear-gradient(-45deg, transparent 75%, #e0e0e0 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, 10px 0px;
+  }
   .fusion-canvas-wrap canvas { display: block; max-width: 100%; cursor: move; border-radius: 12px; }
   .fusion-placeholder { color: var(--muted); font-size: 13px; text-align: center; padding: 40px; }
   .fusion-grad-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
@@ -740,6 +751,170 @@
   .fusion-point-hint { font-size: 11px; color: var(--muted); font-style: italic; margin-top: 6px; display: none; }
   .fusion-point-hint.visible { display: block; }
   .fu-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent1); }
+  /* Grille 2×2 — 4 tuiles carrées (Image de fond + 3 calques) */
+  .fu-tiles-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 600px) {
+    .fu-tiles-grid { grid-template-columns: 1fr; }
+  }
+  .fu-tile {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  }
+  .fu-layer-tile { cursor: pointer; }
+  .fu-layer-tile:hover { border-color: var(--accent1); }
+  .fu-layer-tile.fu-active {
+    border-color: #001A4D;
+    background: rgba(0,26,77,0.05);
+    box-shadow: inset 0 0 0 1px #001A4D;
+  }
+  .fu-tile-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--accent1);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .fu-layer-tile.fu-active .fu-tile-title { color: #001A4D; }
+  .fu-tile-drop {
+    position: relative;
+    flex: 1;
+    border: 1.5px dashed var(--border);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: var(--card);
+  }
+  .fu-tile-drop input[type=file] {
+    position: absolute; inset: 0;
+    opacity: 0; cursor: pointer;
+    width: 100%; height: 100%;
+  }
+  .fu-tile-thumb {
+    display: block;
+    width: 100%; height: 100%;
+    object-fit: contain;
+    background: var(--card);
+  }
+  .fu-tile-label {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    padding: 8px;
+  }
+  .fu-tile-clear {
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--bg);
+    background: #d23030;
+    color: white;
+    font-size: 14px; font-weight: 700; line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    transition: background 0.15s, transform 0.1s;
+    z-index: 5;
+  }
+  .fu-tile-clear:hover { background: #e84545; transform: scale(1.1); }
+  /* Œil de visibilité en haut à gauche de chaque tuile */
+  .fu-tile-controls {
+    position: absolute;
+    top: 6px; left: 6px;
+    display: flex;
+    gap: 4px;
+    z-index: 5;
+  }
+  .fu-tile-eye {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    color: var(--accent1);
+    cursor: pointer;
+    padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, transform 0.1s, color 0.15s;
+  }
+  .fu-tile-eye:hover { background: var(--surface); transform: scale(1.08); }
+  .fu-tile-eye.fu-eye-off { color: #d23030; background: rgba(210,48,48,0.08); border-color: #d23030; }
+  /* Flèches d'échange entre cases */
+  .fu-tile-swap {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    color: var(--accent1);
+    cursor: pointer;
+    padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, transform 0.1s, border-color 0.15s, color 0.15s;
+  }
+  .fu-tile-swap:hover {
+    background: #001A4D;
+    color: white;
+    border-color: #001A4D;
+    transform: scale(1.1);
+  }
+  /* Sections pliables — chevron + animation */
+  .fu-collapsible .fu-group-title {
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: color 0.15s;
+  }
+  .fu-collapsible .fu-group-title:hover { color: var(--accent1); }
+  .fu-chevron {
+    display: inline-flex;
+    transition: transform 0.2s ease;
+    color: var(--muted);
+  }
+  .fu-collapsible.fu-collapsed .fu-chevron { transform: rotate(-90deg); }
+  .fu-collapsible-body { transition: max-height 0.25s ease, opacity 0.2s ease; overflow: hidden; }
+  .fu-collapsible.fu-collapsed .fu-collapsible-body { max-height: 0 !important; opacity: 0; pointer-events: none; }
+  /* Badges de mode de composition (Fusion / Grid 2x2) */
+  .fu-layout-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--muted);
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    padding: 5px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+  .fu-layout-badge:hover { color: var(--accent1); border-color: var(--accent1); }
+  .fu-layout-badge.fu-layout-active {
+    background: #001A4D;
+    color: white;
+    border-color: #001A4D;
+    box-shadow: 0 2px 6px rgba(0,26,77,0.25);
+  }
   /* Responsive */
   @media (max-width: 600px) {
     .tabs { flex-direction: column; }
@@ -799,20 +974,6 @@
       </div>
     </div>
 
-    <div style="display:flex;gap:12px;align-items:center;margin:8px 0 12px;flex-wrap:wrap">
-      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)">
-        Format :
-        <select id="img-format" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--fg);font-family:inherit;font-size:13px">
-          <option value="webp" selected>WebP</option>
-          <option value="png">PNG</option>
-        </select>
-      </label>
-      <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer">
-        <input type="checkbox" id="img-transparent" style="accent-color:var(--accent1)">
-        Fond transparent (conserve l'alpha)
-      </label>
-    </div>
-
     <div class="file-list" id="list-images"></div>
     <div class="progress-bar-wrap" id="prog-images"><div class="progress-bar" id="pb-images"></div></div>
 
@@ -824,7 +985,7 @@
     </div>
 
     <div class="btn-row">
-      <button class="btn-convert" id="btn-img" onclick="convertImages()" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M20 11A8 8 0 004.5 9M4 5v4h4"/><path d="M4 13a8 8 0 0015.5 2M20 19v-4h-4"/></svg> Convertir</button>
+      <button class="btn-convert" id="btn-img" onclick="convertImages()" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M20 11A8 8 0 004.5 9M4 5v4h4"/><path d="M4 13a8 8 0 0015.5 2M20 19v-4h-4"/></svg> Convertir en WebP</button>
       <button class="btn-convert btn-compress" id="btn-img-compress" onclick="compressImages()" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M14 3v4a1 1 0 001 1h4"/><path d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/><path d="M12 11v2m0 2v2"/></svg> Compresser (format original)</button>
     </div>
 
@@ -984,25 +1145,6 @@
     <div class="file-list" id="list-watermark"></div>
     <div class="progress-bar-wrap" id="prog-watermark"><div class="progress-bar" id="pb-watermark"></div></div>
 
-    <div style="display:flex;gap:12px;align-items:center;margin:0 0 10px;flex-wrap:wrap">
-      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)">
-        Format de sortie :
-        <select id="wm-format" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--fg);font-family:inherit;font-size:13px">
-          <option value="png" selected>PNG</option>
-          <option value="webp">WebP</option>
-        </select>
-      </label>
-      <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer">
-        <input type="checkbox" id="wm-transparent" style="accent-color:var(--accent1)">
-        Fond transparent (conserve l'alpha)
-      </label>
-      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)" id="wm-quality-wrap">
-        Qualité :
-        <input type="range" id="wm-quality" min="30" max="100" value="92" oninput="document.getElementById('wm-q-val').textContent=this.value+'%'" style="width:100px">
-        <span id="wm-q-val" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent1);min-width:36px">92%</span>
-      </label>
-    </div>
-
     <button class="btn-convert" id="btn-wm" onclick="applyWatermarks()" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 2C6 9 4 13 4 16a8 8 0 0016 0c0-3-2-7-8-14z"/><path d="M12 2v14"/></svg> Appliquer le filigrane</button>
     <button class="btn-dl-all" id="dl-wm" onclick="downloadZipWM()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="2" y="4" width="20" height="4" rx="1"/><path d="M4 8v10a2 2 0 002 2h12a2 2 0 002-2V8"/><path d="M10 12h4"/></svg> Tout télécharger (ZIP)</button>
   </div>
@@ -1012,58 +1154,90 @@
   <div class="panel" id="panel-fusion">
     <p class="section-label">Superposition avec transparence progressive</p>
 
-    <!-- ① 3 cards côte à côte -->
-    <div style="display:grid;grid-template-columns:1fr 1fr auto 1fr;gap:12px;align-items:stretch;margin-bottom:16px">
-
-      <!-- Couleur de fond -->
-      <div class="fusion-section" style="margin:0">
-        <h4>Couleur de fond</h4>
-        <p style="font-size:11px;color:var(--muted);margin-bottom:8px">Derrière l'image de fond</p>
-        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">
-          <div onclick="fuSetBgColor('#ffffff')" title="Blanc"     style="width:24px;height:24px;border-radius:5px;background:#ffffff;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></div>
-          <div onclick="fuSetBgColor('#001A4D')" title="#001A4D"   style="width:24px;height:24px;border-radius:5px;background:#001A4D;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></div>
-          <div onclick="fuSetBgColor('#0d2354')" title="#0d2354"   style="width:24px;height:24px;border-radius:5px;background:#0d2354;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></div>
-          <div onclick="fuSetBgColor('#000000')" title="Noir"      style="width:24px;height:24px;border-radius:5px;background:#000000;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></div>
-          <div onclick="fuSetBgColor('#f0f2f7')" title="Gris"      style="width:24px;height:24px;border-radius:5px;background:#f0f2f7;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></div>
-          <div onclick="fuSetBgColor('#e8f0fe')" title="Bleu pâle" style="width:24px;height:24px;border-radius:5px;background:#e8f0fe;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></div>
+    <!-- ① Couleur de fond (bandeau compact) -->
+    <div class="fusion-section" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <h4 style="margin:0;white-space:nowrap">Couleur de fond</h4>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <div onclick="fuSetBgColor('#ffffff')" title="Blanc"     style="width:22px;height:22px;border-radius:5px;background:#ffffff;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></div>
+          <div onclick="fuSetBgColor('#001A4D')" title="#001A4D"   style="width:22px;height:22px;border-radius:5px;background:#001A4D;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></div>
+          <div onclick="fuSetBgColor('#0d2354')" title="#0d2354"   style="width:22px;height:22px;border-radius:5px;background:#0d2354;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></div>
+          <div onclick="fuSetBgColor('#000000')" title="Noir"      style="width:22px;height:22px;border-radius:5px;background:#000000;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></div>
+          <div onclick="fuSetBgColor('#f0f2f7')" title="Gris"      style="width:22px;height:22px;border-radius:5px;background:#f0f2f7;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></div>
+          <div onclick="fuSetBgColor('#e8f0fe')" title="Bleu pâle" style="width:22px;height:22px;border-radius:5px;background:#e8f0fe;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></div>
         </div>
-        <div style="display:flex;gap:6px;align-items:center">
+        <div style="display:flex;gap:6px;align-items:center;margin-left:auto">
           <input type="color" id="fu-bg-color" value="#ffffff" oninput="fuSyncColorHex(this.value);fuUpdate()" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;cursor:pointer;padding:2px;flex-shrink:0">
-          <div style="display:flex;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden;flex:1">
+          <div style="display:flex;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden">
             <span style="padding:0 6px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted)">#</span>
-            <input type="text" id="fu-bg-hex" value="ffffff" maxlength="6" oninput="fuSyncColorPicker(this.value)" style="border:none;outline:none;background:transparent;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text);width:100%;padding:6px 4px 6px 0">
+            <input type="text" id="fu-bg-hex" value="ffffff" maxlength="6" oninput="fuSyncColorPicker(this.value)" style="border:none;outline:none;background:transparent;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text);width:80px;padding:6px 4px 6px 0">
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- ② Grille 2×2 : Image de fond + 3 calques superposés -->
+    <div class="fu-tiles-grid" style="margin-bottom:16px">
 
       <!-- Image de fond -->
-      <div class="fusion-section" style="margin:0">
-        <h4>Image de fond</h4>
-        <div class="fusion-upload" id="fu-bg-drop">
-          <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadBg(this)">
-          <img id="fu-bg-thumb" class="fu-thumb" style="display:none">
-          <span id="fu-bg-label">Cliquez ou glissez</span>
+      <div class="fu-tile fu-layer-tile fu-active" data-layer="0" onclick="fuSetActiveLayer(0)" ondblclick="fuTileUpload(0)" draggable="true" ondragstart="fuTileDragStart(event,0)" ondragover="fuTileDragOver(event)" ondrop="fuTileDrop(event,0)">
+        <div class="fu-tile-controls">
+          <button type="button" class="fu-tile-eye" id="fu-eye-0" onclick="fuToggleVisible(0,event)" title="Masquer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <button type="button" class="fu-tile-swap" onclick="fuSwapImages(0,1,event)" title="Échanger avec Calque 1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
         </div>
-      </div>
-
-      <!-- Bouton swap -->
-      <div style="display:flex;align-items:center;justify-content:center;padding-top:28px">
-        <button class="fu-swap-btn" onclick="fuSwap()" title="Intervertir les images">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
-        </button>
-      </div>
-
-      <!-- Image superposée -->
-      <div class="fusion-section" style="margin:0">
-        <h4>Image superposée</h4>
-        <div class="fusion-upload" id="fu-top-drop">
-          <input type="file" accept=".jpg,.jpeg,.png,.webp" onchange="fuLoadTop(this)">
-          <img id="fu-top-thumb" class="fu-thumb" style="display:none">
-          <span id="fu-top-label">Cliquez ou glissez</span>
+        <div class="fu-tile-title">Image de fond</div>
+        <div class="fu-tile-drop" id="fu-bg-drop">
+          <img id="fu-bg-thumb" class="fu-tile-thumb" style="display:none">
+          <span id="fu-bg-label" class="fu-tile-label">Double-cliquez ou glissez</span>
         </div>
+        <button type="button" class="fu-tile-clear" id="fu-clear-bg" onclick="event.stopPropagation();fuClearBg()" title="Vider l'image de fond" style="display:none">×</button>
       </div>
 
-    </div><!-- /3 cards -->
+      <!-- Calque superposé 1 -->
+      <div class="fu-tile fu-layer-tile" data-layer="1" onclick="fuSetActiveLayer(1)" ondblclick="fuTileUpload(1)" draggable="true" ondragstart="fuTileDragStart(event,1)" ondragover="fuTileDragOver(event)" ondrop="fuTileDrop(event,1)">
+        <div class="fu-tile-controls">
+          <button type="button" class="fu-tile-eye" id="fu-eye-1" onclick="fuToggleVisible(1,event)" title="Masquer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <button type="button" class="fu-tile-swap" onclick="fuSwapImages(1,0,event)" title="Échanger avec Image de fond"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <button type="button" class="fu-tile-swap" onclick="fuSwapImages(1,2,event)" title="Échanger avec Calque 2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+        </div>
+        <div class="fu-tile-title">Calque superposé 1</div>
+        <div class="fu-tile-drop">
+          <img id="fu-top-thumb-0" class="fu-tile-thumb" style="display:none">
+          <span id="fu-top-label-0" class="fu-tile-label">Double-cliquez ou glissez</span>
+        </div>
+        <button type="button" class="fu-tile-clear" id="fu-clear-0" onclick="event.stopPropagation();fuClearLayer(0)" title="Vider ce calque" style="display:none">×</button>
+      </div>
+
+      <!-- Calque superposé 2 -->
+      <div class="fu-tile fu-layer-tile" data-layer="2" onclick="fuSetActiveLayer(2)" ondblclick="fuTileUpload(2)" draggable="true" ondragstart="fuTileDragStart(event,2)" ondragover="fuTileDragOver(event)" ondrop="fuTileDrop(event,2)">
+        <div class="fu-tile-controls">
+          <button type="button" class="fu-tile-eye" id="fu-eye-2" onclick="fuToggleVisible(2,event)" title="Masquer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <button type="button" class="fu-tile-swap" onclick="fuSwapImages(2,1,event)" title="Échanger avec Calque 1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <button type="button" class="fu-tile-swap" onclick="fuSwapImages(2,3,event)" title="Échanger avec Calque 3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+        </div>
+        <div class="fu-tile-title">Calque superposé 2</div>
+        <div class="fu-tile-drop">
+          <img id="fu-top-thumb-1" class="fu-tile-thumb" style="display:none">
+          <span id="fu-top-label-1" class="fu-tile-label">Double-cliquez ou glissez</span>
+        </div>
+        <button type="button" class="fu-tile-clear" id="fu-clear-1" onclick="event.stopPropagation();fuClearLayer(1)" title="Vider ce calque" style="display:none">×</button>
+      </div>
+
+      <!-- Calque superposé 3 -->
+      <div class="fu-tile fu-layer-tile" data-layer="3" onclick="fuSetActiveLayer(3)" ondblclick="fuTileUpload(3)" draggable="true" ondragstart="fuTileDragStart(event,3)" ondragover="fuTileDragOver(event)" ondrop="fuTileDrop(event,3)">
+        <div class="fu-tile-controls">
+          <button type="button" class="fu-tile-eye" id="fu-eye-3" onclick="fuToggleVisible(3,event)" title="Masquer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <button type="button" class="fu-tile-swap" onclick="fuSwapImages(3,2,event)" title="Échanger avec Calque 2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+        </div>
+        <div class="fu-tile-title">Calque superposé 3</div>
+        <div class="fu-tile-drop">
+          <img id="fu-top-thumb-2" class="fu-tile-thumb" style="display:none">
+          <span id="fu-top-label-2" class="fu-tile-label">Double-cliquez ou glissez</span>
+        </div>
+        <button type="button" class="fu-tile-clear" id="fu-clear-2" onclick="event.stopPropagation();fuClearLayer(2)" title="Vider ce calque" style="display:none">×</button>
+      </div>
+
+    </div><!-- /fu-tiles-grid -->
 
     <!-- ② Menu gauche | Aperçu sticky droite -->
     <div class="fu-main-layout">
@@ -1071,19 +1245,10 @@
       <!-- ══════ COLONNE GAUCHE : menu scrollable ══════ -->
       <div class="fu-sidebar">
 
-        <!-- B. IMAGE SUPERPOSÉE -->
+        <!-- A. MODE CLIC APERÇU -->
         <div class="fu-group">
-          <div class="fu-group-title">Image superposée</div>
+          <div class="fu-group-title">Mode clic aperçu</div>
           <div class="fusion-section">
-            <div class="fu-slider-row">
-              <span class="fu-label">Taille</span><span class="fu-val" id="fu-size-val">60%</span>
-            </div>
-            <input type="range" id="fu-size" min="5" max="150" value="60" oninput="fuUpdate()" style="width:100%">
-            <div class="fu-slider-row" style="margin-top:10px">
-              <span class="fu-label">Opacité</span><span class="fu-val" id="fu-opacity-val">100%</span>
-            </div>
-            <input type="range" id="fu-opacity" min="0" max="100" value="100" oninput="fuUpdate()" style="width:100%">
-            <div class="fu-group-title" style="margin:12px 0 8px">Mode clic aperçu</div>
             <div style="display:flex;gap:6px">
               <button id="fu-mode-top"   class="fu-mode-btn fu-active" onclick="fuSetDragMode('top')" style="flex:1;font-size:11px;padding:6px 4px">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:middle"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3"/></svg> Image
@@ -1098,9 +1263,32 @@
           </div>
         </div>
 
-        <!-- C. TRANSPARENCE -->
+        <!-- B. CALQUE ACTIF -->
         <div class="fu-group">
-          <div class="fu-group-title">Transparence progressive</div>
+          <div class="fu-group-title">Calque actif <span id="fu-active-layer-label" style="color:var(--accent3);font-family:'JetBrains Mono',monospace;font-size:11px">(Image de fond)</span></div>
+          <div class="fusion-section">
+            <div class="fu-slider-row">
+              <span class="fu-label">Taille</span><span class="fu-val" id="fu-size-val">100%</span>
+            </div>
+            <input type="range" id="fu-size" min="1" max="150" value="100" oninput="fuSyncLayerFromControls();fuUpdate()" style="width:100%">
+            <div class="fu-slider-row" style="margin-top:10px">
+              <span class="fu-label">Opacité</span><span class="fu-val" id="fu-opacity-val">100%</span>
+            </div>
+            <input type="range" id="fu-opacity" min="0" max="100" value="100" oninput="fuSyncLayerFromControls();fuUpdate()" style="width:100%">
+            <div class="fu-slider-row" style="margin-top:10px">
+              <span class="fu-label">Rotation</span><span class="fu-val" id="fu-rotation-val">0°</span>
+            </div>
+            <input type="range" id="fu-rotation" min="-180" max="180" value="0" step="1" oninput="fuSyncLayerFromControls();fuUpdate()" style="width:100%">
+          </div>
+        </div>
+
+        <!-- C. TRANSPARENCE -->
+        <div class="fu-group fu-collapsible fu-collapsed" id="fu-group-grad">
+          <div class="fu-group-title" onclick="fuToggleCollapse(this.parentElement)">
+            <span>Transparence progressive</span>
+            <span class="fu-chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </div>
+          <div class="fu-collapsible-body" style="max-height:1000px">
           <div class="fusion-section">
             <div class="fusion-grad-grid">
               <button class="fusion-grad-btn active" onclick="fuSetGrad('none',this)">Aucune</button>
@@ -1127,13 +1315,18 @@
             </div>
             <input type="range" id="fu-grad-size" min="5" max="100" value="50" oninput="fuUpdate()" style="width:100%">
           </div>
+          </div><!-- /fu-collapsible-body Transparence -->
         </div>
 
         <!-- D. LOGO -->
-        <div class="fu-group">
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div class="fu-group-title" style="margin:0">Logo</div>
-            <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+        <div class="fu-group fu-collapsible fu-collapsed" id="fu-group-logo">
+          <div class="fu-group-title" onclick="fuToggleCollapse(this.parentElement)">
+            <span>Logo</span>
+            <span class="fu-chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </div>
+          <div class="fu-collapsible-body" style="max-height:1500px">
+          <div style="padding:6px 12px 0">
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;color:var(--muted)">
               <input type="checkbox" id="fu-logo-enable" onchange="fuUpdate()" style="accent-color:var(--accent1)"> Activer
             </label>
           </div>
@@ -1163,12 +1356,16 @@
               <button id="fu-logo-behind" class="fu-mode-btn"           onclick="fuSetLogoLayer('behind')" style="flex:1;font-size:11px;padding:5px">↓ Derrière</button>
             </div>
           </div>
+          </div><!-- /fu-collapsible-body Logo -->
         </div>
 
         <!-- E. TEXTES -->
-        <div class="fu-group">
-          <div class="fu-group-title">Zones de texte</div>
-
+        <div class="fu-group fu-collapsible fu-collapsed" id="fu-group-text">
+          <div class="fu-group-title" onclick="fuToggleCollapse(this.parentElement)">
+            <span>Zones de texte</span>
+            <span class="fu-chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </div>
+          <div class="fu-collapsible-body" style="max-height:3000px">
           <!-- Texte 1 -->
           <div class="fusion-section">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -1246,18 +1443,34 @@
             </div>
             <p style="font-size:10px;color:var(--muted);margin-top:6px">Mode clic → T2 puis glissez sur l'aperçu</p>
           </div>
+          </div><!-- /fu-collapsible-body Zones de texte -->
         </div>
 
         <!-- F. EXPORT -->
         <div class="fu-group">
           <div class="fu-group-title">Export</div>
-          <button class="btn-convert" id="btn-fusion" onclick="fuExport()" disabled style="margin-top:0;width:100%">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Exporter la fusion
-          </button>
+          <div style="display:flex;gap:6px">
+            <button class="btn-convert" id="btn-fusion-png" onclick="fuExport('png')" disabled style="margin-top:0;flex:1;font-size:12px;padding:10px 4px">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              PNG
+            </button>
+            <button class="btn-convert" id="btn-fusion-png-c" onclick="fuExport('png-c')" disabled style="margin-top:0;flex:1;font-size:12px;padding:10px 4px" title="PNG avec résolution réduite à 70% — fichier ~2× plus léger">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              PNG 70%
+            </button>
+            <button class="btn-convert" id="btn-fusion-webp" onclick="fuExport('webp')" disabled style="margin-top:0;flex:1;font-size:12px;padding:10px 4px">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              WebP
+            </button>
+          </div>
+          <p style="font-size:10px;color:var(--muted);margin-top:6px;text-align:center">PNG : qualité maximale — PNG 70% : ~50% du poids — WebP : plus léger</p>
+          <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);cursor:pointer;margin-top:8px;padding:6px 8px;background:var(--card);border:1px solid var(--border);border-radius:6px">
+            <input type="checkbox" id="fu-transparent-bg" onchange="fuUpdate()" style="accent-color:var(--accent1)">
+            Fond transparent (PNG / WebP)
+          </label>
           <div id="fu-result-wrap" style="display:none;margin-top:10px">
-            <div class="preview-label" style="margin-bottom:6px">↗ Clic droit → Enregistrer sous</div>
-            <img id="fu-result-img" style="width:100%;border-radius:8px;border:1px solid var(--border);margin-bottom:10px" title="Clic droit → Enregistrer sous: fusion.png">
+            <div class="preview-label" id="fu-result-label" style="margin-bottom:6px;color:var(--accent3)">✓ Aperçu de l'export</div>
+            <img id="fu-result-img" style="width:100%;border-radius:8px;border:1px solid var(--border);margin-bottom:10px">
             <button onclick="fuSendToWatermark()" style="width:100%;padding:10px;background:var(--card);border:1.5px solid var(--accent1);border-radius:10px;color:var(--accent1);font-family:Syne,sans-serif;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s" onmouseover="this.style.background='var(--accent1)';this.style.color='white'" onmouseout="this.style.background='var(--card)';this.style.color='var(--accent1)'">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6 9 4 13 4 16a8 8 0 0016 0c0-3-2-7-8-14z"/><path d="M12 2v14"/></svg>
               Envoyer vers Filigrane
@@ -1271,7 +1484,11 @@
       <div class="fu-preview-col">
         <div class="fu-preview-header">
           <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">Aperçu en direct</span>
-          <span id="fu-mode-indicator" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent1);background:rgba(13,35,84,0.08);padding:3px 8px;border-radius:20px">Mode : Image</span>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button type="button" class="fu-layout-badge fu-layout-active" data-layout="fusion" onclick="fuSetLayoutMode('fusion')">Mode : Fusion Image</button>
+            <button type="button" class="fu-layout-badge" data-layout="grid" onclick="fuSetLayoutMode('grid')">Mode : Grid 2×2</button>
+            <button type="button" class="fu-layout-badge" data-layout="grid6" onclick="fuSetLayoutMode('grid6')">Mode : Grid 6 ID</button>
+          </div>
         </div>
         <div class="fusion-canvas-wrap" id="fu-canvas-wrap">
           <div class="fusion-placeholder" id="fu-placeholder">
@@ -1280,6 +1497,10 @@
           </div>
           <canvas id="fu-canvas" style="display:none;width:100%;cursor:move;border-radius:10px;"></canvas>
         </div>
+        <p id="fu-grid6-hint" style="display:none;font-size:11px;color:var(--muted);margin-top:8px;text-align:center;line-height:1.5">
+          <strong style="color:var(--accent1)">Planche photo d'identité 10×15 cm</strong><br>
+          Double-cliquez sur une case pour choisir une photo · Glissez un fichier sur une case · Glissez une vignette du haut sur une case · Ajustez la taille/position via les curseurs
+        </p>
       </div>
 
     </div><!-- /fu-main-layout -->
@@ -1493,9 +1714,9 @@ function setProgress(type, pct) {
   if (pct >= 100) setTimeout(() => wrap.classList.remove('visible'), 800);
 }
 
-// ─── Détection iOS pour adapter le téléchargement ───
-// Sur iPhone/iPad, l'attribut <a download> et showSaveFilePicker ne fonctionnent pas ;
-// on ouvre le résultat dans un nouvel onglet et l'utilisateur fait "Partager → Enregistrer".
+// ─── Détection iOS (iPhone/iPad) ───
+// Sur iOS, <a download> est ignoré et showSaveFilePicker n'existe pas.
+// → On ouvre le résultat en plein écran ; l'utilisateur fait "Partager → Enregistrer dans Photos".
 function isIOS() {
   const ua = navigator.userAgent || '';
   if (/iPhone|iPad|iPod/i.test(ua)) return true;
@@ -1504,7 +1725,8 @@ function isIOS() {
   return false;
 }
 
-// Télécharge un Blob de façon robuste (multi-fallback CSP-compatible)
+// Télécharge un Blob de façon robuste : showSaveFilePicker → <a download> dataURL → window.open
+// Compatible avec les iframes CSP-restreints (utilise dataURL au lieu de blob:)
 async function downloadBlobFile(blob, filename, mimeType) {
   // Conversion en dataURL (compatible CSP stricte qui bloque blob-request://)
   const dataUrl = await new Promise((resolve, reject) => {
@@ -1514,7 +1736,7 @@ async function downloadBlobFile(blob, filename, mimeType) {
     reader.readAsDataURL(blob);
   });
 
-  // ── iOS : pas de support download/showSaveFilePicker → ouvrir l'aperçu en plein écran ──
+  // ── iOS : ouvrir l'aperçu en plein écran (appui long → Enregistrer dans Photos) ──
   if (isIOS()) {
     const win = window.open();
     if (win) {
@@ -1522,10 +1744,10 @@ async function downloadBlobFile(blob, filename, mimeType) {
       win.document.write(
         '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
         '<title>' + filename + '</title>' +
-        '<style>body{margin:0;background:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:-apple-system,sans-serif;color:#fff;padding-top:60px;box-sizing:border-box}' +
+        '<style>body{margin:0;background:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:-apple-system,sans-serif;color:#fff;padding-top:64px;box-sizing:border-box}' +
         'img,video{max-width:100%;max-height:80vh;border-radius:6px}' +
-        '.hint{position:fixed;top:0;left:0;right:0;background:rgba(0,0,0,0.9);padding:12px 14px;font-size:13px;text-align:center;line-height:1.45}</style></head><body>' +
-        '<div class="hint">📥 Appuyez longuement sur l\u2019aperçu puis « Enregistrer dans Photos » (ou utilisez le bouton Partager du navigateur)</div>' +
+        '.hint{position:fixed;top:0;left:0;right:0;background:rgba(0,0,0,0.92);padding:12px 14px;font-size:13px;text-align:center;line-height:1.45;z-index:10}</style></head><body>' +
+        '<div class="hint">📥 Appui long sur l\u2019aperçu → « Enregistrer dans Photos » (ou bouton Partager du navigateur)</div>' +
         (isVideo
           ? '<video src="' + dataUrl + '" controls playsinline></video>'
           : '<img src="' + dataUrl + '" alt="' + filename + '">') +
@@ -1534,9 +1756,10 @@ async function downloadBlobFile(blob, filename, mimeType) {
       win.document.close();
       return 'opened';
     }
+    // Si window.open est bloqué (popups désactivés sur iOS), on continue avec les fallbacks
   }
 
-  // Détection iframe cross-origin (showSaveFilePicker y est interdit)
+  // Détection iframe cross-origin
   let inCrossOriginFrame = false;
   try {
     if (window.self !== window.top) {
@@ -1545,7 +1768,7 @@ async function downloadBlobFile(blob, filename, mimeType) {
     }
   } catch (_) { inCrossOriginFrame = true; }
 
-  // 1) showSaveFilePicker (Chrome/Edge desktop)
+  // 1) showSaveFilePicker (Chrome/Edge récents, hors iframe cross-origin)
   if (window.showSaveFilePicker && !inCrossOriginFrame) {
     try {
       const ext = (filename.split('.').pop() || '').toLowerCase();
@@ -1576,66 +1799,65 @@ async function downloadBlobFile(blob, filename, mimeType) {
     document.body.removeChild(a);
     return 'saved';
   } catch (e) {
+    // 3) Dernier recours : ouvrir dans un nouvel onglet
     console.warn('Téléchargement automatique bloqué :', e);
     window.open(dataUrl, '_blank');
     return 'opened';
   }
 }
 
-// Icône SVG de téléchargement (utilisée à plusieurs endroits)
-const DL_ICON_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg>';
-const DL_BTN_HTML = DL_ICON_SVG + ' Enregistrer';
-
-// Ajoute le bouton "Enregistrer" (+ vignette pour images) après conversion
-// type : 'images' | 'wm' | 'pdf' | 'video'
+// Ajoute le bouton "Enregistrer" + éventuelle vignette pour un fichier converti
+// type : 'images' | 'pdf' | 'video' | 'wm' (filigrane)
 function addDownloadBtn(type, idx, blob, filename) {
+  // Détermine l'élément parent selon le type (pattern fi-{type}-{idx} ou fi-wm-{idx})
   const itemId = type === 'wm' ? 'fi-wm-' + idx : 'fi-' + type + '-' + idx;
   const item = document.getElementById(itemId);
   if (!item) return;
-  // Retirer un précédent bouton/preview si re-conversion
+  // Retirer un bouton/preview précédent (cas de re-conversion)
   const existing = item.querySelector('.file-download');
   if (existing) existing.remove();
-  const existingPreview = item.parentNode && item.parentNode.querySelector('.inline-preview[data-for="' + itemId + '"]');
+  const existingPreview = item.parentNode.querySelector('.inline-preview[data-for="' + itemId + '"]');
   if (existingPreview) existingPreview.remove();
 
-  // Type MIME pour le téléchargement
+  // Type MIME du blob (pour showSaveFilePicker)
   const mimeMap = {
     images: blob.type || 'image/png',
-    wm:     blob.type || 'image/png',
+    wm:     'image/png',
     pdf:    'application/pdf',
     video:  blob.type || 'video/webm'
   };
-  const mimeType = mimeMap[type] || (blob.type || 'application/octet-stream');
+  const mimeType = mimeMap[type];
   const isImage = (type === 'images' || type === 'wm');
 
-  // Bouton "Enregistrer" universel — TOUJOURS dans l'item du fichier (donc visible mobile)
+  // Icône SVG de téléchargement
+  const dlIcon = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 5v10m-4-4l4 4 4-4"/><path d="M5 19h14"/></svg>';
+  const labelHTML = dlIcon + ' Enregistrer';
+
+  // Bouton "Enregistrer" universel
   const btn = document.createElement('button');
   btn.className = 'file-download';
-  btn.innerHTML = DL_BTN_HTML;
+  btn.innerHTML = labelHTML;
   btn.onclick = async (e) => {
     e.stopPropagation();
     btn.disabled = true;
-    btn.innerHTML = '<span style="font-size:11px">Téléchargement…</span>';
+    btn.innerHTML = '<span style="font-size:12px">Téléchargement…</span>';
     try {
       const res = await downloadBlobFile(blob, filename, mimeType);
-      if (res === 'saved' || res === 'opened') {
-        btn.innerHTML = res === 'saved' ? '✓ Enregistré' : '✓ Aperçu ouvert';
-        setTimeout(() => { btn.innerHTML = DL_BTN_HTML; btn.disabled = false; }, 2500);
+      if (res === 'saved') {
+        btn.innerHTML = '✓ Enregistré';
+        setTimeout(() => { btn.innerHTML = labelHTML; btn.disabled = false; }, 2500);
       } else {
-        btn.innerHTML = DL_BTN_HTML; btn.disabled = false;
+        btn.innerHTML = labelHTML; btn.disabled = false;
       }
     } catch (err) {
       console.error('Téléchargement échoué :', err);
-      btn.innerHTML = DL_BTN_HTML; btn.disabled = false;
+      btn.innerHTML = labelHTML; btn.disabled = false;
     }
   };
-  // Insère le bouton juste avant le bouton "Retirer" de l'item (donc dans la ligne du fichier)
-  const removeBtn = item.querySelector('.file-remove');
-  if (removeBtn) item.insertBefore(btn, removeBtn);
-  else item.appendChild(btn);
 
-  // En complément, pour les IMAGES (et filigrane), ajouter une vignette de prévisualisation
+  // Position du bouton selon le type
   if (isImage) {
+    // Vignette + bouton à côté
     const reader = new FileReader();
     reader.onload = e => {
       const preview = document.createElement('div');
@@ -1647,10 +1869,16 @@ function addDownloadBtn(type, idx, blob, filename) {
           '<div class="preview-label" style="color:var(--accent3)">✓ Converti</div>' +
           '<div class="preview-filename">' + filename + '</div>' +
         '</div>';
-      // Insérer juste après l'item (visible sous la ligne)
+      preview.appendChild(btn);
+      // Insertion : juste après l'item
       item.parentNode.insertBefore(preview, item.nextSibling);
     };
     reader.readAsDataURL(blob);
+  } else {
+    // PDF / vidéo : bouton inséré dans l'item, avant le bouton "Retirer"
+    const removeBtn = item.querySelector('.file-remove');
+    if (removeBtn) item.insertBefore(btn, removeBtn);
+    else item.appendChild(btn);
   }
 }
 
@@ -1668,6 +1896,7 @@ function showDLAll(type) {
 
 async function downloadZip() {
   const btn = document.getElementById('btn-zip');
+  const zipIcon = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP';
   if (btn) { btn.disabled = true; btn.textContent = 'Création du ZIP…'; }
 
   const zipName = (document.getElementById('zip-name').value.trim() || 'images_converties') + '.zip';
@@ -1698,11 +1927,11 @@ async function downloadZip() {
       await writable.write(zipBlob);
       await writable.close();
       if (btn) { btn.disabled = false; btn.textContent = 'ZIP enregistré !'; }
-      setTimeout(() => { if (btn) btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP'; }, 3000);
+      setTimeout(() => { if (btn) btn.innerHTML = zipIcon; }, 3000);
       return;
     } catch (err) {
       if (err.name === 'AbortError') {
-        if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP'; }
+        if (btn) { btn.disabled = false; btn.innerHTML = zipIcon; }
         return;
       }
       // Continuer vers méthode 2 si erreur autre
@@ -1718,11 +1947,11 @@ async function downloadZip() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = zipIcon; }
   };
   reader.onerror = () => {
     alert('Téléchargement bloqué par le navigateur.\nOuvrez ce fichier directement (double-clic) pour télécharger.');
-    if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M12 3l4 4H8l4-4z"/><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 13h6m-3-2v4"/></svg> Télécharger le ZIP'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = zipIcon; }
   };
   reader.readAsDataURL(zipBlob);
 }
@@ -1778,9 +2007,6 @@ async function convertImages() {
   if (!btn) return;
   btn.disabled = true;
   const quality = parseInt(document.getElementById('img-quality').value) / 100;
-  const format = (document.getElementById('img-format') || { value: 'webp' }).value; // 'webp' ou 'png'
-  const transparent = !!(document.getElementById('img-transparent') && document.getElementById('img-transparent').checked);
-  const ext = format === 'png' ? 'png' : 'webp';
   const files = state.images;
 
   let totalOrig = 0, totalFinal = 0;
@@ -1792,16 +2018,14 @@ async function convertImages() {
     setProgress('images', Math.round((i / files.length) * 90));
 
     try {
-      const blob = await imageToTargetFormat(file, format, quality, transparent);
+      const blob = await imageToWebP(file, quality);
       outputs.images[i] = blob;
       totalOrig += file.size;
       totalFinal += blob.size;
       const gain = ((1 - blob.size / file.size) * 100).toFixed(1);
-      const gainStr = gain > 0 ? '-' + gain + '%' : '+' + Math.abs(gain) + '%';
-      const fmtLabel = format.toUpperCase() + (transparent ? ' transparent' : '');
-      setStatus('images', i, 'status-done', '✓ ' + fmtLabel + ' (' + gainStr + ')');
-      setMeta('images', i, formatSize(file.size) + ' → ' + formatSize(blob.size));
-      const name = file.name.replace(/\.[^.]+$/, '') + '.' + ext;
+      setStatus('images', i, 'status-done', `✓ WebP (-${gain}%)`);
+      setMeta('images', i, `${formatSize(file.size)} → ${formatSize(blob.size)}`);
+      const name = file.name.replace(/\.[^.]+$/, '') + '.webp';
       addDownloadBtn('images', i, blob, name);
     } catch(e) {
       setStatus('images', i, 'status-error', 'Erreur');
@@ -1816,42 +2040,34 @@ async function convertImages() {
     document.getElementById('si-count').textContent = files.length;
     document.getElementById('si-orig').textContent = formatSize(totalOrig);
     document.getElementById('si-final').textContent = formatSize(totalFinal);
-    document.getElementById('si-gain').textContent = '-' + gain + '%';
+    document.getElementById('si-gain').textContent = `-${gain}%`;
     document.getElementById('stats-images').style.display = 'flex';
     showDLAll('images');
   }
 }
 
-// Convertit un fichier image vers le format cible (webp/png), avec ou sans fond transparent
-function imageToTargetFormat(file, format, quality, transparent) {
+function imageToWebP(file, quality) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        canvas.width  = img.naturalWidth;
+        canvas.width = img.naturalWidth;
         canvas.height = img.naturalHeight;
         const ctx = canvas.getContext('2d');
-        // Fond blanc seulement si transparence non demandée
-        if (!transparent) {
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
+        // Fond blanc pour éviter les artefacts transparents
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0);
 
-        if (format === 'png') {
-          // PNG : sans perte, le paramètre quality est ignoré par le navigateur
-          resolve(dataURLtoBlob(canvas.toDataURL('image/png')));
-          return;
-        }
-        // WebP : tester le support en écriture (le quality fonctionne)
+        // Vérifier le support WebP en écriture
         const testWebP = canvas.toDataURL('image/webp', 0.5);
         if (!testWebP.startsWith('data:image/webp')) {
-          // Fallback PNG si WebP non supporté (qualité préservée)
-          resolve(dataURLtoBlob(canvas.toDataURL('image/png')));
-          return;
+          // Navigateur ne supporte pas WebP → fallback JPEG
+          return resolve(dataURLtoBlob(canvas.toDataURL('image/jpeg', quality)));
         }
+
         resolve(dataURLtoBlob(canvas.toDataURL('image/webp', quality)));
       };
       img.onerror = () => reject(new Error('Chargement image échoué'));
@@ -1860,11 +2076,6 @@ function imageToTargetFormat(file, format, quality, transparent) {
     reader.onerror = () => reject(new Error('Lecture fichier échouée'));
     reader.readAsDataURL(file);
   });
-}
-
-// Alias rétro-compatible (gardé au cas où du code externe l'utiliserait)
-function imageToWebP(file, quality) {
-  return imageToTargetFormat(file, 'webp', quality, false);
 }
 
 // ─────────────────────────────────────────────
@@ -2179,7 +2390,12 @@ function convertVideoToWebM(file, bitsPerSec, mimeType, onProgress) {
     const video = document.createElement('video');
     const objectURL = URL.createObjectURL(file);
     video.src = objectURL;
-    video.muted = true;       // REQUIS pour autoplay sans interaction
+    // On NE met PAS muted=true : un élément muté ne fournit aucun signal à
+    // createMediaElementSource, ce qui produit un WebM sans son. On laisse la
+    // vidéo non-mutée mais on évite de la router vers les haut-parleurs (voir
+    // le graphe audio plus bas) pour qu'elle reste silencieuse à l'écoute.
+    video.muted = false;
+    video.volume = 1;
     video.playsInline = true;
     video.preload = 'auto';
 
@@ -2211,10 +2427,17 @@ function convertVideoToWebM(file, bitsPerSec, mimeType, onProgress) {
       let audioTracks = [];
       try {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // Les navigateurs démarrent souvent le contexte en état "suspended"
+        // tant qu'il n'y a pas eu d'interaction : on tente de le reprendre.
+        if (audioCtx.state === 'suspended') {
+          try { await audioCtx.resume(); } catch (_) {}
+        }
         const dest = audioCtx.createMediaStreamDestination();
         const src  = audioCtx.createMediaElementSource(video);
+        // On connecte UNIQUEMENT vers le flux capturé (dest) afin que l'audio
+        // soit enregistré dans le WebM. On NE connecte PAS à audioCtx.destination
+        // (haut-parleurs) pour ne pas entendre la vidéo pendant la conversion.
         src.connect(dest);
-        src.connect(audioCtx.destination);
         audioTracks = dest.stream.getAudioTracks();
       } catch (e) {
         // Audio non disponible → vidéo muette
@@ -2311,6 +2534,21 @@ function addFilesFromListWM(files) {
   const btn = document.getElementById('btn-wm');
   if (btn) btn.disabled = wmState.files.length === 0;
   if (wmState.files.length > 0) updatePreview();
+  // Le bouton "Tout télécharger (ZIP)" devient visible dès qu'il y a des images.
+  // Il reste désactivé tant qu'aucun filigrane n'a été appliqué (voir applyWatermarks).
+  syncWMDownloadBtn();
+}
+
+// Gère la visibilité + l'état actif du bouton ZIP du filigrane
+function syncWMDownloadBtn() {
+  const dlBtn = document.getElementById('dl-wm');
+  if (!dlBtn) return;
+  const hasFiles   = wmState.files.length > 0;
+  const hasOutputs = wmState.outputs.some(b => b);
+  dlBtn.classList.toggle('visible', hasFiles);
+  dlBtn.disabled = !hasOutputs;
+  dlBtn.style.opacity = hasOutputs ? '1' : '0.5';
+  dlBtn.title = hasOutputs ? '' : 'Appliquez d\u2019abord le filigrane';
 }
 
 function renderWMItem(file, idx) {
@@ -2337,6 +2575,7 @@ function removeWMFile(idx) {
   wmState.files.forEach((f, i) => renderWMItem(f, i));
   const btn = document.getElementById('btn-wm');
   if (btn) btn.disabled = wmState.files.length === 0;
+  syncWMDownloadBtn();
 }
 
 function loadLogoWM(input) {
@@ -2529,13 +2768,6 @@ async function applyWatermarks() {
     return;
   }
 
-  // Format de sortie + transparence + qualité
-  const format = (document.getElementById('wm-format') || { value: 'png' }).value;
-  const transparent = !!(document.getElementById('wm-transparent') && document.getElementById('wm-transparent').checked);
-  const quality = parseInt((document.getElementById('wm-quality') || { value: 92 }).value) / 100;
-  const ext = format === 'webp' ? 'webp' : 'png';
-
-  const dlBtn = document.getElementById('dl-wm');
   const pb = document.getElementById('pb-watermark');
   const pw = document.getElementById('prog-watermark');
 
@@ -2549,14 +2781,14 @@ async function applyWatermarks() {
     if (pb) pb.style.width = Math.round((i / wmState.files.length) * 90) + '%';
 
     try {
-      const blob = await applyWMToFile(file, format, transparent, quality);
+      const blob = await applyWMToFile(file);
       wmState.outputs[i] = blob;
-      const fmtLabel = format.toUpperCase() + (transparent ? ' transparent' : '');
-      if (statusEl) { statusEl.className = 'file-status status-done'; statusEl.textContent = '✓ ' + fmtLabel; }
+      const gain = ((1 - blob.size / file.size) * 100).toFixed(1);
+      if (statusEl) { statusEl.className = 'file-status status-done'; statusEl.textContent = '✓ Filigrane ajouté'; }
       if (metaEl) metaEl.textContent = formatSize(file.size) + ' → ' + formatSize(blob.size);
 
-      // Aperçu + bouton "Enregistrer"
-      const outName = file.name.replace(/\.[^.]+$/, '') + '_watermark.' + ext;
+      // Aperçu + bouton "Enregistrer" individuel
+      const outName = file.name.replace(/\.[^.]+$/, '') + '_watermark.png';
       addDownloadBtn('wm', i, blob, outName);
     } catch(e) {
       console.error('Filigrane — erreur sur', file.name, e);
@@ -2565,14 +2797,12 @@ async function applyWatermarks() {
   }
 
   if (pb) pb.style.width = '100%';
-  setTimeout(() => { const pw2 = document.getElementById('prog-watermark'); if (pw2) pw2.classList.remove('visible'); }, 800);
+  setTimeout(() => { if (pw) pw.classList.remove('visible'); }, 800);
   if (btn) btn.disabled = false;
-  if (dlBtn && wmState.outputs.some(b => b)) dlBtn.classList.add('visible');
+  syncWMDownloadBtn();
 }
 
-function applyWMToFile(file, format, transparent, quality) {
-  format = format || 'png';
-  quality = (typeof quality === 'number') ? quality : 0.92;
+function applyWMToFile(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = e => {
@@ -2582,22 +2812,8 @@ function applyWMToFile(file, format, transparent, quality) {
         canvas.width  = img.naturalWidth;
         canvas.height = img.naturalHeight;
         const ctx = canvas.getContext('2d');
-        // Fond blanc seulement si transparence non demandée
-        if (!transparent) {
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
         ctx.drawImage(img, 0, 0);
         applyWatermarkToCanvas(canvas, ctx, canvas.width, canvas.height);
-        if (format === 'webp') {
-          // Tester le support WebP en écriture (compatibilité navigateur)
-          const test = canvas.toDataURL('image/webp', 0.5);
-          if (test.startsWith('data:image/webp')) {
-            resolve(dataURLtoBlob(canvas.toDataURL('image/webp', quality)));
-            return;
-          }
-          // Fallback PNG si WebP indisponible
-        }
         resolve(dataURLtoBlob(canvas.toDataURL('image/png')));
       };
       img.onerror = reject;
@@ -2610,6 +2826,7 @@ function applyWMToFile(file, format, transparent, quality) {
 
 async function downloadZipWM() {
   const btn = document.getElementById('dl-wm');
+  const wmZipIcon = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="2" y="4" width="20" height="4" rx="1"/><path d="M4 8v10a2 2 0 002 2h12a2 2 0 002-2V8"/><path d="M10 12h4"/></svg> Tout télécharger (ZIP)';
   if (btn) { btn.textContent = 'Création ZIP…'; }
   const zip = new JSZip();
   const promises = wmState.outputs.map((blob, i) => {
@@ -2631,10 +2848,10 @@ async function downloadZipWM() {
       await writable.write(zipBlob);
       await writable.close();
       if (btn) btn.textContent = 'ZIP enregistré';
-      setTimeout(() => { if (btn) btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="2" y="4" width="20" height="4" rx="1"/><path d="M4 8v10a2 2 0 002 2h12a2 2 0 002-2V8"/><path d="M10 12h4"/></svg> Tout télécharger (ZIP)'; }, 3000);
+      setTimeout(() => { if (btn) btn.innerHTML = wmZipIcon; }, 3000);
       return;
     } catch(err) {
-      if (err.name === 'AbortError') { if (btn) btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="2" y="4" width="20" height="4" rx="1"/><path d="M4 8v10a2 2 0 002 2h12a2 2 0 002-2V8"/><path d="M10 12h4"/></svg> Tout télécharger (ZIP)'; return; }
+      if (err.name === 'AbortError') { if (btn) btn.innerHTML = wmZipIcon; return; }
     }
   }
   // Fallback
@@ -2643,7 +2860,7 @@ async function downloadZipWM() {
     const a = document.createElement('a');
     a.href = e.target.result; a.download = 'images_filigrane.zip';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    if (btn) btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><rect x="2" y="4" width="20" height="4" rx="1"/><path d="M4 8v10a2 2 0 002 2h12a2 2 0 002-2V8"/><path d="M10 12h4"/></svg> Tout télécharger (ZIP)';
+    if (btn) btn.innerHTML = wmZipIcon;
   };
   reader.readAsDataURL(zipBlob);
 }
@@ -2709,6 +2926,7 @@ function sendToWatermark() {
   // Activer le bouton
   const btn = document.getElementById('btn-wm');
   if (btn) btn.disabled = wmState.files.length === 0;
+  syncWMDownloadBtn();
 
   // Basculer sur l'onglet Filigrane
   switchTab('watermark');
@@ -2719,26 +2937,27 @@ function sendToWatermark() {
 
 
 
-// ── Intervertir les deux images ──
+// ── Intervertir l'image de fond avec l'image du calque actif ──
 function fuSwap() {
-  // Swap images
-  [fu.bgImg, fu.topImg] = [fu.topImg, fu.bgImg];
+  const t = fuCurTop();
+  if (!fu.bgImg && !t.img) return;
+  const tmp = fu.bgImg;
+  fu.bgImg = t.img;
+  t.img = tmp;
 
-  // Swap thumbs
+  // Mise à jour vignette de fond
   const bgThumb  = document.getElementById('fu-bg-thumb');
-  const topThumb = document.getElementById('fu-top-thumb');
   const bgLabel  = document.getElementById('fu-bg-label');
-  const topLabel = document.getElementById('fu-top-label');
-
-  const tmpSrc  = bgThumb.src;
-  const tmpDisp = bgThumb.style.display;
-  bgThumb.src   = topThumb.src;   bgThumb.style.display  = topThumb.style.display;
-  topThumb.src  = tmpSrc;         topThumb.style.display = tmpDisp;
-
-  const tmpLbl   = bgLabel.style.display;
-  bgLabel.style.display  = topLabel.style.display;
-  topLabel.style.display = tmpLbl;
-
+  if (fu.bgImg) {
+    bgThumb.src = fu.bgImg.src;
+    bgThumb.style.display = 'block';
+    bgLabel.style.display = 'none';
+  } else {
+    bgThumb.style.display = 'none';
+    bgLabel.style.display = 'block';
+  }
+  // Mise à jour vignette du calque actif
+  fuRefreshLayerSlot(fu.activeLayer);
   fuUpdate();
 }
 
@@ -2766,6 +2985,7 @@ function fuSendToWatermark() {
 
   const btn = document.getElementById('btn-wm');
   if (btn) btn.disabled = false;
+  syncWMDownloadBtn();
 
   // Basculer sur Filigrane
   switchTab('watermark');
@@ -2776,24 +2996,493 @@ function fuSendToWatermark() {
 // FUSION
 // ═══════════════════════════════════════════════
 const fu = {
-  bgImg: null, topImg: null,
-  x: 0, y: 0,           // position top image (% du fond)
+  bgImg: null,
+  // Image de fond — désormais traitée comme un calque (déplaçable, redimensionnable, etc.)
+  bg: { x: 0.5, y: 0.5, size: 100, opacity: 100, rotation: 0, visible: true },
+  // 3 calques superposés
+  tops: [
+    { img: null, x: 0.5, y: 0.5, size: 60, opacity: 100, rotation: 0, visible: true },
+    { img: null, x: 0.5, y: 0.5, size: 60, opacity: 100, rotation: 0, visible: true },
+    { img: null, x: 0.5, y: 0.5, size: 60, opacity: 100, rotation: 0, visible: true },
+  ],
+  // Index unifié : 0 = image de fond, 1/2/3 = calques superposés
+  activeLayer: 0,
   gradMode: 'none',
-  gradPx: 0.5, gradPy: 0.5, // point libre en coords canvas (0-1)
-  gradPxTop: 0.5, gradPyTop: 0.5, // point en coords relatives à l'image top (0-1)
-  // bgMode supprimé — couleur et image coexistent
+  gradPx: 0.5, gradPy: 0.5,
+  gradPxTop: 0.5, gradPyTop: 0.5,
   logoImg: null,
   logoPos: 'top-left',
-  logoLayer: 'front',   // 'front' = devant les photos | 'behind' = derrière
-  logoFreeX: 0.85,     // position libre logo (0-1)
+  logoLayer: 'front',
+  logoFreeX: 0.85,
   logoFreeY: 0.05,
   dragging: false,
   dragStartX: 0, dragStartY: 0,
   imgStartX: 0, imgStartY: 0,
   pointMode: false,
-  pointLocked: false,  // point verrouillé
-  dragMode: 'top',     // 'top' = déplacer image | 'point' = placer point
+  pointLocked: false,
+  dragMode: 'top',
+  layoutMode: 'fusion',  // 'fusion' | 'grid' | 'grid6'
+  // Mode Grid 6 ID : 6 photos d'identité indépendantes (35×45 mm sur planche 10×15 cm)
+  idPhotos: Array.from({ length: 6 }, () => ({
+    img: null, x: 0.5, y: 0.5, size: 100, opacity: 100, rotation: 0, visible: true
+  })),
+  activeIdCell: 0,  // 0..5 — case sélectionnée en mode Grid 6 ID
 };
+
+// Helpers unifiés : le calque actif est soit le fond (idx 0) soit l'un des 3 superposés
+function fuCurLayer() {
+  return fu.activeLayer === 0 ? fu.bg : fu.tops[fu.activeLayer - 1];
+}
+function fuCurImg() {
+  return fu.activeLayer === 0 ? fu.bgImg : fu.tops[fu.activeLayer - 1].img;
+}
+function fuAnyTop() { return fu.tops.some(t => t.img); }
+// Compatibilité — ancien nom utilisé ailleurs
+function fuCurTop() { return fuCurLayer(); }
+
+// Bascule la visibilité d'une case (œil afficher/masquer)
+// idx : 0 = image de fond, 1/2/3 = calques superposés
+function fuToggleVisible(idx, evt) {
+  if (evt) evt.stopPropagation();
+  const layer = idx === 0 ? fu.bg : fu.tops[idx - 1];
+  layer.visible = !layer.visible;
+  fuUpdateEyeIcon(idx);
+  fuUpdate();
+}
+
+// Plie / déplie une section de la sidebar (accordéon : une seule ouverte à la fois)
+function fuToggleCollapse(groupEl) {
+  const wasCollapsed = groupEl.classList.contains('fu-collapsed');
+  // Replier toutes les autres sections pliables
+  document.querySelectorAll('.fu-collapsible').forEach(g => {
+    if (g !== groupEl) g.classList.add('fu-collapsed');
+  });
+  // Basculer celle-ci : si elle était repliée, on la déplie ; si elle était dépliée, on la replie
+  if (wasCollapsed) groupEl.classList.remove('fu-collapsed');
+  else groupEl.classList.add('fu-collapsed');
+}
+
+// Bascule entre Mode Fusion, Mode Grid 2×2 et Mode Grid 6 ID
+function fuSetLayoutMode(mode) {
+  fu.layoutMode = mode;
+  document.querySelectorAll('.fu-layout-badge').forEach(b => {
+    b.classList.toggle('fu-layout-active', b.dataset.layout === mode);
+  });
+  // Légende d'aide visible uniquement en Grid 6 ID
+  const hint = document.getElementById('fu-grid6-hint');
+  if (hint) hint.style.display = mode === 'grid6' ? 'block' : 'none';
+  // Synchronise les sliders avec la case/calque actif du nouveau mode
+  fuSyncControlsFromLayer();
+  fuUpdate();
+}
+
+// Renvoie les rectangles des 4 cases en mode Grid 2×2 (sur un canvas WxH)
+// Cases dans l'ordre : 0 = haut-gauche (image de fond), 1 = haut-droite (calque 1),
+// 2 = bas-gauche (calque 2), 3 = bas-droite (calque 3).
+function fuGridCells(W, H) {
+  const border = Math.max(8, Math.round(Math.min(W, H) * 0.02));
+  const cellW = (W - 3 * border) / 2;
+  const cellH = (H - 3 * border) / 2;
+  return [
+    { x: border,                y: border,                w: cellW, h: cellH, border },
+    { x: border + cellW + border, y: border,              w: cellW, h: cellH, border },
+    { x: border,                y: border + cellH + border, w: cellW, h: cellH, border },
+    { x: border + cellW + border, y: border + cellH + border, w: cellW, h: cellH, border },
+  ];
+}
+
+// Renvoie l'image et le layer correspondant à une case (0..3)
+function fuLayerForCell(cellIdx) {
+  if (cellIdx === 0) return { layer: fu.bg,        img: fu.bgImg,        layerIdx: 0 };
+  return                       { layer: fu.tops[cellIdx - 1], img: fu.tops[cellIdx - 1].img, layerIdx: cellIdx };
+}
+
+// Détermine la case sous un point (coordonnées en pixels canvas)
+function fuCellAt(px, py, W, H) {
+  const cells = fuGridCells(W, H);
+  for (let i = 0; i < cells.length; i++) {
+    const c = cells[i];
+    if (px >= c.x && px <= c.x + c.w && py >= c.y && py <= c.y + c.h) return i;
+  }
+  return -1;
+}
+
+// Dessine la grille 2×2 dans le contexte ctx (de taille W×H)
+// forExport=true : pas de bordure de sélection (le résultat final ne doit pas montrer
+// l'aide visuelle de sélection du calque actif).
+// transparentBg=true : ne pas remplir les bordures de blanc (PNG transparent)
+function fuRenderGrid(ctx, W, H, forExport, transparentBg) {
+  // Fond blanc complet : sert de bordure homogène (sauf si fond transparent demandé)
+  if (!transparentBg) {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  const cells = fuGridCells(W, H);
+  cells.forEach((c, idx) => {
+    const { layer, img } = fuLayerForCell(idx);
+    // Fond gris très léger dans la case (visible si vide) — masqué en mode transparent
+    if (!transparentBg) {
+      ctx.fillStyle = '#f0f2f7';
+      ctx.fillRect(c.x, c.y, c.w, c.h);
+    }
+
+    if (!img || !layer.visible) return;
+
+    ctx.save();
+    // Clip à la case pour que l'image ne déborde pas
+    ctx.beginPath();
+    ctx.rect(c.x, c.y, c.w, c.h);
+    ctx.clip();
+
+    const sizePct = layer.size / 100;
+    const opacity = layer.opacity / 100;
+    // Taille de l'image : sizePct × largeur de la case ; ratio préservé
+    const imgW = c.w * sizePct;
+    const imgH = imgW * img.height / img.width;
+    // x/y du calque (0-1) = position dans la case
+    const imgX = c.x + layer.x * c.w - imgW / 2;
+    const imgY = c.y + layer.y * c.h - imgH / 2;
+
+    ctx.globalAlpha = opacity;
+    if (layer.rotation) {
+      const cx = imgX + imgW / 2, cy = imgY + imgH / 2;
+      ctx.translate(cx, cy);
+      ctx.rotate(layer.rotation * Math.PI / 180);
+      ctx.translate(-cx, -cy);
+    }
+    ctx.drawImage(img, imgX, imgY, imgW, imgH);
+
+    // Transparence progressive sur la case active uniquement
+    const isActive = idx === fu.activeLayer;
+    if (isActive && fu.gradMode !== 'none') {
+      const gradSize = parseInt(document.getElementById('fu-grad-size').value) / 100;
+      const grd = fuMakeGradient(ctx, c.w, c.h, imgX - c.x, imgY - c.y, imgW, imgH, gradSize);
+      // fuMakeGradient calcule en coords locales ; on recalcule en coords canvas
+      const grd2 = fuMakeGradient(ctx, W, H, imgX, imgY, imgW, imgH, gradSize);
+      if (grd2) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.fillStyle = grd2;
+        ctx.fillRect(c.x, c.y, c.w, c.h);
+        ctx.restore();
+      }
+    }
+
+    ctx.restore();
+
+    // Mettre en valeur la case active avec une bordure intérieure bleu marine
+    // (uniquement à l'écran ; jamais dans le fichier exporté)
+    if (idx === fu.activeLayer && !forExport) {
+      ctx.save();
+      ctx.strokeStyle = '#001A4D';
+      ctx.lineWidth = Math.max(2, Math.round(c.border * 0.25));
+      const inset = ctx.lineWidth / 2;
+      ctx.strokeRect(c.x + inset, c.y + inset, c.w - ctx.lineWidth, c.h - ctx.lineWidth);
+      ctx.restore();
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════
+// MODE GRID 6 ID : planche 10×15 cm, 6 photos 35×45 mm
+// ═══════════════════════════════════════════════
+
+// Calcule les 6 rectangles de photo sur la planche W×H (ratio 2:3 portrait)
+// Layout : 2 colonnes × 3 lignes
+// - Photo : 35×45 mm → 35% W et 30% H
+// - Marges H : 10 mm (10% W) ; marges V : (H - 3*photoH) / 4
+function fuGrid6Cells(W, H) {
+  const photoW = 0.35 * W;
+  const photoH = 0.30 * H;
+  const marginH = 0.10 * W;
+  const marginV = (H - 3 * photoH) / 4;
+  const cells = [];
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 2; col++) {
+      cells.push({
+        x: marginH + col * (photoW + marginH),
+        y: marginV + row * (photoH + marginV),
+        w: photoW,
+        h: photoH
+      });
+    }
+  }
+  return cells;
+}
+
+// Renvoie l'index de la case sous (px, py), ou -1 si en dehors
+function fuGrid6CellAt(px, py, W, H) {
+  const cells = fuGrid6Cells(W, H);
+  for (let i = 0; i < cells.length; i++) {
+    const c = cells[i];
+    if (px >= c.x && px <= c.x + c.w && py >= c.y && py <= c.y + c.h) return i;
+  }
+  return -1;
+}
+
+// Dessine la planche 6 ID dans le contexte ctx (de taille W×H)
+function fuRenderGrid6ID(ctx, W, H, forExport, transparentBg) {
+  // Fond blanc de la planche (sauf si fond transparent demandé)
+  if (!transparentBg) {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  const cells = fuGrid6Cells(W, H);
+  cells.forEach((c, idx) => {
+    const photo = fu.idPhotos[idx];
+
+    if (photo.img && photo.visible) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(c.x, c.y, c.w, c.h);
+      ctx.clip();
+
+      const sizePct = photo.size / 100;
+      const opacity = photo.opacity / 100;
+      // Pour qu'une photo non recadrée remplisse au mieux la case : on calcule
+      // un "facteur de remplissage" basé sur le ratio. À 100 %, la photo
+      // couvre la case en utilisant la dimension la plus contraignante (cover).
+      const ratioImg = photo.img.width / photo.img.height;
+      const ratioCell = c.w / c.h;
+      let baseW, baseH;
+      if (ratioImg > ratioCell) {
+        // image plus large que la case → on cale sur la hauteur
+        baseH = c.h;
+        baseW = baseH * ratioImg;
+      } else {
+        baseW = c.w;
+        baseH = baseW / ratioImg;
+      }
+      const imgW = baseW * sizePct;
+      const imgH = baseH * sizePct;
+      const imgX = c.x + photo.x * c.w - imgW / 2;
+      const imgY = c.y + photo.y * c.h - imgH / 2;
+
+      ctx.globalAlpha = opacity;
+      if (photo.rotation) {
+        const cx = imgX + imgW / 2, cy = imgY + imgH / 2;
+        ctx.translate(cx, cy);
+        ctx.rotate(photo.rotation * Math.PI / 180);
+        ctx.translate(-cx, -cy);
+      }
+      ctx.drawImage(photo.img, imgX, imgY, imgW, imgH);
+      ctx.restore();
+    } else if (!forExport) {
+      // Aperçu uniquement : remplir d'un gris clair + numéro central
+      ctx.save();
+      ctx.fillStyle = '#f5f5f7';
+      ctx.fillRect(c.x, c.y, c.w, c.h);
+      ctx.fillStyle = '#bbb';
+      ctx.font = 'bold ' + Math.round(Math.min(c.w, c.h) * 0.22) + 'px Syne, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(String(idx + 1), c.x + c.w / 2, c.y + c.h / 2);
+      ctx.restore();
+    }
+
+    // Cadre fin gris autour de la case (utile à l'aperçu, omis à l'export)
+    if (!forExport) {
+      ctx.save();
+      ctx.strokeStyle = '#d0d4dc';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(c.x + 0.5, c.y + 0.5, c.w - 1, c.h - 1);
+      ctx.restore();
+    }
+
+    // Liséré bleu marine sur la case active (aperçu seulement)
+    if (idx === fu.activeIdCell && !forExport) {
+      ctx.save();
+      ctx.strokeStyle = '#001A4D';
+      ctx.lineWidth = 2.5;
+      ctx.strokeRect(c.x + 1.25, c.y + 1.25, c.w - 2.5, c.h - 2.5);
+      ctx.restore();
+    }
+  });
+}
+
+// Sélectionne une case du mode Grid 6 ID + synchronise les sliders
+function fuSetActiveIdCell(idx) {
+  if (idx < 0 || idx > 5) return;
+  fu.activeIdCell = idx;
+  fuSyncControlsFromLayer();
+  fuUpdate();
+}
+
+// Charge une image dans une case ID (depuis un File, un objet Image ou une dataURL)
+function fuLoadIntoIdCell(idx, source) {
+  // Réinitialise les paramètres pour que la nouvelle photo remplisse la case (cover)
+  const resetPhoto = (img) => {
+    fu.idPhotos[idx].img = img;
+    fu.idPhotos[idx].size = 100;
+    fu.idPhotos[idx].x = 0.5;
+    fu.idPhotos[idx].y = 0.5;
+    fu.idPhotos[idx].rotation = 0;
+    fu.idPhotos[idx].opacity = 100;
+    fu.idPhotos[idx].visible = true;
+    fu.activeIdCell = idx;
+    fuSyncControlsFromLayer();
+    fuUpdate();
+  };
+  if (source instanceof Image) {
+    resetPhoto(source);
+    return;
+  }
+  if (source instanceof File || source instanceof Blob) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => resetPhoto(img);
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(source);
+    return;
+  }
+  if (typeof source === 'string') {
+    const img = new Image();
+    img.onload = () => resetPhoto(img);
+    img.src = source;
+  }
+}
+
+function fuClearIdCell(idx) {
+  fu.idPhotos[idx].img = null;
+  fuUpdate();
+}
+
+// Démarre le drag d'une tuile (Image de fond ou Calque 1/2/3).
+// Cible possible : autre tuile (échange) ou case ID en mode Grid 6 (copie).
+function fuTileDragStart(evt, layerIdx) {
+  const srcImg = layerIdx === 0 ? fu.bgImg : (fu.tops[layerIdx - 1] && fu.tops[layerIdx - 1].img);
+  if (!srcImg) { evt.preventDefault(); return; }
+  evt.dataTransfer.setData('text/plain', String(layerIdx));
+  evt.dataTransfer.effectAllowed = 'copyMove';
+}
+
+// Drop sur une tuile : soit un fichier OS (chargement), soit une autre tuile (échange)
+function fuTileDragOver(evt) {
+  evt.preventDefault();
+  evt.dataTransfer.dropEffect = 'copy';
+}
+
+function fuTileDrop(evt, targetIdx) {
+  evt.preventDefault();
+  evt.stopPropagation();
+  // 1) Fichier OS déposé
+  const file = evt.dataTransfer.files && evt.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) {
+    fuLoadIntoTile(targetIdx, file);
+    return;
+  }
+  // 2) Drag depuis une autre tuile → échange des images
+  const data = evt.dataTransfer.getData('text/plain');
+  if (data !== '') {
+    const srcIdx = parseInt(data);
+    if (!isNaN(srcIdx) && srcIdx !== targetIdx) {
+      fuSwapImages(srcIdx, targetIdx);
+    }
+  }
+}
+
+// Charge un fichier image dans une tuile (idx 0 = fond, 1/2/3 = calques superposés)
+function fuLoadIntoTile(idx, file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      if (idx === 0) {
+        fu.bgImg = img;
+      } else {
+        fu.tops[idx - 1].img = img;
+      }
+      // En mode Grid 2×2 : l'image neuve remplit sa case à 100 % (recentrée, sans rotation).
+      // Le mode Fusion garde le comportement d'origine (calques plus petits pour superposition).
+      if (fu.layoutMode === 'grid') {
+        const layer = idx === 0 ? fu.bg : fu.tops[idx - 1];
+        layer.size = 100;
+        layer.x = 0.5;
+        layer.y = 0.5;
+        layer.rotation = 0;
+      }
+      fuRefreshTileImg(idx);
+      fuSetActiveLayer(idx);
+      fuUpdate();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// Ouvre un sélecteur de fichier pour la tuile (déclenché par double-clic)
+function fuTileUpload(idx) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.jpg,.jpeg,.png,.webp';
+  input.style.display = 'none';
+  input.onchange = () => {
+    const file = input.files[0];
+    if (file) fuLoadIntoTile(idx, file);
+    document.body.removeChild(input);
+  };
+  document.body.appendChild(input);
+  input.click();
+}
+
+function fuUpdateEyeIcon(idx) {
+  const layer = idx === 0 ? fu.bg : fu.tops[idx - 1];
+  const btn = document.getElementById('fu-eye-' + idx);
+  if (!btn) return;
+  // SVG œil ouvert / œil barré
+  if (layer.visible) {
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+    btn.title = 'Masquer';
+    btn.classList.remove('fu-eye-off');
+  } else {
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+    btn.title = 'Afficher';
+    btn.classList.add('fu-eye-off');
+  }
+}
+
+// Échange les IMAGES entre deux cases (idx 0=fond, 1/2/3=calques)
+// Les paramètres (taille/opacité/rotation/position/visible) restent attachés à la case ;
+// seules les images se déplacent. Cela préserve les réglages de mise en page.
+function fuSwapImages(idxA, idxB, evt) {
+  if (evt) evt.stopPropagation();
+  if (idxA === idxB) return;
+  // Référence vers l'image de chaque case
+  const getImg = (i) => i === 0 ? fu.bgImg : fu.tops[i - 1].img;
+  const setImg = (i, img) => { if (i === 0) fu.bgImg = img; else fu.tops[i - 1].img = img; };
+  const a = getImg(idxA);
+  const b = getImg(idxB);
+  setImg(idxA, b);
+  setImg(idxB, a);
+  // Rafraîchir les vignettes des deux cases
+  fuRefreshTileImg(idxA);
+  fuRefreshTileImg(idxB);
+  fuUpdate();
+}
+
+// Met à jour la vignette/label/croix d'une case (peu importe son type fond/calque)
+function fuRefreshTileImg(idx) {
+  if (idx === 0) {
+    const thumb = document.getElementById('fu-bg-thumb');
+    const label = document.getElementById('fu-bg-label');
+    const clrBtn = document.getElementById('fu-clear-bg');
+    if (fu.bgImg) {
+      if (thumb) { thumb.src = fu.bgImg.src; thumb.style.display = 'block'; }
+      if (label) label.style.display = 'none';
+      if (clrBtn) clrBtn.style.display = 'flex';
+    } else {
+      if (thumb) thumb.style.display = 'none';
+      if (label) label.style.display = 'block';
+      if (clrBtn) clrBtn.style.display = 'none';
+    }
+  } else {
+    fuRefreshLayerSlot(idx - 1);
+  }
+}
 
 
 // ── Fond : mode image / couleur ──
@@ -2903,30 +3592,177 @@ function fuLoadBg(input) {
       const thumb = document.getElementById('fu-bg-thumb');
       thumb.src = e.target.result; thumb.style.display = 'block';
       document.getElementById('fu-bg-label').style.display = 'none';
+      const clrBtn = document.getElementById('fu-clear-bg');
+      if (clrBtn) clrBtn.style.display = 'flex';
+      // Activer le calque "image de fond"
+      fuSetActiveLayer(0);
       fuUpdate();
     };
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
+  input.value = '';
 }
 
-function fuLoadTop(input) {
+function fuClearBg() {
+  fu.bgImg = null;
+  const thumb = document.getElementById('fu-bg-thumb');
+  const label = document.getElementById('fu-bg-label');
+  const clrBtn = document.getElementById('fu-clear-bg');
+  if (thumb) thumb.style.display = 'none';
+  if (label) label.style.display = 'block';
+  if (clrBtn) clrBtn.style.display = 'none';
+  fuUpdate();
+}
+
+// ── Calques (image de fond + 3 calques superposés, sélection unifiée) ──
+
+// Sauvegarde l'état courant de la transparence progressive dans le calque donné.
+// idx : 0 = image de fond, 1/2/3 = calques superposés
+function fuSaveGradTo(idx) {
+  const layer = idx === 0 ? fu.bg : fu.tops[idx - 1];
+  if (!layer) return;
+  layer.gradSnap = {
+    mode: fu.gradMode,
+    px: fu.gradPx, py: fu.gradPy,
+    pxTop: fu.gradPxTop, pyTop: fu.gradPyTop,
+    locked: fu.pointLocked
+  };
+}
+
+// Restaure l'état de transparence depuis le calque donné dans les variables globales.
+// Si le calque n'a pas encore de snapshot, on réinitialise à 'none'.
+function fuLoadGradFrom(idx) {
+  const layer = idx === 0 ? fu.bg : fu.tops[idx - 1];
+  const s = layer && layer.gradSnap;
+  if (s) {
+    fu.gradMode = s.mode;
+    fu.gradPx = s.px; fu.gradPy = s.py;
+    fu.gradPxTop = s.pxTop; fu.gradPyTop = s.pyTop;
+    fu.pointLocked = s.locked;
+  } else {
+    fu.gradMode = 'none';
+    fu.gradPx = 0.5; fu.gradPy = 0.5;
+    fu.gradPxTop = 0.5; fu.gradPyTop = 0.5;
+    fu.pointLocked = false;
+  }
+  fuSyncGradUI();
+}
+
+// Synchronise l'UI (boutons mode + verrou) avec les variables globales
+function fuSyncGradUI() {
+  // Boutons de mode de dégradé
+  document.querySelectorAll('.fu-grad-btn').forEach(b => {
+    b.classList.toggle('fu-active', b.dataset.grad === fu.gradMode);
+  });
+  // Bouton de verrouillage du point
+  const lockBtn = document.getElementById('fu-point-lock');
+  if (lockBtn) {
+    lockBtn.textContent = fu.pointLocked ? '🔒 Verrouillé' : '🔓 Libre';
+  }
+  // Indicateur de position (s'il existe)
+  const status = document.getElementById('fu-point-status');
+  if (status) {
+    if (fu.pointLocked) {
+      status.textContent = '🔒 Position fixe (' + Math.round(fu.gradPx*100) + '%, ' + Math.round(fu.gradPy*100) + '%)';
+      status.style.color = 'var(--accent1)';
+    } else {
+      status.textContent = 'Position libre — cliquez sur l\u2019aperçu';
+      status.style.color = 'var(--muted)';
+    }
+  }
+}
+
+function fuSetActiveLayer(idx) {
+  // Sauvegarder l'état de transparence du calque sortant
+  fuSaveGradTo(fu.activeLayer);
+
+  fu.activeLayer = idx;
+  // Mise à jour visuelle des 4 tuiles (bordure bleu marine sur l'active)
+  document.querySelectorAll('.fu-layer-tile').forEach(tile => {
+    tile.classList.toggle('fu-active', parseInt(tile.dataset.layer) === idx);
+  });
+  // Synchroniser les sliders avec le calque actif
+  fuSyncControlsFromLayer();
+  // Restaurer l'état de transparence du nouveau calque actif
+  fuLoadGradFrom(idx);
+  fuUpdate();
+}
+
+// Met à jour la vignette + croix d'un slot donné
+function fuRefreshLayerSlot(idx) {
+  const t = fu.tops[idx];
+  const thumb = document.getElementById('fu-top-thumb-' + idx);
+  const label = document.getElementById('fu-top-label-' + idx);
+  const clrBtn = document.getElementById('fu-clear-' + idx);
+  if (t.img) {
+    if (thumb) { thumb.src = t.img.src; thumb.style.display = 'block'; }
+    if (label) label.style.display = 'none';
+    if (clrBtn) clrBtn.style.display = 'flex';
+  } else {
+    if (thumb) thumb.style.display = 'none';
+    if (label) label.style.display = 'block';
+    if (clrBtn) clrBtn.style.display = 'none';
+  }
+}
+
+// Lit les valeurs des sliders et les écrit dans le calque actif
+function fuSyncLayerFromControls() {
+  const t = fu.layoutMode === 'grid6' ? fu.idPhotos[fu.activeIdCell] : fuCurTop();
+  const size = parseInt(document.getElementById('fu-size').value);
+  const op   = parseInt(document.getElementById('fu-opacity').value);
+  const rot  = parseInt(document.getElementById('fu-rotation').value);
+  t.size = size;
+  t.opacity = op;
+  t.rotation = rot;
+  const sv = document.getElementById('fu-size-val');     if (sv) sv.textContent = size + '%';
+  const ov = document.getElementById('fu-opacity-val');  if (ov) ov.textContent = op + '%';
+  const rv = document.getElementById('fu-rotation-val'); if (rv) rv.textContent = rot + '\u00b0';
+}
+
+// Synchronise les sliders avec les valeurs mémorisées du calque actif
+function fuSyncControlsFromLayer() {
+  const t = fu.layoutMode === 'grid6' ? fu.idPhotos[fu.activeIdCell] : fuCurTop();
+  const sz = document.getElementById('fu-size');     if (sz) sz.value = t.size;
+  const op = document.getElementById('fu-opacity');  if (op) op.value = t.opacity;
+  const ro = document.getElementById('fu-rotation'); if (ro) ro.value = t.rotation;
+  const sv = document.getElementById('fu-size-val');     if (sv) sv.textContent = t.size + '%';
+  const ov = document.getElementById('fu-opacity-val');  if (ov) ov.textContent = t.opacity + '%';
+  const rv = document.getElementById('fu-rotation-val'); if (rv) rv.textContent = t.rotation + '\u00b0';
+  // Met à jour le label du calque actif dans la sidebar
+  const lbl = document.getElementById('fu-active-layer-label');
+  if (lbl) {
+    if (fu.layoutMode === 'grid6') lbl.textContent = '(Photo ' + (fu.activeIdCell + 1) + ')';
+    else if (fu.activeLayer === 0) lbl.textContent = '(Image de fond)';
+    else lbl.textContent = '(Calque ' + fu.activeLayer + ')';
+  }
+}
+
+function fuClearLayer(idx) {
+  fu.tops[idx].img = null;
+  fuRefreshLayerSlot(idx);
+  // Le calque actif correspond-il à ce calque superposé ? (activeLayer 1/2/3 → tops[0/1/2])
+  if (fu.activeLayer === idx + 1) fuSyncControlsFromLayer();
+  fuUpdate();
+}
+
+// Chargement d'une image dans un calque spécifique (idx = 0..2 pour les superposés)
+function fuLoadTopInto(idx, input) {
   const file = input.files[0]; if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
     const img = new Image();
     img.onload = () => {
-      fu.topImg = img;
-      // Position initiale : centré
-      fu.x = 0.5; fu.y = 0.5;
-      const thumb = document.getElementById('fu-top-thumb');
-      thumb.src = e.target.result; thumb.style.display = 'block';
-      document.getElementById('fu-top-label').style.display = 'none';
+      fu.tops[idx].img = img;
+      // Activer ce calque (activeLayer 1/2/3)
+      fuSetActiveLayer(idx + 1);
+      fuRefreshLayerSlot(idx);
       fuUpdate();
     };
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
+  input.value = '';
 }
 
 function fuSetGrad(mode, btn) {
@@ -2945,75 +3781,160 @@ function fuSetGrad(mode, btn) {
 }
 
 function fuUpdate() {
-  if (!fu.bgImg) return;
-
   const canvas = document.getElementById('fu-canvas');
   const wrap = document.getElementById('fu-canvas-wrap');
   const placeholder = document.getElementById('fu-placeholder');
-  const btnExport = document.getElementById('btn-fusion');
+  const btnPng  = document.getElementById('btn-fusion-png');
+  const btnPngC = document.getElementById('btn-fusion-png-c');
+  const btnWebp = document.getElementById('btn-fusion-webp');
+  if (!canvas || !wrap) return;
 
-  // Vérifier qu'on a au moins un fond ou une image
-  // On peut composer même sans bgImg (couleur seule suffit)
-
-  // Taille canvas = fond
+  const firstTop = fu.tops.find(t => t.img);
   const maxW = wrap.clientWidth || 600;
-  const refW = fu.bgImg ? fu.bgImg.width  : (fu.topImg ? fu.topImg.width  : 800);
-  const refH = fu.bgImg ? fu.bgImg.height : (fu.topImg ? fu.topImg.height : 600);
-  const scale = Math.min(1, maxW / refW);
-  canvas.width  = Math.round(refW * scale);
-  canvas.height = Math.round(refH * scale);
 
-  placeholder.style.display = 'none';
+  // Taille du canvas selon le mode
+  if (fu.layoutMode === 'grid') {
+    // Mode Grid 2×2 : ratio paysage fixe (16:9 → 2×16:9 cellules + bordures)
+    const cellW = 800, cellH = 450;
+    const border = 30;
+    const totalW = cellW * 2 + border * 3;
+    const totalH = cellH * 2 + border * 3;
+    const scale = Math.min(1, maxW / totalW);
+    canvas.width  = Math.round(totalW * scale);
+    canvas.height = Math.round(totalH * scale);
+  } else if (fu.layoutMode === 'grid6') {
+    // Mode Grid 6 ID : planche 10×15 cm portrait → ratio 2:3
+    const totalW = 1000, totalH = 1500; // unités arbitraires, ratio respecté
+    const scale = Math.min(1, maxW / totalW);
+    canvas.width  = Math.round(totalW * scale);
+    canvas.height = Math.round(totalH * scale);
+  } else {
+    const refW = fu.bgImg ? fu.bgImg.width  : (firstTop ? firstTop.img.width  : 800);
+    const refH = fu.bgImg ? fu.bgImg.height : (firstTop ? firstTop.img.height : 600);
+    const scale = Math.min(1, maxW / refW);
+    canvas.width  = Math.round(refW * scale);
+    canvas.height = Math.round(refH * scale);
+  }
+
+  if (placeholder) placeholder.style.display = 'none';
   canvas.style.display = 'block';
 
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // 1. Couleur de fond (toujours en premier)
-  const col = document.getElementById('fu-bg-color');
-  ctx.fillStyle = col ? col.value : '#ffffff';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // Détecte si l'utilisateur a coché "fond transparent"
+  const transparentEl = document.getElementById('fu-transparent-bg');
+  const transparentBg = !!(transparentEl && transparentEl.checked);
+  // Affiche un damier de transparence derrière le canvas dans ce cas
+  if (wrap) wrap.classList.toggle('fu-transparent', transparentBg);
 
-  // 2. Logo DERRIÈRE tout (entre couleur et image de fond)
+  // Mise à jour des étiquettes de sliders du calque actif
+  const gradSize = parseInt(document.getElementById('fu-grad-size').value) / 100;
+  const gradSizeVal = document.getElementById('fu-grad-size-val');
+  if (gradSizeVal) gradSizeVal.textContent = Math.round(gradSize * 100) + '%';
+
+  // Activer les boutons d'export dès qu'il y a quelque chose à exporter
+  const hasIdPhoto = fu.idPhotos.some(p => p.img);
+  const canExport = !!(fu.bgImg || firstTop) || (fu.layoutMode === 'grid6' && hasIdPhoto);
+  if (btnPng)  btnPng.disabled  = !canExport;
+  if (btnPngC) btnPngC.disabled = !canExport;
+  if (btnWebp) btnWebp.disabled = !canExport;
+
+  // ───── BRANCHEMENT SELON LE MODE ─────
+  if (fu.layoutMode === 'grid') {
+    fuRenderGrid(ctx, canvas.width, canvas.height, false, transparentBg);
+    // Logo et textes au-dessus de la grille
+    if (fu.logoLayer === 'front') fuDrawLogo(ctx, canvas.width, canvas.height);
+    fuDrawTexts(ctx, canvas.width, canvas.height);
+    return;
+  }
+  if (fu.layoutMode === 'grid6') {
+    fuRenderGrid6ID(ctx, canvas.width, canvas.height, false, transparentBg);
+    return;
+  }
+
+  // ───── MODE FUSION (comportement original) ─────
+  // 1. Couleur de fond (sauf si "fond transparent" est coché)
+  if (!transparentBg) {
+    const col = document.getElementById('fu-bg-color');
+    ctx.fillStyle = col ? col.value : '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  // 2. Logo derrière
   if (fu.logoLayer === 'behind') fuDrawLogo(ctx, canvas.width, canvas.height);
 
-  // 3. Image de fond par-dessus (si chargée)
-  if (fu.bgImg) ctx.drawImage(fu.bgImg, 0, 0, canvas.width, canvas.height);
+  // 3. Image de fond — traitée comme un calque (size, opacity, rotation, x/y)
+  if (fu.bgImg && fu.bg.visible) {
+    const sz = fu.bg.size / 100;
+    const op = fu.bg.opacity / 100;
+    const bw = Math.round(canvas.width * sz);
+    const bh = Math.round(bw * fu.bgImg.height / fu.bgImg.width);
+    const bx = Math.round(fu.bg.x * canvas.width  - bw / 2);
+    const by = Math.round(fu.bg.y * canvas.height - bh / 2);
+    ctx.save();
+    ctx.globalAlpha = op;
+    if (fu.bg.rotation) {
+      const cx = bx + bw / 2, cy = by + bh / 2;
+      ctx.translate(cx, cy);
+      ctx.rotate(fu.bg.rotation * Math.PI / 180);
+      ctx.translate(-cx, -cy);
+    }
+    ctx.drawImage(fu.bgImg, bx, by, bw, bh);
+    ctx.restore();
+  }
 
-  if (fu.topImg) {
-    btnExport.disabled = false;
-    const sizePct = parseInt(document.getElementById('fu-size').value) / 100;
-    document.getElementById('fu-size-val').textContent = Math.round(sizePct * 100) + '%';
-    const opacity = parseInt(document.getElementById('fu-opacity').value) / 100;
-    document.getElementById('fu-opacity-val').textContent = Math.round(opacity * 100) + '%';
-    const gradSize = parseInt(document.getElementById('fu-grad-size').value) / 100;
-    document.getElementById('fu-grad-size-val').textContent = Math.round(gradSize * 100) + '%';
-
-    // Taille image top
+  // 4. Les 3 calques superposés (dans l'ordre 1, 2, 3)
+  fu.tops.forEach((t, idx) => {
+    if (!t.img || !t.visible) return;
+    const sizePct = t.size / 100;
+    const opacity = t.opacity / 100;
     const topW = Math.round(canvas.width  * sizePct);
-    const topH = Math.round(topW * fu.topImg.height / fu.topImg.width);
-    const topX = Math.round(fu.x * canvas.width  - topW / 2);
-    const topY = Math.round(fu.y * canvas.height - topH / 2);
+    const topH = Math.round(topW * t.img.height / t.img.width);
+    const topX = Math.round(t.x * canvas.width  - topW / 2);
+    const topY = Math.round(t.y * canvas.height - topH / 2);
 
-    // Si point verrouillé sur l'image → recalculer depuis coords relatives
-    if (fu.pointLocked && fu.gradMode === 'point') {
+    // Calque actif = activeLayer (1/2/3) → on compare avec idx+1
+    const isActive = (idx + 1) === fu.activeLayer;
+    if (isActive && fu.pointLocked && fu.gradMode === 'point') {
       fuRestorePointFromRelative(canvas);
     }
+    // Paramètres de dégradé propres à CE calque : actif → variables globales,
+    // sinon → son gradSnap mémorisé. Chaque calque conserve son dégradé.
+    let gradParams = null;
+    if (isActive) {
+      if (fu.gradMode !== 'none') gradParams = {
+        mode: fu.gradMode, px: fu.gradPx, py: fu.gradPy,
+        pxTop: fu.gradPxTop, pyTop: fu.gradPyTop
+      };
+    } else if (t.gradSnap && t.gradSnap.mode !== 'none') {
+      gradParams = t.gradSnap;
+    }
 
-    // Créer un canvas temporaire pour l'image top + masque dégradé
+    // Canvas tampon
     const tmp = document.createElement('canvas');
     tmp.width  = canvas.width;
     tmp.height = canvas.height;
     const tc = tmp.getContext('2d');
 
-    // Dessiner l'image top
     tc.save();
     tc.globalAlpha = opacity;
-    tc.drawImage(fu.topImg, topX, topY, topW, topH);
+    if (t.rotation) {
+      const cx = topX + topW / 2, cy = topY + topH / 2;
+      tc.translate(cx, cy);
+      tc.rotate(t.rotation * Math.PI / 180);
+      tc.translate(-cx, -cy);
+    }
+    tc.drawImage(t.img, topX, topY, topW, topH);
     tc.restore();
 
-    // Appliquer le masque dégradé (destination-out)
-    if (fu.gradMode !== 'none') {
+    // Applique le dégradé propre à ce calque (s'il y en a un)
+    if (gradParams) {
+      // Backup/restore des variables globales utilisées par fuMakeGradient
+      const bk = { mode: fu.gradMode, px: fu.gradPx, py: fu.gradPy, pxTop: fu.gradPxTop, pyTop: fu.gradPyTop };
+      fu.gradMode = gradParams.mode;
+      fu.gradPx = gradParams.px; fu.gradPy = gradParams.py;
+      fu.gradPxTop = gradParams.pxTop; fu.gradPyTop = gradParams.pyTop;
       const grd = fuMakeGradient(tc, canvas.width, canvas.height, topX, topY, topW, topH, gradSize);
       if (grd) {
         tc.save();
@@ -3022,15 +3943,19 @@ function fuUpdate() {
         tc.fillRect(0, 0, canvas.width, canvas.height);
         tc.restore();
       }
+      // Restore
+      fu.gradMode = bk.mode;
+      fu.gradPx = bk.px; fu.gradPy = bk.py;
+      fu.gradPxTop = bk.pxTop; fu.gradPyTop = bk.pyTop;
     }
 
     ctx.drawImage(tmp, 0, 0);
+  });
 
-    // 5. Logo DEVANT les photos (au premier plan)
-    if (fu.logoLayer === 'front') fuDrawLogo(ctx, canvas.width, canvas.height);
-  }
+  // 5. Logo devant
+  if (fu.logoLayer === 'front') fuDrawLogo(ctx, canvas.width, canvas.height);
 
-  // 6. Textes (toujours au premier plan)
+  // 6. Textes
   fuDrawTexts(ctx, canvas.width, canvas.height);
 }
 
@@ -3092,10 +4017,6 @@ function fuMakeGradient(ctx, W, H, topX, topY, topW, topH, gradSize) {
 // ── Mode drag / point ──
 function fuSetDragMode(mode) {
   fu.dragMode = mode;
-  // Indicateur de mode
-  const labels = { top: 'Mode : Image', point: 'Mode : Point', text1: 'Mode : Texte 1', text2: 'Mode : Texte 2', logo: 'Mode : Logo' };
-  const ind = document.getElementById('fu-mode-indicator');
-  if (ind) ind.textContent = labels[mode] || 'Mode : ' + mode;
   // Mise à jour des boutons via classList
   const btnTop   = document.getElementById('fu-mode-top');
   const btnPoint = document.getElementById('fu-mode-point');
@@ -3130,24 +4051,28 @@ function fuToggleLock() {
 
 // ── Coordonnées relatives à l'image top ──
 function fuStoreRelativePoint(canvasX, canvasY, canvas) {
-  // Calculer la position de l'image top sur le canvas
-  const sizePct = parseInt(document.getElementById('fu-size').value) / 100;
+  const t = fuCurTop();
+  const img = fuCurImg();
+  if (!img) return;
+  const sizePct = t.size / 100;
   const topW = canvas.width  * sizePct;
-  const topH = topW * (fu.topImg ? fu.topImg.height / fu.topImg.width : 1);
-  const topX = fu.x * canvas.width  - topW / 2;
-  const topY = fu.y * canvas.height - topH / 2;
-  // Point en coords relatives à l'image top
+  const topH = topW * img.height / img.width;
+  const topX = t.x * canvas.width  - topW / 2;
+  const topY = t.y * canvas.height - topH / 2;
   fu.gradPxTop = (canvasX * canvas.width  - topX) / topW;
   fu.gradPyTop = (canvasY * canvas.height - topY) / topH;
 }
 
 // Recalculer gradPx/gradPy depuis coords relatives (si verrouillé)
 function fuRestorePointFromRelative(canvas) {
-  const sizePct = parseInt(document.getElementById('fu-size').value) / 100;
+  const t = fuCurTop();
+  const img = fuCurImg();
+  if (!img) return;
+  const sizePct = t.size / 100;
   const topW = canvas.width  * sizePct;
-  const topH = topW * (fu.topImg ? fu.topImg.height / fu.topImg.width : 1);
-  const topX = fu.x * canvas.width  - topW / 2;
-  const topY = fu.y * canvas.height - topH / 2;
+  const topH = topW * img.height / img.width;
+  const topX = t.x * canvas.width  - topW / 2;
+  const topY = t.y * canvas.height - topH / 2;
   fu.gradPx = (topX + fu.gradPxTop * topW) / canvas.width;
   fu.gradPy = (topY + fu.gradPyTop * topH) / canvas.height;
 }
@@ -3159,6 +4084,9 @@ function fuRestorePointFromRelative(canvas) {
     canvas = document.getElementById('fu-canvas');
     if (!canvas) return;
 
+    // Initialiser le calque 1 comme actif (style des onglets)
+    if (typeof fuSetActiveLayer === 'function') fuSetActiveLayer(0);
+
     function getCanvasPos(clientX, clientY) {
       rect = canvas.getBoundingClientRect();
       return {
@@ -3168,32 +4096,112 @@ function fuRestorePointFromRelative(canvas) {
     }
 
     canvas.addEventListener('mousedown', e => {
-      if (!fu.topImg) return;
+      // ── Mode Grid 6 ID : sélection/déplacement par case ──
+      if (fu.layoutMode === 'grid6') {
+        const rectC = canvas.getBoundingClientRect();
+        const px = (e.clientX - rectC.left) * (canvas.width  / rectC.width);
+        const py = (e.clientY - rectC.top)  * (canvas.height / rectC.height);
+        const cellIdx = fuGrid6CellAt(px, py, canvas.width, canvas.height);
+        if (cellIdx < 0) return;
+        if (cellIdx !== fu.activeIdCell) fuSetActiveIdCell(cellIdx);
+        const photo = fu.idPhotos[cellIdx];
+        if (!photo.img) return;
+        fu.dragging = true;
+        rect = canvas.getBoundingClientRect();
+        fu.dragStartX = e.clientX; fu.dragStartY = e.clientY;
+        fu.imgStartX = photo.x; fu.imgStartY = photo.y;
+        canvas.style.cursor = 'grabbing';
+        return;
+      }
+
+      // ── Mode Grid 2×2 ──
+      if (fu.layoutMode === 'grid') {
+        const rectC = canvas.getBoundingClientRect();
+        const px = (e.clientX - rectC.left) * (canvas.width  / rectC.width);
+        const py = (e.clientY - rectC.top)  * (canvas.height / rectC.height);
+        const cellIdx = fuCellAt(px, py, canvas.width, canvas.height);
+        if (cellIdx < 0) return;
+        // Active la case sous le curseur
+        if (cellIdx !== fu.activeLayer) fuSetActiveLayer(cellIdx);
+        const ref = fuLayerForCell(cellIdx);
+        if (!ref.img) return;
+
+        if (fu.dragMode === 'point') {
+          if (fu.pointLocked) return;
+          // Point libre en coords relatives à la case
+          const cells = fuGridCells(canvas.width, canvas.height);
+          const cell = cells[cellIdx];
+          fu.gradPx = (px) / canvas.width;
+          fu.gradPy = (py) / canvas.height;
+          fuUpdate(); return;
+        }
+
+        fu.dragging = true;
+        rect = canvas.getBoundingClientRect();
+        fu.dragStartX = e.clientX; fu.dragStartY = e.clientY;
+        fu.imgStartX = ref.layer.x; fu.imgStartY = ref.layer.y;
+        canvas.style.cursor = 'grabbing';
+        return;
+      }
+
+      // ── Mode Fusion (comportement original) ──
+      const t = fuCurTop();
+      if (!fuCurImg()) return;
 
       if (fu.dragMode === 'point') {
-        if (fu.pointLocked) return; // point verrouillé → rien
+        if (fu.pointLocked) return;
         const pos = getCanvasPos(e.clientX, e.clientY);
         fu.gradPx = pos.x; fu.gradPy = pos.y;
-        // Stocker coords relatives à l'image top
         fuStoreRelativePoint(pos.x, pos.y, canvas);
         fuUpdate(); return;
       }
 
-      // Mode déplacer image
       fu.dragging = true;
       rect = canvas.getBoundingClientRect();
       fu.dragStartX = e.clientX; fu.dragStartY = e.clientY;
-      fu.imgStartX = fu.x; fu.imgStartY = fu.y;
+      fu.imgStartX = t.x; fu.imgStartY = t.y;
       canvas.style.cursor = 'grabbing';
     });
 
     document.addEventListener('mousemove', e => {
       if (!fu.dragging || fu.dragMode !== 'top') return;
+
+      if (fu.layoutMode === 'grid6') {
+        const photo = fu.idPhotos[fu.activeIdCell];
+        if (!photo.img) return;
+        const cells = fuGrid6Cells(canvas.width, canvas.height);
+        const cell = cells[fu.activeIdCell];
+        const rectC = canvas.getBoundingClientRect();
+        const dx = (e.clientX - fu.dragStartX) * (canvas.width  / rectC.width)  / cell.w;
+        const dy = (e.clientY - fu.dragStartY) * (canvas.height / rectC.height) / cell.h;
+        photo.x = Math.max(0, Math.min(1, fu.imgStartX + dx));
+        photo.y = Math.max(0, Math.min(1, fu.imgStartY + dy));
+        fuUpdate();
+        return;
+      }
+
+      if (fu.layoutMode === 'grid') {
+        const ref = fuLayerForCell(fu.activeLayer);
+        if (!ref.img) return;
+        const cells = fuGridCells(canvas.width, canvas.height);
+        const cell = cells[fu.activeLayer];
+        // Conversion en déplacement relatif dans la case
+        const rectC = canvas.getBoundingClientRect();
+        const dx = (e.clientX - fu.dragStartX) * (canvas.width  / rectC.width)  / cell.w;
+        const dy = (e.clientY - fu.dragStartY) * (canvas.height / rectC.height) / cell.h;
+        ref.layer.x = Math.max(0, Math.min(1, fu.imgStartX + dx));
+        ref.layer.y = Math.max(0, Math.min(1, fu.imgStartY + dy));
+        fuUpdate();
+        return;
+      }
+
+      const t = fuCurTop();
+      if (!fuCurImg()) return;
       rect = canvas.getBoundingClientRect();
       const dx = (e.clientX - fu.dragStartX) / canvas.width;
       const dy = (e.clientY - fu.dragStartY) / canvas.height;
-      fu.x = Math.max(0, Math.min(1, fu.imgStartX + dx));
-      fu.y = Math.max(0, Math.min(1, fu.imgStartY + dy));
+      t.x = Math.max(0, Math.min(1, fu.imgStartX + dx));
+      t.y = Math.max(0, Math.min(1, fu.imgStartY + dy));
       fuUpdate();
     });
 
@@ -3204,113 +4212,399 @@ function fuRestorePointFromRelative(canvas) {
 
     // Touch
     canvas.addEventListener('touchstart', e => {
-      if (!fu.topImg) return;
-      const t = e.touches[0];
+      const tch = e.touches[0];
+
+      // ── Mode Grid 2×2 ──
+      if (fu.layoutMode === 'grid') {
+        const rectC = canvas.getBoundingClientRect();
+        const px = (tch.clientX - rectC.left) * (canvas.width  / rectC.width);
+        const py = (tch.clientY - rectC.top)  * (canvas.height / rectC.height);
+        const cellIdx = fuCellAt(px, py, canvas.width, canvas.height);
+        if (cellIdx < 0) return;
+        if (cellIdx !== fu.activeLayer) fuSetActiveLayer(cellIdx);
+        const ref = fuLayerForCell(cellIdx);
+        if (!ref.img) return;
+        if (fu.dragMode === 'point') {
+          if (fu.pointLocked) return;
+          fu.gradPx = px / canvas.width;
+          fu.gradPy = py / canvas.height;
+          fuUpdate(); return;
+        }
+        fu.dragging = true;
+        rect = canvas.getBoundingClientRect();
+        fu.dragStartX = tch.clientX; fu.dragStartY = tch.clientY;
+        fu.imgStartX = ref.layer.x; fu.imgStartY = ref.layer.y;
+        return;
+      }
+
+      // ── Mode Fusion ──
+      const t = fuCurTop();
+      if (!fuCurImg()) return;
       if (fu.dragMode === 'point') {
         if (fu.pointLocked) return;
-        const pos = getCanvasPos(t.clientX, t.clientY);
+        const pos = getCanvasPos(tch.clientX, tch.clientY);
         fu.gradPx = pos.x; fu.gradPy = pos.y;
         fuUpdate(); return;
       }
       fu.dragging = true;
       rect = canvas.getBoundingClientRect();
-      fu.dragStartX = t.clientX; fu.dragStartY = t.clientY;
-      fu.imgStartX = fu.x; fu.imgStartY = fu.y;
+      fu.dragStartX = tch.clientX; fu.dragStartY = tch.clientY;
+      fu.imgStartX = t.x; fu.imgStartY = t.y;
     }, { passive: true });
 
     document.addEventListener('touchmove', e => {
       if (!fu.dragging || fu.dragMode !== 'top') return;
-      const t = e.touches[0];
+      const tch = e.touches[0];
+
+      if (fu.layoutMode === 'grid') {
+        const ref = fuLayerForCell(fu.activeLayer);
+        if (!ref.img) return;
+        const cells = fuGridCells(canvas.width, canvas.height);
+        const cell = cells[fu.activeLayer];
+        const rectC = canvas.getBoundingClientRect();
+        const dx = (tch.clientX - fu.dragStartX) * (canvas.width  / rectC.width)  / cell.w;
+        const dy = (tch.clientY - fu.dragStartY) * (canvas.height / rectC.height) / cell.h;
+        ref.layer.x = Math.max(0, Math.min(1, fu.imgStartX + dx));
+        ref.layer.y = Math.max(0, Math.min(1, fu.imgStartY + dy));
+        fuUpdate();
+        return;
+      }
+
+      const t = fuCurTop();
+      if (!fuCurImg()) return;
       rect = canvas.getBoundingClientRect();
-      const dx = (t.clientX - fu.dragStartX) / canvas.width;
-      const dy = (t.clientY - fu.dragStartY) / canvas.height;
-      fu.x = Math.max(0, Math.min(1, fu.imgStartX + dx));
-      fu.y = Math.max(0, Math.min(1, fu.imgStartY + dy));
+      const dx = (tch.clientX - fu.dragStartX) / canvas.width;
+      const dy = (tch.clientY - fu.dragStartY) / canvas.height;
+      t.x = Math.max(0, Math.min(1, fu.imgStartX + dx));
+      t.y = Math.max(0, Math.min(1, fu.imgStartY + dy));
       fuUpdate();
     }, { passive: true });
 
     document.addEventListener('touchend', () => { fu.dragging = false; });
+
+    // ── Mode Grid 6 ID : double-clic pour ouvrir un sélecteur de fichier ──
+    canvas.addEventListener('dblclick', e => {
+      if (fu.layoutMode !== 'grid6') return;
+      const rectC = canvas.getBoundingClientRect();
+      const px = (e.clientX - rectC.left) * (canvas.width  / rectC.width);
+      const py = (e.clientY - rectC.top)  * (canvas.height / rectC.height);
+      const cellIdx = fuGrid6CellAt(px, py, canvas.width, canvas.height);
+      if (cellIdx < 0) return;
+      fuSetActiveIdCell(cellIdx);
+      // Crée un input file temporaire et déclenche le sélecteur
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.jpg,.jpeg,.png,.webp';
+      input.style.display = 'none';
+      input.onchange = () => {
+        const file = input.files[0];
+        if (file) fuLoadIntoIdCell(cellIdx, file);
+        document.body.removeChild(input);
+      };
+      document.body.appendChild(input);
+      input.click();
+    });
+
+    // ── Drag-drop sur le canvas : fichier OS ou image d'une tuile ──
+    canvas.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+    });
+    canvas.addEventListener('drop', e => {
+      e.preventDefault();
+      const rectC = canvas.getBoundingClientRect();
+      const px = (e.clientX - rectC.left) * (canvas.width  / rectC.width);
+      const py = (e.clientY - rectC.top)  * (canvas.height / rectC.height);
+
+      // Récupération source (fichier OS ou tuile)
+      const file = e.dataTransfer.files && e.dataTransfer.files[0];
+      const srcLayerStr = e.dataTransfer.getData('text/plain');
+      const srcLayerIdx = srcLayerStr !== '' ? parseInt(srcLayerStr) : -1;
+      const srcImg = srcLayerIdx >= 0 ? (srcLayerIdx === 0 ? fu.bgImg : (fu.tops[srcLayerIdx - 1] && fu.tops[srcLayerIdx - 1].img)) : null;
+
+      // ── Mode Grid 6 ID : drop sur une case ID ──
+      if (fu.layoutMode === 'grid6') {
+        const cellIdx = fuGrid6CellAt(px, py, canvas.width, canvas.height);
+        if (cellIdx < 0) return;
+        if (file && file.type.startsWith('image/')) { fuLoadIntoIdCell(cellIdx, file); return; }
+        if (srcImg) { fuLoadIntoIdCell(cellIdx, srcImg); }
+        return;
+      }
+
+      // ── Mode Grid 2×2 : drop sur la case sous le curseur ──
+      if (fu.layoutMode === 'grid') {
+        const cellIdx = fuCellAt(px, py, canvas.width, canvas.height);
+        if (cellIdx < 0) return;
+        // cellIdx 0..3 → activeLayer 0..3 (même indexation)
+        if (file && file.type.startsWith('image/')) {
+          fuLoadIntoTile(cellIdx, file);
+          return;
+        }
+        if (srcLayerIdx >= 0 && srcLayerIdx !== cellIdx) {
+          fuSwapImages(srcLayerIdx, cellIdx);
+        }
+        return;
+      }
+
+      // ── Mode Fusion : drop sur le canvas → calque actif ──
+      const targetIdx = fu.activeLayer; // 0..3
+      if (file && file.type.startsWith('image/')) {
+        fuLoadIntoTile(targetIdx, file);
+        return;
+      }
+      if (srcLayerIdx >= 0 && srcLayerIdx !== targetIdx) {
+        fuSwapImages(srcLayerIdx, targetIdx);
+      }
+    });
   });
 })();
 
-// ── Export haute résolution ──
-async function fuExport() {
-  if (!fu.topImg && !fu.bgImg) return;
-  const btn = document.getElementById('btn-fusion');
-  btn.disabled = true; btn.textContent = 'Export…';
+// Les contenus initiaux des boutons d'export (pour restauration propre après clic)
+const FU_EXPORT_BTN_HTML = {
+  'png':   '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> PNG',
+  'png-c': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> PNG 70%',
+  'webp':  '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> WebP'
+};
 
-  const canvas = document.createElement('canvas');
-  const refImg = fu.bgImg || fu.topImg;
-  const W = refImg.width;
-  const H = refImg.height;
-  canvas.width  = W;
-  canvas.height = H;
-  const ctx = canvas.getContext('2d');
+// ── Export haute résolution (formatKey = 'png', 'png-c' ou 'webp') ──
+async function fuExport(formatKey) {
+  formatKey = formatKey || 'png';
+  // Détermine le format réel + échelle + extension + suggestions de fichier
+  const isWebp = formatKey === 'webp';
+  const isCompactPng = formatKey === 'png-c';
+  const mime = isWebp ? 'image/webp' : 'image/png';
+  const ext  = isWebp ? 'webp' : 'png';
+  const scale = isCompactPng ? 0.7 : 1; // PNG 70% : résolution réduite à 70%
+  const filename = isCompactPng ? 'fusion-light.png' : ('fusion.' + ext);
 
-  // 1. Couleur de fond
-  const col = document.getElementById('fu-bg-color');
-  ctx.fillStyle = col ? col.value : '#ffffff';
-  ctx.fillRect(0, 0, W, H);
-  // 2. Logo derrière (entre couleur et image de fond)
-  if (fu.logoLayer === 'behind') fuDrawLogo(ctx, W, H);
-  // 3. Image de fond par-dessus
-  if (fu.bgImg) ctx.drawImage(fu.bgImg, 0, 0);
+  const firstTop = fu.tops.find(t => t.img);
+  const hasIdPhoto = fu.idPhotos.some(p => p.img);
+  const isGrid6 = fu.layoutMode === 'grid6';
+  if (!firstTop && !fu.bgImg && !(isGrid6 && hasIdPhoto)) return;
 
-  const sizePct  = parseInt(document.getElementById('fu-size').value) / 100;
-  const opacity  = parseInt(document.getElementById('fu-opacity').value) / 100;
-  const gradSize = parseInt(document.getElementById('fu-grad-size').value) / 100;
-  const topW = Math.round(W * sizePct);
-  const topH = Math.round(topW * fu.topImg.height / fu.topImg.width);
-  const topX = Math.round(fu.x * W - topW / 2);
-  const topY = Math.round(fu.y * H - topH / 2);
+  const btnPng   = document.getElementById('btn-fusion-png');
+  const btnPngC  = document.getElementById('btn-fusion-png-c');
+  const btnWebp  = document.getElementById('btn-fusion-webp');
+  const allBtns = [btnPng, btnPngC, btnWebp].filter(Boolean);
+  const btn = isWebp ? btnWebp : (isCompactPng ? btnPngC : btnPng);
+  allBtns.forEach(b => b.disabled = true);
+  btn.innerHTML = '<span style="font-size:12px">Export…</span>';
 
-  const tmp = document.createElement('canvas');
-  tmp.width = W; tmp.height = H;
-  const tc = tmp.getContext('2d');
-  tc.save(); tc.globalAlpha = opacity;
-  tc.drawImage(fu.topImg, topX, topY, topW, topH);
-  tc.restore();
+  try {
+    const canvas = document.createElement('canvas');
+    let W, H;
 
-  if (fu.gradMode !== 'none') {
-    const grd = fuMakeGradient(tc, W, H, topX, topY, topW, topH, gradSize);
-    if (grd) {
-      tc.save();
-      tc.globalCompositeOperation = 'destination-out';
-      tc.fillStyle = grd;
-      tc.fillRect(0, 0, W, H);
-      tc.restore();
-    }
-  }
-  ctx.drawImage(tmp, 0, 0);
-  // Logo devant
-  if (fu.logoLayer === 'front') fuDrawLogo(ctx, W, H);
-  // Textes
-  fuDrawTexts(ctx, W, H);
+    // État du toggle "fond transparent"
+    const transparentEl = document.getElementById('fu-transparent-bg');
+    const transparentBg = !!(transparentEl && transparentEl.checked);
 
-  const dataUrl = canvas.toDataURL('image/png');
-  const wrap = document.getElementById('fu-result-wrap');
-  const img  = document.getElementById('fu-result-img');
-  img.src = dataUrl; img.title = 'Clic droit → Enregistrer sous: fusion.png';
-  wrap.style.display = 'block';
+    if (fu.layoutMode === 'grid') {
+      // Mode Grid 2×2 : résolution HD fixe (cellules 1280×720 + bordures 40px)
+      const cellW = 1280, cellH = 720;
+      const border = 40;
+      W = cellW * 2 + border * 3;
+      H = cellH * 2 + border * 3;
+      canvas.width = W; canvas.height = H;
+      const ctxG = canvas.getContext('2d');
+      fuRenderGrid(ctxG, W, H, true, transparentBg);
+      if (fu.logoLayer === 'front' || fu.logoLayer === 'behind') fuDrawLogo(ctxG, W, H);
+      fuDrawTexts(ctxG, W, H);
+    } else if (fu.layoutMode === 'grid6') {
+      // Mode Grid 6 ID : planche 10×15 cm à 300 DPI → 1181×1772 px
+      W = 1181;
+      H = 1772;
+      canvas.width = W; canvas.height = H;
+      const ctxG = canvas.getContext('2d');
+      fuRenderGrid6ID(ctxG, W, H, true, transparentBg);
+    } else {
+      const refImg = fu.bgImg || firstTop.img;
+      W = refImg.width;
+      H = refImg.height;
+      canvas.width  = W;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d');
 
-  // Réactiver le bouton immédiatement
-  btn.disabled = false;
-  btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Exporter la fusion';
+      // 1. Couleur de fond (sauf si fond transparent)
+      if (!transparentBg) {
+        const col = document.getElementById('fu-bg-color');
+        ctx.fillStyle = col ? col.value : '#ffffff';
+        ctx.fillRect(0, 0, W, H);
+      }
+      // 2. Logo derrière
+      if (fu.logoLayer === 'behind') fuDrawLogo(ctx, W, H);
+      // 3. Image de fond — traitée comme un calque
+      if (fu.bgImg && fu.bg.visible) {
+        const sz = fu.bg.size / 100;
+        const op = fu.bg.opacity / 100;
+        const bw = Math.round(W * sz);
+        const bh = Math.round(bw * fu.bgImg.height / fu.bgImg.width);
+        const bx = Math.round(fu.bg.x * W - bw / 2);
+        const by = Math.round(fu.bg.y * H - bh / 2);
+        ctx.save();
+        ctx.globalAlpha = op;
+        if (fu.bg.rotation) {
+          const cx = bx + bw / 2, cy = by + bh / 2;
+          ctx.translate(cx, cy);
+          ctx.rotate(fu.bg.rotation * Math.PI / 180);
+          ctx.translate(-cx, -cy);
+        }
+        ctx.drawImage(fu.bgImg, bx, by, bw, bh);
+        ctx.restore();
+      }
 
-  // Lancer showSaveFilePicker en arrière-plan (si disponible)
-  if (window.showSaveFilePicker) {
-    try {
-      const b64 = dataUrl.split(',')[1];
-      const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-      const blob = new Blob([bytes], { type: 'image/png' });
-      const handle = await window.showSaveFilePicker({
-        suggestedName: 'fusion.png',
-        types: [{ description: 'Image PNG', accept: { 'image/png': ['.png'] } }]
+      const gradSize = parseInt(document.getElementById('fu-grad-size').value) / 100;
+
+      // 4. Les 3 calques
+      fu.tops.forEach((t, idx) => {
+        if (!t.img || !t.visible) return;
+        const sizePct = t.size / 100;
+        const opacity = t.opacity / 100;
+        const topW = Math.round(W * sizePct);
+        const topH = Math.round(topW * t.img.height / t.img.width);
+        const topX = Math.round(t.x * W - topW / 2);
+        const topY = Math.round(t.y * H - topH / 2);
+
+        const tmp = document.createElement('canvas');
+        tmp.width = W; tmp.height = H;
+        const tc = tmp.getContext('2d');
+
+        tc.save();
+        tc.globalAlpha = opacity;
+        if (t.rotation) {
+          const cx = topX + topW / 2, cy = topY + topH / 2;
+          tc.translate(cx, cy);
+          tc.rotate(t.rotation * Math.PI / 180);
+          tc.translate(-cx, -cy);
+        }
+        tc.drawImage(t.img, topX, topY, topW, topH);
+        tc.restore();
+
+        const isActive = (idx + 1) === fu.activeLayer;
+        let gradParams = null;
+        if (isActive) {
+          if (fu.gradMode !== 'none') gradParams = {
+            mode: fu.gradMode, px: fu.gradPx, py: fu.gradPy,
+            pxTop: fu.gradPxTop, pyTop: fu.gradPyTop
+          };
+        } else if (t.gradSnap && t.gradSnap.mode !== 'none') {
+          gradParams = t.gradSnap;
+        }
+        if (gradParams) {
+          const bk = { mode: fu.gradMode, px: fu.gradPx, py: fu.gradPy, pxTop: fu.gradPxTop, pyTop: fu.gradPyTop };
+          fu.gradMode = gradParams.mode;
+          fu.gradPx = gradParams.px; fu.gradPy = gradParams.py;
+          fu.gradPxTop = gradParams.pxTop; fu.gradPyTop = gradParams.pyTop;
+          const grd = fuMakeGradient(tc, W, H, topX, topY, topW, topH, gradSize);
+          if (grd) {
+            tc.save();
+            tc.globalCompositeOperation = 'destination-out';
+            tc.fillStyle = grd;
+            tc.fillRect(0, 0, W, H);
+            tc.restore();
+          }
+          fu.gradMode = bk.mode;
+          fu.gradPx = bk.px; fu.gradPy = bk.py;
+          fu.gradPxTop = bk.pxTop; fu.gradPyTop = bk.pyTop;
+        }
+        ctx.drawImage(tmp, 0, 0);
       });
-      const writable = await handle.createWritable();
-      await writable.write(blob);
-      await writable.close();
-    } catch(e) { /* AbortError ou non supporté — miniature déjà disponible */ }
+
+      // 5. Logo devant
+      if (fu.logoLayer === 'front') fuDrawLogo(ctx, W, H);
+      // 6. Textes
+      fuDrawTexts(ctx, W, H);
+    }
+
+    // Redimensionnement éventuel (PNG 70%) : downscale en haute qualité avant export
+    let outCanvas = canvas;
+    if (scale !== 1) {
+      const sw = Math.max(1, Math.round(canvas.width  * scale));
+      const sh = Math.max(1, Math.round(canvas.height * scale));
+      outCanvas = document.createElement('canvas');
+      outCanvas.width = sw; outCanvas.height = sh;
+      const sctx = outCanvas.getContext('2d');
+      sctx.imageSmoothingEnabled = true;
+      sctx.imageSmoothingQuality = 'high';
+      sctx.drawImage(canvas, 0, 0, sw, sh);
+    }
+
+    // Génère le blob (qualité 0.92 pour WebP, ignorée par PNG)
+    const blob = await new Promise((resolve, reject) => {
+      outCanvas.toBlob(b => b ? resolve(b) : reject(new Error('toBlob a échoué')), mime, 0.92);
+    });
+
+    // Convertit le blob en dataURL (compatible CSP : certains environnements
+    // sandboxés comme Claude.ai bloquent les blob: URLs via une CSP stricte
+    // "img-src ... blob: data:". Les dataURL data: sont toujours acceptées).
+    const dataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(blob);
+    });
+
+    // Aperçu dans la page (via dataURL)
+    const wrap = document.getElementById('fu-result-wrap');
+    const img  = document.getElementById('fu-result-img');
+    img.src = dataUrl;
+    img.removeAttribute('title');
+    img.alt = filename;
+    // Met à jour le libellé pour indiquer le format exporté
+    const lbl = document.getElementById('fu-result-label');
+    if (lbl) lbl.textContent = '✓ ' + filename + ' téléchargé';
+    wrap.style.display = 'block';
+
+    // Détection iframe cross-origin (showSaveFilePicker y est interdit)
+    let inCrossOriginFrame = false;
+    try {
+      if (window.self !== window.top) {
+        try { void window.top.location.href; }
+        catch (_) { inCrossOriginFrame = true; }
+      }
+    } catch (_) { inCrossOriginFrame = true; }
+
+    // 1) Tentative showSaveFilePicker (Chrome/Edge récents, hors iframe cross-origin)
+    let saved = false;
+    if (window.showSaveFilePicker && !inCrossOriginFrame) {
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: filename,
+          types: [{ description: formatKey.toUpperCase(), accept: { [mime]: ['.' + ext] } }]
+        });
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+        saved = true;
+      } catch(err) {
+        if (err && err.name !== 'AbortError' && err.name !== 'SecurityError') {
+          console.warn('showSaveFilePicker indisponible, fallback :', err.name);
+        }
+      }
+    }
+    // 2) Fallback universel : <a download> avec dataURL (CSP-compatible)
+    if (!saved) {
+      try {
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = filename;
+        a.rel = 'noopener';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } catch(e) {
+        // 3) Dernier recours : ouvrir dans un nouvel onglet
+        console.warn('Téléchargement automatique bloqué, ouverture dans un onglet :', e);
+        window.open(dataUrl, '_blank');
+        if (lbl) lbl.textContent = 'Téléchargement bloqué — clic droit sur l\u2019aperçu pour enregistrer';
+      }
+    }
+  } catch(e) {
+    console.error('Export fusion :', e);
+    alert('L\u2019export a échoué : ' + (e && e.message ? e.message : e));
+  } finally {
+    // Restaure le contenu initial du bouton à partir d'un HTML statique connu (anti-charabia)
+    btn.innerHTML = FU_EXPORT_BTN_HTML[formatKey];
+    allBtns.forEach(b => b.disabled = false);
   }
 }
 
