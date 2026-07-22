@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AKELI Convert</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%230d2354'/%3E%3Crect%20x='10'%20y='16'%20width='3.5'%20height='32'%20rx='1.75'%20fill='%234a8fd4'/%3E%3Ctext%20x='36'%20y='44'%20font-family='Syne,Arial,sans-serif'%20font-weight='800'%20font-size='30'%20text-anchor='middle'%20letter-spacing='-1'%3E%3Ctspan%20fill='%23ffffff'%3EA%3C/tspan%3E%3Ctspan%20fill='%234a8fd4'%3EK%3C/tspan%3E%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%230d2354'/%3E%3Crect%20x='10'%20y='16'%20width='3.5'%20height='32'%20rx='1.75'%20fill='%234a8fd4'/%3E%3Ctext%20x='36'%20y='44'%20font-family='Syne,Arial,sans-serif'%20font-weight='800'%20font-size='30'%20text-anchor='middle'%20letter-spacing='-1'%3E%3Ctspan%20fill='%23ffffff'%3EA%3C/tspan%3E%3Ctspan%20fill='%234a8fd4'%3EK%3C/tspan%3E%3C/text%3E%3C/svg%3E">
+<meta name="theme-color" content="#0d2354">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -974,6 +977,11 @@
       </div>
     </div>
 
+    <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);cursor:pointer;margin-top:4px;margin-bottom:14px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;width:fit-content;max-width:100%">
+      <input type="checkbox" id="img-transparent-bg" style="accent-color:var(--accent1)">
+      Conserver le fond transparent (WebP / PNG)
+    </label>
+
     <div class="file-list" id="list-images"></div>
     <div class="progress-bar-wrap" id="prog-images"><div class="progress-bar" id="pb-images"></div></div>
 
@@ -1906,7 +1914,8 @@ async function downloadZip() {
   const promises = outputs.images.map((blob, i) => {
     if (!blob) return Promise.resolve();
     const orig = state.images[i];
-    const filename = (orig ? orig.name.replace(/\.[^.]+$/, '') : 'image_' + i) + '.webp';
+    const ext = blob.type === 'image/png' ? 'png' : blob.type === 'image/jpeg' ? 'jpg' : blob.type === 'image/webp' ? 'webp' : (blob._newName ? blob._newName.replace(/^.*\./, '') : 'webp');
+    const filename = (orig ? orig.name.replace(/\.[^.]+$/, '') : 'image_' + i) + '.' + ext;
     return blob.arrayBuffer().then(buf => zip.file(filename, buf));
   });
 
@@ -2007,6 +2016,7 @@ async function convertImages() {
   if (!btn) return;
   btn.disabled = true;
   const quality = parseInt(document.getElementById('img-quality').value) / 100;
+  const keepTransparent = !!document.getElementById('img-transparent-bg')?.checked;
   const files = state.images;
 
   let totalOrig = 0, totalFinal = 0;
@@ -2018,14 +2028,16 @@ async function convertImages() {
     setProgress('images', Math.round((i / files.length) * 90));
 
     try {
-      const blob = await imageToWebP(file, quality);
+      const blob = await imageToWebP(file, quality, keepTransparent);
       outputs.images[i] = blob;
       totalOrig += file.size;
       totalFinal += blob.size;
       const gain = ((1 - blob.size / file.size) * 100).toFixed(1);
-      setStatus('images', i, 'status-done', `✓ WebP (-${gain}%)`);
-      setMeta('images', i, `${formatSize(file.size)} → ${formatSize(blob.size)}`);
-      const name = file.name.replace(/\.[^.]+$/, '') + '.webp';
+      const ext = blob.type === 'image/png' ? 'png' : blob.type === 'image/jpeg' ? 'jpg' : 'webp';
+      const fmtLabel = ext === 'webp' ? 'WebP' : ext.toUpperCase();
+      setStatus('images', i, 'status-done', `✓ ${fmtLabel} (-${gain}%)`);
+      setMeta('images', i, `${formatSize(file.size)} → ${formatSize(blob.size)}${keepTransparent && ext !== 'jpg' ? ' · transparence conservée' : ''}`);
+      const name = file.name.replace(/\.[^.]+$/, '') + '.' + ext;
       addDownloadBtn('images', i, blob, name);
     } catch(e) {
       setStatus('images', i, 'status-error', 'Erreur');
@@ -2046,7 +2058,7 @@ async function convertImages() {
   }
 }
 
-function imageToWebP(file, quality) {
+function imageToWebP(file, quality, keepTransparent) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -2056,15 +2068,22 @@ function imageToWebP(file, quality) {
         canvas.width = img.naturalWidth;
         canvas.height = img.naturalHeight;
         const ctx = canvas.getContext('2d');
-        // Fond blanc pour éviter les artefacts transparents
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // Fond blanc pour éviter les artefacts transparents,
+        // sauf si l'utilisateur demande de conserver la transparence (WebP supporte l'alpha).
+        if (!keepTransparent) {
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
         ctx.drawImage(img, 0, 0);
 
         // Vérifier le support WebP en écriture
         const testWebP = canvas.toDataURL('image/webp', 0.5);
         if (!testWebP.startsWith('data:image/webp')) {
-          // Navigateur ne supporte pas WebP → fallback JPEG
+          // Navigateur ne supporte pas WebP → fallback
+          if (keepTransparent) {
+            // JPEG ne gère pas l'alpha → on garde le PNG pour préserver la transparence
+            return resolve(dataURLtoBlob(canvas.toDataURL('image/png')));
+          }
           return resolve(dataURLtoBlob(canvas.toDataURL('image/jpeg', quality)));
         }
 
@@ -2088,6 +2107,7 @@ async function compressImages() {
   btn.disabled = true;
   if (btnWebp) btnWebp.disabled = true;
   const quality = parseInt(document.getElementById('img-quality').value) / 100;
+  const keepTransparent = !!document.getElementById('img-transparent-bg')?.checked;
   const files = state.images;
 
   let totalOrig = 0, totalFinal = 0;
@@ -2099,7 +2119,7 @@ async function compressImages() {
     setProgress('images', Math.round((i / files.length) * 90));
 
     try {
-      const blob = await compressImageOriginalFormat(file, quality);
+      const blob = await compressImageOriginalFormat(file, quality, keepTransparent);
       outputs.images[i] = blob;
       totalOrig += file.size;
       totalFinal += blob.size;
@@ -2132,7 +2152,7 @@ async function compressImages() {
   }
 }
 
-function compressImageOriginalFormat(file, quality) {
+function compressImageOriginalFormat(file, quality, keepTransparent) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -2166,9 +2186,9 @@ function compressImageOriginalFormat(file, quality) {
             if (pixels[i] < 255) { hasAlpha = true; break; }
           }
 
-          if (hasAlpha) {
-            // PNG avec transparence : on garde PNG mais on réduit les dimensions
-            // Canvas PNG ne supporte pas la qualité — seul le redimensionnement aide
+          if (hasAlpha || keepTransparent) {
+            // PNG avec transparence (ou conservation demandée) : on garde le PNG.
+            // Canvas PNG ne supporte pas la qualité — seul le redimensionnement aide.
             const dataUrl = canvas.toDataURL('image/png');
             const blob = dataURLtoBlob(dataUrl);
             // Si pas de gain, on essaie quand même
